@@ -1,0 +1,32 @@
+# AFROLOC - Robots.txt
+# https://afroloc.app
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://afroloc.app/sitemap.xml
+
+# Disallow admin and protected routes
+Disallow: /admin/
+Disallow: /profile/
+Disallow: /identity/
+Disallow: /identities/
+Disallow: /dashboard
+Disallow: /my-addresses
+Disallow: /validators
+Disallow: /validations-dashboard
+Disallow: /regional-validation
+Disallow: /confirm-witness/

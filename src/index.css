@@ -1,0 +1,489 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* AFROLOC Light Theme - Warm cream with Gold/Amber accents */
+    --background: 40 30% 96%;
+    --foreground: 30 25% 15%;
+
+    --card: 40 25% 98%;
+    --card-foreground: 30 25% 15%;
+
+    --popover: 40 25% 99%;
+    --popover-foreground: 30 25% 15%;
+
+    /* Gold/Amber as primary */
+    --primary: 38 85% 45%;
+    --primary-foreground: 40 30% 98%;
+    --primary-glow: 38 90% 55%;
+
+    /* Warm beige as secondary */
+    --secondary: 35 25% 90%;
+    --secondary-foreground: 30 25% 20%;
+
+    --muted: 35 20% 92%;
+    --muted-foreground: 30 15% 45%;
+
+    /* Orange as accent */
+    --accent: 25 80% 50%;
+    --accent-foreground: 40 30% 98%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 40 30% 98%;
+
+    --border: 35 20% 88%;
+    --input: 35 20% 88%;
+    --ring: 38 85% 45%;
+
+    --radius: 0.5rem;
+    
+    /* Chart colors */
+    --chart-1: 38 85% 45%;
+    --chart-2: 142 60% 40%;
+    --chart-3: 25 80% 50%;
+    --chart-4: 197 55% 45%;
+    --chart-5: 280 55% 55%;
+    
+    /* Warning color */
+    --warning: 38 90% 45%;
+
+    /* Brown tones */
+    --brown: 25 35% 30%;
+    --brown-foreground: 40 30% 96%;
+
+    /* Sand/gold tones */
+    --sand: 40 45% 75%;
+    --sand-foreground: 30 25% 15%;
+
+    /* Gradients with gold/amber tones */
+    --gradient-primary: linear-gradient(135deg, hsl(38 85% 45%), hsl(25 80% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(35 25% 92%), hsl(40 25% 95%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 80% 50%), hsl(38 85% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(40 30% 98%) 0%, hsl(35 25% 95%) 50%, hsl(38 85% 45% / 0.08) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(38 85% 45%), hsl(25 80% 50%));
+    --gradient-radial: radial-gradient(circle at top right, hsl(38 85% 45% / 0.12), transparent 60%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(38 85% 45% / 0.1) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(25 80% 50% / 0.08) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(38 90% 55% / 0.06) 0px, transparent 50%);
+    --gradient-glass: linear-gradient(135deg, 
+                      hsl(40 30% 98% / 0.9), 
+                      hsl(40 30% 96% / 0.7));
+
+    /* Shadows for light mode */
+    --shadow-elegant: 0 8px 30px -8px hsl(30 25% 15% / 0.12);
+    --shadow-glow: 0 0 30px hsl(38 85% 45% / 0.15);
+    --shadow-soft: 0 4px 16px -4px hsl(30 25% 15% / 0.08);
+    --shadow-accent: 0 6px 24px -6px hsl(25 80% 50% / 0.2);
+    --shadow-lg: 0 20px 40px -12px hsl(30 25% 15% / 0.15);
+    --shadow-xl: 0 25px 50px -12px hsl(38 85% 45% / 0.2);
+    --shadow-inner: inset 0 2px 4px 0 hsl(30 25% 15% / 0.05);
+    --shadow-premium: 0 30px 60px -15px hsl(38 85% 45% / 0.2), 
+                      0 0 0 1px hsl(38 85% 45% / 0.08);
+
+    --sidebar-background: 40 25% 98%;
+    --sidebar-foreground: 30 25% 15%;
+    --sidebar-primary: 38 85% 45%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 35 25% 92%;
+    --sidebar-accent-foreground: 30 25% 20%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 38 85% 45%;
+  }
+
+  .dark {
+    /* AFROLOC Dark Theme - Dark with Gold/Amber accents */
+    --background: 30 15% 6%;
+    --foreground: 40 30% 94%;
+
+    --card: 30 15% 8%;
+    --card-foreground: 40 30% 94%;
+
+    --popover: 30 15% 10%;
+    --popover-foreground: 40 30% 94%;
+
+    /* Gold/Amber as primary */
+    --primary: 38 90% 50%;
+    --primary-foreground: 30 15% 6%;
+    --primary-glow: 38 90% 60%;
+
+    /* Dark brown as secondary */
+    --secondary: 30 20% 15%;
+    --secondary-foreground: 40 30% 94%;
+
+    --muted: 30 15% 12%;
+    --muted-foreground: 40 20% 60%;
+
+    /* Orange as accent */
+    --accent: 25 85% 55%;
+    --accent-foreground: 30 15% 6%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 40 30% 94%;
+
+    --border: 30 15% 18%;
+    --input: 30 15% 18%;
+    --ring: 38 90% 50%;
+    
+    /* Chart colors */
+    --chart-1: 38 90% 55%;
+    --chart-2: 142 69% 58%;
+    --chart-3: 25 85% 60%;
+    --chart-4: 197 60% 55%;
+    --chart-5: 280 65% 65%;
+    
+    /* Warning color */
+    --warning: 38 92% 55%;
+
+    /* Brown tones */
+    --brown: 25 30% 22%;
+    --brown-foreground: 40 30% 94%;
+
+    /* Sand/gold tones */
+    --sand: 40 50% 65%;
+    --sand-foreground: 30 15% 6%;
+
+    /* Gradients with gold/amber tones */
+    --gradient-primary: linear-gradient(135deg, hsl(38 90% 50%), hsl(25 85% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(30 20% 12%), hsl(30 15% 18%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 85% 55%), hsl(38 90% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(30 15% 3%) 0%, hsl(30 15% 8%) 50%, hsl(38 90% 50% / 0.1) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(38 90% 50%), hsl(25 85% 55%));
+    --gradient-radial: radial-gradient(circle at top right, hsl(38 90% 50% / 0.2), transparent 60%);
+    --gradient-mesh: radial-gradient(at 40% 20%, hsl(38 90% 50% / 0.2) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(25 85% 55% / 0.15) 0px, transparent 50%),
+                     radial-gradient(at 0% 50%, hsl(38 90% 60% / 0.1) 0px, transparent 50%);
+    --gradient-glass: linear-gradient(135deg, 
+                      hsl(30 15% 6% / 0.9), 
+                      hsl(30 15% 8% / 0.7));
+
+    /* Shadows for dark mode */
+    --shadow-elegant: 0 8px 30px -8px hsl(38 90% 50% / 0.3);
+    --shadow-glow: 0 0 40px hsl(38 90% 55% / 0.25);
+    --shadow-soft: 0 4px 16px -4px hsl(0 0% 0% / 0.5);
+    --shadow-accent: 0 6px 24px -6px hsl(25 85% 55% / 0.35);
+    --shadow-lg: 0 20px 40px -12px hsl(0 0% 0% / 0.6);
+    --shadow-xl: 0 25px 50px -12px hsl(38 90% 50% / 0.4);
+    --shadow-inner: inset 0 2px 4px 0 hsl(0 0% 0% / 0.2);
+    --shadow-premium: 0 30px 60px -15px hsl(38 90% 50% / 0.45), 
+                      0 0 0 1px hsl(38 90% 50% / 0.15);
+
+    --sidebar-background: 30 15% 8%;
+    --sidebar-foreground: 40 30% 94%;
+    --sidebar-primary: 38 90% 55%;
+    --sidebar-primary-foreground: 30 15% 6%;
+    --sidebar-accent: 30 15% 12%;
+    --sidebar-accent-foreground: 40 30% 94%;
+    --sidebar-border: 30 15% 18%;
+    --sidebar-ring: 38 90% 55%;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  @keyframes walk {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-2px) rotate(-2deg); }
+    75% { transform: translateX(2px) rotate(2deg); }
+  }
+
+  @keyframes swing-left {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-15deg); }
+  }
+
+  @keyframes swing-right {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+  }
+
+  @keyframes leg-left {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(20deg); }
+  }
+
+  @keyframes leg-right {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(-20deg); }
+  }
+
+  @keyframes wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-30deg); }
+    75% { transform: rotate(30deg); }
+  }
+
+  @keyframes celebrate-left {
+    0%, 100% { transform: rotate(-20deg); }
+    50% { transform: rotate(-40deg); }
+  }
+
+  @keyframes celebrate-right {
+    0%, 100% { transform: rotate(20deg); }
+    50% { transform: rotate(40deg); }
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 2s ease-in-out infinite;
+  }
+
+  .animate-walk {
+    animation: walk 1s ease-in-out infinite;
+  }
+
+  .animate-swing-left {
+    animation: swing-left 1s ease-in-out infinite;
+    transform-origin: top center;
+  }
+
+  .animate-swing-right {
+    animation: swing-right 1s ease-in-out infinite;
+    transform-origin: top center;
+  }
+
+  .animate-leg-left {
+    animation: leg-left 1s ease-in-out infinite;
+    transform-origin: top center;
+  }
+
+  .animate-leg-right {
+    animation: leg-right 1s ease-in-out infinite;
+    transform-origin: top center;
+  }
+
+  .animate-wave {
+    animation: wave 0.6s ease-in-out infinite;
+    transform-origin: top center;
+  }
+
+  .animate-celebrate-left {
+    animation: celebrate-left 0.5s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+
+  .animate-celebrate-right {
+    animation: celebrate-right 0.5s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+
+  /* Smooth transitions */
+  .transition-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hover scale animation */
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  /* Fade animations utility classes */
+  .fade-in-fast {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .fade-out-fast {
+    animation: fade-out 0.2s ease-out;
+  }
+
+  /* Staggered animation support */
+  @keyframes card-enter {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .card-stagger {
+    animation: card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  /* Glass morphism */
+  .glass {
+    @apply backdrop-blur-xl bg-background/60 border border-border/30;
+  }
+
+  .glass-strong {
+    @apply backdrop-blur-2xl bg-background/80 border border-border/40;
+  }
+
+  /* Shimmer effect */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary) / 0.1),
+      transparent
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  /* Floating animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Slide in from left */
+  @keyframes slide-in-left {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-left 0.5s ease-out;
+  }
+
+  /* Pulse glow */
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(var(--primary) / 0.6);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Map location marker pulse animation */
+  @keyframes marker-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.25);
+      opacity: 0.75;
+    }
+  }
+
+  @keyframes marker-ring-pulse {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(3);
+      opacity: 0;
+    }
+  }
+
+  /* IMPORTANT: Mapbox positions markers via CSS transform on the outer element.
+     Therefore, we animate the INNER element only (so we don't override Mapbox transforms). */
+  .map-marker-wrapper {
+    position: relative;
+    width: 30px;
+    height: 30px;
+  }
+
+  .map-marker-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: hsl(var(--primary));
+    animation: marker-pulse 1.2s ease-in-out infinite;
+    box-shadow: 0 0 22px hsl(var(--primary) / 0.6);
+  }
+
+  .map-marker-pulse::before,
+  .map-marker-pulse::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 9999px;
+    border: 3px solid hsl(var(--primary));
+    animation: marker-ring-pulse 1.5s ease-out infinite;
+  }
+
+  .map-marker-pulse::after {
+    animation-delay: 0.5s;
+  }
+
+  .map-marker-inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 9999px;
+    background: hsl(var(--background));
+  }
+
+  /* Gradient background pattern */
+  .bg-grid-pattern {
+    background-image: linear-gradient(hsl(var(--border)) 1px, transparent 1px),
+                      linear-gradient(90deg, hsl(var(--border)) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  .bg-dots-pattern {
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}

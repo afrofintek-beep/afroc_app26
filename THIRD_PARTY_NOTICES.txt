@@ -1,0 +1,409 @@
+================================================================================
+AFROLOC - THIRD-PARTY SOFTWARE NOTICES
+================================================================================
+
+This document contains licensing information and notices for third-party
+software components used in the AFROLOC application.
+
+Generated: 2026-01-14
+Project: AFROLOC - African Digital Address Identification System
+Version: 1.0.0
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. Frontend Runtime Dependencies
+2. Backend/Edge Function Dependencies
+3. UI Component Libraries
+4. Build Tools and Development Dependencies
+5. External Services and APIs
+
+================================================================================
+1. FRONTEND RUNTIME DEPENDENCIES
+================================================================================
+
+React
+-----
+Copyright (c) Meta Platforms, Inc. and affiliates.
+License: MIT
+https://github.com/facebook/react/blob/main/LICENSE
+
+React DOM
+---------
+Copyright (c) Meta Platforms, Inc. and affiliates.
+License: MIT
+https://github.com/facebook/react/blob/main/LICENSE
+
+React Router DOM
+----------------
+Copyright (c) Remix Software Inc.
+License: MIT
+https://github.com/remix-run/react-router/blob/main/LICENSE.md
+
+@tanstack/react-query
+---------------------
+Copyright (c) 2021-present Tanner Linsley
+License: MIT
+https://github.com/TanStack/query/blob/main/LICENSE
+
+Zod
+---
+Copyright (c) 2020 Colin McDonnell
+License: MIT
+https://github.com/colinhacks/zod/blob/master/LICENSE
+
+Date-fns
+--------
+Copyright (c) 2021 Sasha Koss and Lesha Koss
+License: MIT
+https://github.com/date-fns/date-fns/blob/main/LICENSE.md
+
+Recharts
+--------
+Copyright (c) 2015-present recharts
+License: MIT
+https://github.com/recharts/recharts/blob/master/LICENSE
+
+Lucide React
+------------
+Copyright (c) 2020 Lucide Contributors
+License: ISC
+https://github.com/lucide-icons/lucide/blob/main/LICENSE
+
+QRCode
+------
+Copyright (c) 2012 Ryan Day
+License: MIT
+https://github.com/soldair/node-qrcode/blob/master/LICENSE
+
+jsPDF
+-----
+Copyright (c) 2010-2021 James Hall, yWorks GmbH
+License: MIT
+https://github.com/parallax/jsPDF/blob/master/LICENSE
+
+xlsx (SheetJS)
+--------------
+Copyright (c) 2012-present SheetJS LLC
+License: Apache 2.0
+https://github.com/SheetJS/sheetjs/blob/master/LICENSE
+
+PapaParse
+---------
+Copyright (c) 2015 Matthew Holt
+License: MIT
+https://github.com/mholt/PapaParse/blob/master/LICENSE
+
+exifr
+-----
+Copyright (c) 2019 Mike Kovařík
+License: MIT
+https://github.com/MikeKovarik/exifr/blob/master/LICENSE
+
+idb
+---
+Copyright (c) 2016, Jake Archibald
+License: ISC
+https://github.com/jakearchibald/idb/blob/main/LICENSE
+
+Sonner
+------
+Copyright (c) 2023 Emil Kowalski
+License: MIT
+https://github.com/emilkowalski/sonner/blob/main/LICENSE
+
+vaul
+----
+Copyright (c) 2023 Emil Kowalski
+License: MIT
+https://github.com/emilkowalski/vaul/blob/main/LICENSE
+
+input-otp
+---------
+Copyright (c) 2024 Guilherme Rodz
+License: MIT
+https://github.com/guilhermerodz/input-otp/blob/master/LICENSE
+
+Embla Carousel
+--------------
+Copyright (c) 2019-present David Jerleke
+License: MIT
+https://github.com/davidjerleke/embla-carousel/blob/master/LICENSE
+
+React Day Picker
+----------------
+Copyright (c) 2014-present Giampaolo Bellavite
+License: MIT
+https://github.com/gpbl/react-day-picker/blob/master/LICENSE
+
+React Resizable Panels
+----------------------
+Copyright (c) 2022 Brian Vaughn
+License: MIT
+https://github.com/bvaughn/react-resizable-panels/blob/main/LICENSE.md
+
+next-themes
+-----------
+Copyright (c) 2021 Paco Coursey
+License: MIT
+https://github.com/pacocoursey/next-themes/blob/main/LICENSE
+
+cmdk
+----
+Copyright (c) 2022 Paco Coursey
+License: MIT
+https://github.com/pacocoursey/cmdk/blob/main/LICENSE
+
+================================================================================
+2. BACKEND/EDGE FUNCTION DEPENDENCIES
+================================================================================
+
+Supabase JavaScript Client
+--------------------------
+Copyright (c) 2020 Supabase
+License: MIT
+https://github.com/supabase/supabase-js/blob/master/LICENSE
+
+Deno Standard Library
+---------------------
+Copyright 2018-2024 the Deno authors
+License: MIT
+https://github.com/denoland/deno_std/blob/main/LICENSE
+
+================================================================================
+3. UI COMPONENT LIBRARIES
+================================================================================
+
+shadcn/ui
+---------
+Copyright (c) 2023 shadcn
+License: MIT
+https://github.com/shadcn-ui/ui/blob/main/LICENSE.md
+
+Note: shadcn/ui components are designed to be copied into your project.
+The following components are derived from shadcn/ui:
+- src/components/ui/accordion.tsx
+- src/components/ui/alert-dialog.tsx
+- src/components/ui/alert.tsx
+- src/components/ui/avatar.tsx
+- src/components/ui/badge.tsx
+- src/components/ui/button.tsx
+- src/components/ui/calendar.tsx
+- src/components/ui/card.tsx
+- src/components/ui/checkbox.tsx
+- src/components/ui/dialog.tsx
+- src/components/ui/dropdown-menu.tsx
+- src/components/ui/form.tsx
+- src/components/ui/input.tsx
+- src/components/ui/label.tsx
+- src/components/ui/popover.tsx
+- src/components/ui/progress.tsx
+- src/components/ui/select.tsx
+- src/components/ui/separator.tsx
+- src/components/ui/sheet.tsx
+- src/components/ui/sidebar.tsx
+- src/components/ui/skeleton.tsx
+- src/components/ui/switch.tsx
+- src/components/ui/table.tsx
+- src/components/ui/tabs.tsx
+- src/components/ui/textarea.tsx
+- src/components/ui/toast.tsx
+- src/components/ui/tooltip.tsx
+
+Radix UI Primitives
+-------------------
+Copyright (c) 2022 Radix
+License: MIT
+https://github.com/radix-ui/primitives/blob/main/LICENSE
+
+Includes the following packages:
+- @radix-ui/react-accordion
+- @radix-ui/react-alert-dialog
+- @radix-ui/react-aspect-ratio
+- @radix-ui/react-avatar
+- @radix-ui/react-checkbox
+- @radix-ui/react-collapsible
+- @radix-ui/react-context-menu
+- @radix-ui/react-dialog
+- @radix-ui/react-dropdown-menu
+- @radix-ui/react-hover-card
+- @radix-ui/react-label
+- @radix-ui/react-menubar
+- @radix-ui/react-navigation-menu
+- @radix-ui/react-popover
+- @radix-ui/react-progress
+- @radix-ui/react-radio-group
+- @radix-ui/react-scroll-area
+- @radix-ui/react-select
+- @radix-ui/react-separator
+- @radix-ui/react-slider
+- @radix-ui/react-slot
+- @radix-ui/react-switch
+- @radix-ui/react-tabs
+- @radix-ui/react-toast
+- @radix-ui/react-toggle
+- @radix-ui/react-toggle-group
+- @radix-ui/react-tooltip
+
+React Hook Form
+---------------
+Copyright (c) 2019-present Bill Luo
+License: MIT
+https://github.com/react-hook-form/react-hook-form/blob/master/LICENSE
+
+@hookform/resolvers
+-------------------
+Copyright (c) 2019-present Bill Luo
+License: MIT
+https://github.com/react-hook-form/resolvers/blob/master/LICENSE
+
+================================================================================
+4. BUILD TOOLS AND DEVELOPMENT DEPENDENCIES
+================================================================================
+
+Vite
+----
+Copyright (c) 2019-present Evan You & Vite Contributors
+License: MIT
+https://github.com/vitejs/vite/blob/main/LICENSE
+
+vite-plugin-pwa
+---------------
+Copyright (c) 2021-PRESENT Anthony Fu
+License: MIT
+https://github.com/vite-pwa/vite-plugin-pwa/blob/main/LICENSE
+
+TypeScript
+----------
+Copyright (c) Microsoft Corporation
+License: Apache 2.0
+https://github.com/microsoft/TypeScript/blob/main/LICENSE.txt
+
+ESLint
+------
+Copyright OpenJS Foundation and contributors
+License: MIT
+https://github.com/eslint/eslint/blob/main/LICENSE
+
+Tailwind CSS
+------------
+Copyright (c) Tailwind Labs, Inc.
+License: MIT
+https://github.com/tailwindlabs/tailwindcss/blob/master/LICENSE
+
+tailwindcss-animate
+-------------------
+Copyright (c) 2022 Jamie Kyle
+License: MIT
+https://github.com/jamiebuilds/tailwindcss-animate/blob/main/LICENSE
+
+tailwind-merge
+--------------
+Copyright (c) 2021 Dany Castillo
+License: MIT
+https://github.com/dcastil/tailwind-merge/blob/main/LICENSE
+
+clsx
+----
+Copyright (c) Luke Edwards
+License: MIT
+https://github.com/lukeed/clsx/blob/master/license
+
+class-variance-authority
+------------------------
+Copyright (c) 2022 Joe Bell
+License: Apache 2.0
+https://github.com/joe-bell/cva/blob/main/LICENSE
+
+PostCSS
+-------
+Copyright (c) 2013 Andrey Sitnik
+License: MIT
+https://github.com/postcss/postcss/blob/main/LICENSE
+
+Autoprefixer
+------------
+Copyright (c) 2013 Andrey Sitnik
+License: MIT
+https://github.com/postcss/autoprefixer/blob/main/LICENSE
+
+@tailwindcss/typography
+-----------------------
+Copyright (c) Tailwind Labs, Inc.
+License: MIT
+https://github.com/tailwindlabs/tailwindcss-typography/blob/master/LICENSE
+
+================================================================================
+5. MOBILE/CAPACITOR DEPENDENCIES
+================================================================================
+
+Capacitor
+---------
+Copyright (c) 2017-present Drifty Co.
+License: MIT
+https://github.com/ionic-team/capacitor/blob/main/LICENSE
+
+Includes the following packages:
+- @capacitor/core
+- @capacitor/cli
+- @capacitor/android
+- @capacitor/ios
+- @capacitor/camera
+- @capacitor/geolocation
+- @capacitor/network
+- @capacitor/preferences
+
+capacitor-native-biometric
+--------------------------
+Copyright (c) ArturoRenteoria
+License: MIT
+https://github.com/ArturoRenteoria/capacitor-native-biometric/blob/master/LICENSE
+
+================================================================================
+6. MAPPING DEPENDENCIES
+================================================================================
+
+Mapbox GL JS
+------------
+Copyright (c) 2020 Mapbox
+License: BSD-3-Clause (open-source) / Proprietary (commercial features)
+https://github.com/mapbox/mapbox-gl-js/blob/main/LICENSE.txt
+
+Note: Mapbox GL JS requires a Mapbox access token for use. Commercial usage
+may require a paid Mapbox account. See https://www.mapbox.com/pricing/ for
+current pricing information.
+
+================================================================================
+7. EXTERNAL SERVICES
+================================================================================
+
+Supabase (Backend Service)
+--------------------------
+https://supabase.com
+Terms of Service: https://supabase.com/terms
+
+Mapbox (Mapping Service)
+------------------------
+https://www.mapbox.com
+Terms of Service: https://www.mapbox.com/legal/tos
+
+Twilio (SMS Service)
+--------------------
+https://www.twilio.com
+Terms of Service: https://www.twilio.com/legal/tos
+
+Resend (Email Service)
+----------------------
+https://resend.com
+Terms of Service: https://resend.com/legal/terms-of-service
+
+================================================================================
+END OF THIRD-PARTY NOTICES
+================================================================================
+
+This document was generated automatically. For the most up-to-date licensing
+information, please refer to the individual package repositories and their
+LICENSE files.
+
+AFROLOC is © 2024-2026 AFROLOC. All rights reserved.

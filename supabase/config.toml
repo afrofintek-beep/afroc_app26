@@ -1,0 +1,139 @@
+project_id = "rxhtdejvjgopfseysuhl"
+
+[functions.biometric-login]
+verify_jwt = false
+
+[functions.receive-afroloc-request]
+verify_jwt = false
+
+[functions.assign-afroloc-request]
+verify_jwt = true
+
+[functions.complete-afroloc-request]
+verify_jwt = true
+
+[functions.import-cell-towers]
+verify_jwt = true
+
+[functions.import-opencellid]
+verify_jwt = true
+
+[functions.verify-witness-otp]
+verify_jwt = true
+
+[functions.receive-witness-sms]
+verify_jwt = false
+
+[functions.notify-requester-validation]
+verify_jwt = true
+
+[functions.send-validation-reminder]
+verify_jwt = true
+
+[functions.notify-witness-contract-download]
+verify_jwt = true
+
+[functions.phone-login]
+verify_jwt = false
+
+[functions.cleanup-expired-otps]
+verify_jwt = false
+
+[functions.qg-engine]
+verify_jwt = false
+
+[functions.sq-engine]
+verify_jwt = false
+
+[functions.telecom-fusion]
+verify_jwt = true
+
+[functions.ats-engine]
+verify_jwt = true
+
+[functions.address-gateway]
+verify_jwt = false
+
+[functions.batch-assign-qgsq]
+verify_jwt = true
+
+[functions.validate-signup]
+verify_jwt = false
+
+[functions.send-fraud-alert-email]
+verify_jwt = true
+
+[functions.address-create]
+verify_jwt = true
+
+[functions.address-verify]
+verify_jwt = true
+
+[functions.ats-score]
+verify_jwt = true
+
+[functions.csv-export]
+verify_jwt = false
+
+[functions.kpis-summary-csv]
+verify_jwt = false
+
+[functions.kpis-timeseries-csv]
+verify_jwt = false
+
+[functions.kpis-by-province-csv]
+verify_jwt = false
+
+[functions.kpis-growth-csv]
+verify_jwt = false
+
+[functions.kpis-by-admin-csv]
+verify_jwt = false
+
+[functions.v1-docs]
+verify_jwt = false
+
+[functions.admin-users]
+verify_jwt = true
+
+[functions.audit-log]
+verify_jwt = true
+
+[functions.test-auth-rbac]
+verify_jwt = true
+
+[functions.auth]
+verify_jwt = false
+
+[functions.import-urban-zones]
+verify_jwt = true
+
+[functions.urban-zones-status]
+verify_jwt = true
+
+[functions.urban-zones-clear]
+verify_jwt = true
+
+[functions.resolve-zone]
+verify_jwt = false
+
+[functions.sync-places]
+verify_jwt = true
+
+[functions.seed-test-data]
+verify_jwt = false
+
+[functions.translate-keys]
+verify_jwt = true
+
+[functions.normalize]
+verify_jwt = false
+
+[functions.validate]
+verify_jwt = false
+
+[functions.format]
+verify_jwt = false
+
+[functions.api-v1]
+verify_jwt = false

@@ -1,0 +1,1 @@
+ALTER TABLE public.podp_cycles ADD COLUMN IF NOT EXISTS kpi jsonb NOT NULL DEFAULT '{}'::jsonb;

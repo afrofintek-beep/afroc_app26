@@ -1,0 +1,2 @@
+-- Create edge function to expose Mapbox token
+-- This allows the frontend to access the Mapbox token securely

@@ -1,0 +1,11 @@
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+
+if ("serviceWorker" in navigator && window.self === window.top) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+  });
+}
+
+createRoot(document.getElementById("root")!).render(<App />);

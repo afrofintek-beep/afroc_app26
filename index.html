@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    
+    <!-- Primary Meta Tags -->
+    <title>AFROLOC - Sistema Continental de Endereçamento Digital</title>
+    <meta name="title" content="AFROLOC - Sistema Continental de Endereçamento Digital" />
+    <meta name="description" content="Identificador digital único e verificável para cada cidadão e morada africano. Validação comunitária, georreferenciação e inclusão financeira.">
+    <meta name="keywords" content="AFROLOC, endereçamento digital, África, identidade digital, validação comunitária, georreferenciação, inclusão financeira" />
+    <meta name="author" content="AFROLOC Initiative" />
+    
+    <!-- Mobile Optimization & PWA -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="AFROLOC" />
+    <meta name="theme-color" content="#0f0d09" />
+    
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.mapbox.com https://events.mapbox.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://*.mapbox.com https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.mapbox.com https://events.mapbox.com; worker-src 'self' blob:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';" />
+    
+    <!-- iOS Splash Screens -->
+    <!-- iPhone SE, 8, 7, 6s, 6 (750x1334) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+    <!-- iPhone 8 Plus, 7 Plus, 6s Plus, 6 Plus (1242x2208) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
+    <!-- iPhone X, Xs, 11 Pro, 12 mini, 13 mini (1125x2436) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+    <!-- iPhone Xr, 11 (828x1792) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+    <!-- iPhone Xs Max, 11 Pro Max (1242x2688) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" />
+    <!-- iPhone 12, 12 Pro, 13, 13 Pro, 14 (1170x2532) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" />
+    <!-- iPhone 12 Pro Max, 13 Pro Max, 14 Plus (1284x2778) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" />
+    <!-- iPhone 14 Pro (1179x2556) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" />
+    <!-- iPhone 14 Pro Max (1290x2796) -->
+    <link rel="apple-touch-startup-image" href="/pwa-512x512.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" />
+    
+    <!-- Fonts - loaded asynchronously to avoid render blocking -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap"></noscript>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/favicon.png">
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    
+    
+    <meta property="og:image" content="/pwa-512x512.png">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    
+    
+    <meta name="twitter:image" content="/pwa-512x512.png">
+    
+    <!-- Schema.org JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "AFROLOC",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "description": "Sistema Continental de Endereçamento Digital - Identificador digital único e verificável para cada cidadão e morada africano com validação comunitária, georreferenciação e inclusão financeira.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1000"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "AFROLOC Initiative",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "/pwa-512x512.png"
+        }
+      },
+      "featureList": [
+        "Endereçamento digital único",
+        "Validação comunitária por testemunhas",
+        "Georreferenciação GPS",
+        "Verificação periódica",
+        "Inclusão financeira",
+        "Suporte offline"
+      ],
+      "availableLanguage": ["pt", "en", "fr", "ar", "am", "sw", "yo", "sn", "zu", "ln", "kg"]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AFROLOC Initiative",
+      "url": "https://afroloc.app",
+      "logo": "/pwa-512x512.png",
+      "description": "Iniciativa pan-africana de endereçamento digital para inclusão e identidade verificável.",
+      "areaServed": {
+        "@type": "Continent",
+        "name": "Africa"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": ["Portuguese", "English", "French", "Arabic", "Swahili"]
+      }
+    }
+    </script>
+
+    <!-- Splash Screen Styles -->
+    <style>
+      /* PWA Splash Screen Background */
+      html {
+        background-color: #0f0d09;
+      }
+    </style>
+    
+  
+  
+  
+  <meta property="og:title" content="AFROLOC - Sistema Continental de Endereçamento Digital">
+  <meta name="twitter:title" content="AFROLOC - Sistema Continental de Endereçamento Digital">
+  <meta property="og:description" content="Identificador digital único e verificável para cada cidadão e morada africano. Validação comunitária, georreferenciação e inclusão financeira.">
+  <meta name="twitter:description" content="Identificador digital único e verificável para cada cidadão e morada africano. Validação comunitária, georreferenciação e inclusão financeira.">
+</head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
