@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const sendOTPSchema = z.object({
   phone: z
@@ -284,88 +285,20 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send SMS via Twilio
     try {
-      const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-
-      if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-        throw new Error("Twilio credentials not configured");
-      }
-
       const smsMessage =
         `Seu código de verificação AFROLOC: ${otpCode}. Válido por 10 minutos. Não compartilhe este código.`;
 
-      const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
+      // Envio via Infobip (helper partilhado _shared/sms.ts).
+      const smsResult = await sendSms(phone, smsMessage);
 
-      const messagingServiceSid = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
-      const senderIdSupported = ["AO", "CD", "ZA", "KE", "NG", "GH", "MZ", "ZM", "ZW"];
-      const useAlphanumericSender = senderIdSupported.includes(operator.country_code);
-
-      const smsParams: Record<string, string> = {
-        To: phone,
-        Body: smsMessage,
-      };
-
-      if (messagingServiceSid) {
-        smsParams.MessagingServiceSid = messagingServiceSid;
-        console.log("Using Messaging Service", {
-          event: "using_messaging_service",
-          timestamp: new Date().toISOString(),
-        });
-      } else if (useAlphanumericSender) {
-        smsParams.From = "AFROLOC";
-        console.log("Using Alphanumeric Sender ID", {
-          event: "using_sender_id",
-          country: operator.country_code,
-          timestamp: new Date().toISOString(),
-        });
-      } else {
-        smsParams.From = twilioPhoneNumber;
-        console.log("Using phone number", {
-          event: "using_phone_number",
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      const smsResponse = await fetch(
-        `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Basic ${twilioAuth}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams(smsParams).toString(),
-        },
-      );
-
-      if (!smsResponse.ok) {
-        const errorData = await smsResponse.json();
-        console.error("SMS send failed", {
+      if (!smsResult.ok) {
+        console.error("SMS send failed (Infobip)", {
           event: "sms_send_error",
-          error: errorData,
-          sender: smsParams.From || smsParams.MessagingServiceSid,
+          error: smsResult.error,
           country: operator.country_code,
           timestamp: new Date().toISOString(),
         });
-
-        let userMessage = "Falha ao enviar SMS. ";
-        if (errorData.code === 21211) {
-          userMessage +=
-            "O número de telefone parece estar inválido. Verifique se incluiu o código do país (+244 para Angola).";
-        } else if (errorData.code === 21212) {
-          userMessage +=
-            "O número de telefone não pode receber SMS. Verifique se é um número válido de celular.";
-        } else if (errorData.code === 21608) {
-          userMessage +=
-            "O Sender ID 'AFROID' não está aprovado para este país. Entre em contato com o suporte.";
-        } else if (errorData.code === 63007) {
-          userMessage += "Número bloqueado ou inválido. Tente com outro número.";
-        } else {
-          userMessage += `Erro: ${errorData.message || "Erro desconhecido"}`;
-        }
-
-        throw new Error(userMessage);
+        throw new Error("Falha ao enviar SMS. " + (smsResult.error ?? "Tente novamente."));
       }
 
       console.log("SMS sent successfully", {
