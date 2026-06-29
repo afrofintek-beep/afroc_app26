@@ -9,10 +9,12 @@ export interface AuthUser {
   jurisdiction_country: string | null;
 }
 
-// Allowed origins for CORS — production app + preview
+// Allowed origins for CORS — produção + previews Vercel + localhost.
+// (Acrescenta aqui o domínio próprio quando o ligares, ex.: https://afroloc.ao)
 const ALLOWED_ORIGINS = [
-  "https://app.afroloc.example",
-  "https://app.afroloc.example",
+  "https://afroc-app26-rose.vercel.app",
+  "https://afroc-app26",   // cobre os preview deployments afroc-app26-*.vercel.app
+  "http://localhost",
 ];
 
 function getAllowedOrigin(requestOrigin: string | null): string {
@@ -39,7 +41,7 @@ const securityHeaders = {
 
 // Static CORS headers for backward compatibility — used by functions that don't pass the request
 export const corsHeaders = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGINS[0],
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-afroloc-partner-key, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   ...securityHeaders,
 };
