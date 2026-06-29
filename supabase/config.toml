@@ -1,4 +1,4 @@
-project_id = "rxhtdejvjgopfseysuhl"
+project_id = "ljcxqwjvjgobhisqkujr"
 
 [functions.biometric-login]
 verify_jwt = false
