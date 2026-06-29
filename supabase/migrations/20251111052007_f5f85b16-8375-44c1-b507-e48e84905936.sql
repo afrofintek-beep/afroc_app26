@@ -1,2 +1,2 @@
 -- Fix search_path for get_telecom_operator_by_phone function
-ALTER FUNCTION public.get_telecom_operator_by_phone(text) SET search_path = public;
+DO $wrap$ BEGIN ALTER FUNCTION public.get_telecom_operator_by_phone(text) SET search_path = public; EXCEPTION WHEN undefined_function THEN NULL; END $wrap$;
