@@ -1,37 +1,32 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
-// Validate Twilio webhook signature
-const validateTwilioSignature = async (
-  signature: string | null,
-  url: string,
-  params: Record<string, string>,
-  authToken: string
-): Promise<boolean> => {
-  if (!signature) return false;
-  
-  try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(url + Object.keys(params).sort().map(key => key + params[key]).join(''));
-    const key = encoder.encode(authToken);
-    
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      key,
-      { name: 'HMAC', hash: 'SHA-1' },
-      false,
-      ['sign']
-    );
-    
-    const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, data);
-    const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)));
-    
-    return signature === expectedSignature;
-  } catch (error) {
-    console.error("Signature validation error:", error);
-    return false;
+// Webhook INBOUND (MO) da Infobip — substitui o webhook Twilio.
+// A Infobip entrega as mensagens recebidas como JSON: { results: [{ from, text, ... }] }
+// e NÃO suporta resposta via TwiML; a resposta à testemunha é enviada por uma
+// chamada de saída separada (sendSms). Requer um NÚMERO INBOUND dedicado na
+// Infobip, configurado no portal a reencaminhar para esta função.
+
+// Autenticação opcional do webhook via Basic Auth (configura o mesmo user/pass
+// no forwarding do portal Infobip). Sem secrets definidos, não bloqueia
+// (paridade com o comportamento anterior quando o token não estava configurado).
+const isAuthorized = (req: Request): boolean => {
+  const user = Deno.env.get("INFOBIP_INBOUND_USER");
+  const pass = Deno.env.get("INFOBIP_INBOUND_PASS");
+  if (!user || !pass) {
+    console.warn("INFOBIP_INBOUND_USER/PASS não configurados — auth do webhook ignorada");
+    return true;
   }
+  return (req.headers.get("authorization") || "") === "Basic " + btoa(`${user}:${pass}`);
+};
+
+// Extrai a primeira mensagem { from, text } do payload inbound da Infobip.
+const parseInbound = async (req: Request): Promise<{ from: string; text: string }> => {
+  const payload = await req.json().catch(() => ({} as Record<string, unknown>));
+  const msg = (payload as { results?: Array<{ from?: string; text?: string }> })?.results?.[0] ?? {};
+  return { from: msg.from ?? "", text: (msg.text ?? "").toString() };
 };
 
 const handler = async (req: Request): Promise<Response> => {
@@ -39,59 +34,52 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // A Infobip só precisa de um 200. A resposta à testemunha vai por sendSms.
+  const ok = () =>
+    new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+  const reply = async (to: string, text: string) => {
+    if (to) {
+      try {
+        await sendSms(to, text);
+      } catch (e) {
+        console.error("Falha ao responder por SMS (Infobip)", {
+          error: e instanceof Error ? e.message : String(e),
+        });
+      }
+    }
+    return ok();
+  };
+
   try {
+    if (!isAuthorized(req)) {
+      console.error("Webhook inbound não autorizado");
+      return new Response(JSON.stringify({ error: "unauthorized" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-    const twilioSignature = req.headers.get("x-twilio-signature");
-    
-    // Parse Twilio webhook data (application/x-www-form-urlencoded)
-    const formData = await req.formData();
-    const params: Record<string, string> = {};
-    for (const [key, value] of formData.entries()) {
-      params[key] = value.toString();
-    }
-    
-    // Validate Twilio signature if auth token is configured
-    if (twilioAuthToken) {
-      const url = req.url;
-      const isValid = await validateTwilioSignature(twilioSignature, url, params, twilioAuthToken);
-      
-      if (!isValid) {
-        console.error("Invalid Twilio signature");
-        return new Response(
-          '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Unauthorized</Message></Response>',
-          {
-            status: 401,
-            headers: { "Content-Type": "text/xml", ...corsHeaders },
-          }
-        );
-      }
-    } else {
-      console.warn("TWILIO_AUTH_TOKEN not configured - signature validation skipped");
-    }
-    const from = params["From"] || "";
-    const body = params["Body"]?.trim().toUpperCase() || "";
-    
-    console.log("Received SMS from Twilio", { 
-      from, 
+    const { from, text } = await parseInbound(req);
+    const body = text.trim().toUpperCase();
+
+    console.log("SMS inbound recebido (Infobip)", {
+      from: from.substring(0, 5) + "***",
       body,
-      timestamp: new Date().toISOString() 
+      timestamp: new Date().toISOString(),
     });
 
     // Validate response
     if (!["SIM", "NAO", "NÃO", "YES", "NO"].includes(body)) {
-      console.log("Invalid response received", { body });
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Resposta inválida. Por favor responda SIM ou NÃO.</Message></Response>',
-        {
-          status: 200,
-          headers: { "Content-Type": "text/xml", ...corsHeaders },
-        }
-      );
+      console.log("Resposta inválida recebida", { body });
+      return await reply(from, "Resposta inválida. Por favor responda SIM ou NÃO.");
     }
 
     const isConfirmed = ["SIM", "YES"].includes(body);
@@ -127,30 +115,18 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (!matchedWitness) {
-      console.log("No pending witness found for phone", { 
+      console.log("No pending witness found for phone", {
         from: from.substring(0, 5) + "***",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Nenhuma solicitação pendente encontrada.</Message></Response>',
-        {
-          status: 200,
-          headers: { "Content-Type": "text/xml", ...corsHeaders },
-        }
-      );
+      return await reply(from, "Nenhuma solicitação pendente encontrada.");
     }
 
     // Check if OTP expired
     const expiresAt = new Date(matchedWitness.otp_expires_at);
     if (expiresAt < new Date()) {
       console.log("OTP expired", { witness_id: matchedWitness.id });
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Prazo de resposta expirado. Solicite um novo código.</Message></Response>',
-        {
-          status: 200,
-          headers: { "Content-Type": "text/xml", ...corsHeaders },
-        }
-      );
+      return await reply(from, "Prazo de resposta expirado. Solicite um novo código.");
     }
 
     if (isConfirmed) {
@@ -171,9 +147,9 @@ const handler = async (req: Request): Promise<Response> => {
         throw updateError;
       }
 
-      console.log("Witness confirmed via SMS", { 
+      console.log("Witness confirmed via SMS", {
         witness_id: matchedWitness.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // Notify requester asynchronously
@@ -185,13 +161,7 @@ const handler = async (req: Request): Promise<Response> => {
         console.error("Failed to notify requester", { error: notifyError });
       }
 
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Obrigado! Confirmação registrada com sucesso.</Message></Response>',
-        {
-          status: 200,
-          headers: { "Content-Type": "text/xml", ...corsHeaders },
-        }
-      );
+      return await reply(from, "Obrigado! Confirmação registrada com sucesso.");
     } else {
       // Update witness to rejected
       const { error: updateError } = await supabaseAdmin
@@ -209,9 +179,9 @@ const handler = async (req: Request): Promise<Response> => {
         throw updateError;
       }
 
-      console.log("Witness rejected via SMS", { 
+      console.log("Witness rejected via SMS", {
         witness_id: matchedWitness.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // Notify requester asynchronously
@@ -223,26 +193,18 @@ const handler = async (req: Request): Promise<Response> => {
         console.error("Failed to notify requester", { error: notifyError });
       }
 
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Entendido. Sua recusa foi registrada.</Message></Response>',
-        {
-          status: 200,
-          headers: { "Content-Type": "text/xml", ...corsHeaders },
-        }
-      );
+      return await reply(from, "Entendido. Sua recusa foi registrada.");
     }
   } catch (error: any) {
-    console.error("SMS webhook processing error", { 
+    console.error("SMS webhook processing error", {
       error: error.message,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    return new Response(
-      '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Erro ao processar resposta. Tente novamente.</Message></Response>',
-      {
-        status: 200,
-        headers: { "Content-Type": "text/xml", ...corsHeaders },
-      }
-    );
+    // Devolve 200 para a Infobip não reentregar em loop; sem resposta fiável aqui.
+    return new Response(JSON.stringify({ ok: false }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
   }
 };
 

@@ -181,47 +181,15 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
-    // Send WhatsApp Notification
+    // Notificação móvel por WhatsApp DESATIVADA (Twilio removido).
+    // A notificação passa a ser apenas por e-mail (acima). Para reativar um
+    // canal móvel no futuro: usar o helper Infobip de SMS (../_shared/sms.ts)
+    // ou o WhatsApp Business da Infobip (requer conta + templates aprovados).
     if (witnessPhone) {
-      try {
-        const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-        const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-        const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
-
-        if (twilioAccountSid && twilioAuthToken && twilioPhone) {
-          const whatsappMessage = `🔒 *AFROLOC Contract Download Alert*\n\nDear ${witnessProfile.full_name || 'Witness'},\n\nYour signed witness contract has been downloaded.\n\n*AFROLOC:* ${afroloc_code}\n*Downloaded By:* ${downloaderName}\n*Time:* ${new Date().toLocaleString()}\n\nYour digital signature is included in the document.\n\n- AFROLOC Team`;
-
-          const twilioResponse = await fetch(
-            `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-                Authorization: `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
-              },
-              body: new URLSearchParams({
-                From: `whatsapp:${twilioPhone}`,
-                To: `whatsapp:${witnessPhone}`,
-                Body: whatsappMessage,
-              }),
-            }
-          );
-
-          if (twilioResponse.ok) {
-            console.log("WhatsApp sent successfully");
-            results.whatsapp = { success: true, message: "WhatsApp sent successfully" };
-          } else {
-            const errorData = await twilioResponse.text();
-            console.error("WhatsApp sending failed", errorData);
-            results.whatsapp = { success: false, message: errorData };
-          }
-        } else {
-          results.whatsapp = { success: false, message: "Twilio credentials not configured" };
-        }
-      } catch (whatsappError: any) {
-        console.error("WhatsApp sending failed", whatsappError);
-        results.whatsapp = { success: false, message: whatsappError.message };
-      }
+      results.whatsapp = {
+        success: false,
+        message: "Canal WhatsApp desativado — notificação enviada por e-mail.",
+      };
     }
 
     // Log the download to database

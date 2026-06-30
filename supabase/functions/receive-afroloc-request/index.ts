@@ -1,42 +1,19 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 // Generate a 6-digit OTP
 const generateOTP = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Validate Twilio webhook signature
-const validateTwilioSignature = async (
-  signature: string | null,
-  url: string,
-  params: Record<string, string>,
-  authToken: string
-): Promise<boolean> => {
-  if (!signature) return false;
-  
-  try {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(url + Object.keys(params).sort().map(key => key + params[key]).join(''));
-    const key = encoder.encode(authToken);
-    
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      key,
-      { name: 'HMAC', hash: 'SHA-1' },
-      false,
-      ['sign']
-    );
-    
-    const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, data);
-    const expectedSignature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)));
-    
-    return signature === expectedSignature;
-  } catch (error) {
-    console.error("Signature validation error:", error);
-    return false;
-  }
+// Basic-auth do webhook inbound da Infobip
+const isAuthorized = (req: Request): boolean => {
+  const user = Deno.env.get("INFOBIP_INBOUND_USER");
+  const pass = Deno.env.get("INFOBIP_INBOUND_PASS");
+  if (!user || !pass) { console.warn("INFOBIP_INBOUND_USER/PASS não configurados — auth do webhook ignorada"); return true; }
+  return (req.headers.get("authorization") || "") === "Basic " + btoa(`${user}:${pass}`);
 };
 
 // Parse address from SMS body
@@ -204,37 +181,10 @@ async function tryGeocode(
   }
 }
 
-// Send SMS via Twilio
+// Send SMS via Infobip (shared helper)
 async function sendSMS(to: string, message: string): Promise<boolean> {
-  const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-  const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-  const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-  
-  if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-    console.warn("Twilio not configured - SMS not sent");
-    return false;
-  }
-  
-  const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
-  
-  const response = await fetch(twilioUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
-    },
-    body: new URLSearchParams({
-      To: to,
-      From: twilioPhoneNumber,
-      Body: message,
-    }),
-  });
-  
-  if (!response.ok) {
-    console.error("Failed to send SMS:", await response.text());
-    return false;
-  }
-  
+  const res = await sendSms(to, message);
+  if (!res.ok) { console.error("Falha ao enviar SMS (Infobip):", res.error); return false; }
   console.log("SMS sent successfully to", to);
   return true;
 }
@@ -250,46 +200,40 @@ const handler = async (req: Request): Promise<Response> => {
   );
 
   try {
-    const contentType = req.headers.get("content-type") || "";
-    let params: Record<string, string> = {};
     let from = "";
     let body = "";
+    let isInboundSms = false;
+    let json: any = null;
 
-    // Handle Twilio webhook (form-urlencoded)
-    if (contentType.includes("application/x-www-form-urlencoded")) {
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioSignature = req.headers.get("x-twilio-signature");
-      
-      const formData = await req.formData();
-      for (const [key, value] of formData.entries()) {
-        params[key] = value.toString();
+    // Parse JSON once
+    json = await req.json().catch(() => ({}));
+
+    if (Array.isArray(json?.results)) {
+      // Infobip inbound (MO) message
+      if (!isAuthorized(req)) {
+        return new Response(
+          JSON.stringify({ error: "unauthorized" }),
+          { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        );
       }
-      
-      // Validate Twilio signature if configured
-      if (twilioAuthToken) {
-        const url = req.url;
-        const isValid = await validateTwilioSignature(twilioSignature, url, params, twilioAuthToken);
-        
-        if (!isValid) {
-          console.error("Invalid Twilio signature");
-          return new Response(
-            '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Unauthorized</Message></Response>',
-            { status: 401, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-          );
-        }
-      }
-      
-      from = params["From"] || "";
-      body = params["Body"]?.trim() || "";
-    } 
-    // Handle JSON request (from app/web)
-    else if (contentType.includes("application/json")) {
-      const json = await req.json();
+      const m = json.results[0] ?? {};
+      from = m.from || "";
+      body = (m.text || "").trim();
+      isInboundSms = true;
+      json = null;
+    } else {
+      // App/web caller
       from = json.phone_number || "";
       body = json.address_text || "";
-      
-      // Direct structured data
-      if (json.street_name && json.house_number) {
+    }
+
+    const smsReply = async (text: string): Promise<Response> => {
+      if (isInboundSms && from) { await sendSMS(from, text); }
+      return new Response(JSON.stringify({ ok: true, message: text }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
+    };
+
+    // Direct structured data
+    if (json && json.street_name && json.house_number) {
         const otp = generateOTP();
         const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
         
@@ -360,7 +304,6 @@ const handler = async (req: Request): Promise<Response> => {
           }),
           { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
         );
-      }
     }
 
     // Process SMS body for AFROLOC request
@@ -420,10 +363,7 @@ const handler = async (req: Request): Promise<Response> => {
               geocoded: !!geocodeResult 
             });
             
-            return new Response(
-              '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Código verificado! O seu pedido AFROLOC está a ser processado. Receberá o seu código por SMS quando aprovado.</Message></Response>',
-              { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-            );
+            return await smsReply("Código verificado! O seu pedido AFROLOC está a ser processado. Receberá o seu código por SMS quando aprovado.");
           } else {
             // Wrong OTP
             await supabaseAdmin
@@ -437,16 +377,10 @@ const handler = async (req: Request): Promise<Response> => {
                 .update({ status: 'cancelled' })
                 .eq("id", request.id);
               
-              return new Response(
-                '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Código expirado. Faça um novo pedido enviando AFROLOC seguido do seu endereço.</Message></Response>',
-                { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-              );
+              return await smsReply("Código expirado. Faça um novo pedido enviando AFROLOC seguido do seu endereço.");
             }
             
-            return new Response(
-              '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Código incorreto. Tente novamente.</Message></Response>',
-              { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-            );
+            return await smsReply("Código incorreto. Tente novamente.");
           }
         }
       }
@@ -475,28 +409,19 @@ const handler = async (req: Request): Promise<Response> => {
             })
             .eq("id", requests[0].id);
           
-          return new Response(
-            '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Documento registado. O seu pedido está em análise. Receberá o seu código AFROLOC por SMS.</Message></Response>',
-            { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-          );
+          return await smsReply("Documento registado. O seu pedido está em análise. Receberá o seu código AFROLOC por SMS.");
         }
       }
       
       // Not an AFROLOC request
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Para solicitar um AFROLOC, envie: AFROLOC Rua Nome 123 Bairro. Para registar documento: DOC BI 123456789 Nome Completo</Message></Response>',
-        { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-      );
+      return await smsReply("Para solicitar um AFROLOC, envie: AFROLOC Rua Nome 123 Bairro. Para registar documento: DOC BI 123456789 Nome Completo");
     }
     
     // Parse address from SMS
     const addressData = parseAddressFromSMS(body);
     
     if (!addressData) {
-      return new Response(
-        '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Formato inválido. Envie: AFROLOC Rua Nome 123 Bairro</Message></Response>',
-        { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-      );
+      return await smsReply("Formato inválido. Envie: AFROLOC Rua Nome 123 Bairro");
     }
     
     // Try to geocode the address
@@ -557,16 +482,13 @@ const handler = async (req: Request): Promise<Response> => {
     });
     
     // Send OTP confirmation
-    return new Response(
-      `<?xml version="1.0" encoding="UTF-8"?><Response><Message>Pedido recebido para ${addressData.street_name} ${addressData.house_number}. Seu código de verificação é: ${otp}. Responda com este código.</Message></Response>`,
-      { status: 200, headers: { "Content-Type": "text/xml", ...corsHeaders } }
-    );
+    return await smsReply(`Pedido recebido para ${addressData.street_name} ${addressData.house_number}. Seu código de verificação é: ${otp}. Responda com este código.`);
     
   } catch (error) {
     console.error("Error processing AFROLOC request:", error);
     return new Response(
-      '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Erro ao processar pedido. Tente novamente.</Message></Response>',
-      { status: 500, headers: { "Content-Type": "text/xml", ...corsHeaders } }
+      JSON.stringify({ ok: false, message: "Erro ao processar pedido. Tente novamente." }),
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };
