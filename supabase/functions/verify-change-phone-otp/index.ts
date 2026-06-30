@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -32,10 +33,14 @@ async function sendChangeNotifications(
   try {
     // Send SMS to old phone number
     if (oldPhone) {
-      await sendSMS(
+      const oldPhoneSms = await sendSms(
         oldPhone,
         `AFROLOC: Seu número de telefone foi alterado em ${timestamp}. Se não foi você, entre em contato imediatamente com o suporte.`
       );
+      if (!oldPhoneSms.ok) {
+        console.error("SMS send failed (Infobip)", { error: oldPhoneSms.error });
+        throw new Error("Falha ao enviar SMS. " + (oldPhoneSms.error ?? "Tente novamente."));
+      }
       console.log("SMS sent to old phone", {
         event: "old_phone_sms_sent",
         timestamp: new Date().toISOString()
@@ -43,10 +48,14 @@ async function sendChangeNotifications(
     }
 
     // Send SMS to new phone number
-    await sendSMS(
+    const newPhoneSms = await sendSms(
       newPhone,
       `AFROLOC: Seu número de telefone foi atualizado com sucesso em ${timestamp}. Todos os seus endereços AFROLOC foram mantidos.`
     );
+    if (!newPhoneSms.ok) {
+      console.error("SMS send failed (Infobip)", { error: newPhoneSms.error });
+      throw new Error("Falha ao enviar SMS. " + (newPhoneSms.error ?? "Tente novamente."));
+    }
     console.log("SMS sent to new phone", {
       event: "new_phone_sms_sent",
       timestamp: new Date().toISOString()
@@ -90,48 +99,6 @@ async function sendChangeNotifications(
       timestamp: new Date().toISOString()
     });
     // Don't throw - notifications are not critical to the phone change
-  }
-}
-
-async function sendSMS(phoneNumber: string, message: string): Promise<void> {
-  const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-  const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-  const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-
-  if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-    throw new Error("Twilio credentials not configured");
-  }
-
-  const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
-  
-  const messagingServiceSid = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
-  
-  const smsParams: Record<string, string> = {
-    To: phoneNumber,
-    Body: message,
-  };
-  
-  if (messagingServiceSid) {
-    smsParams.MessagingServiceSid = messagingServiceSid;
-  } else {
-    smsParams.From = twilioPhoneNumber;
-  }
-  
-  const smsResponse = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-    {
-      method: "POST",
-      headers: {
-        "Authorization": `Basic ${twilioAuth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams(smsParams).toString(),
-    }
-  );
-
-  if (!smsResponse.ok) {
-    const errorData = await smsResponse.json();
-    throw new Error(`SMS send failed: ${errorData.message || 'Unknown error'}`);
   }
 }
 

@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const reminderSchema = z.object({
   hours_threshold: z.number().min(1).max(168).optional().default(24),
@@ -92,15 +93,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-    const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-    const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-
-    if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-      console.error("Twilio credentials not configured");
-      throw new Error("Service configuration error");
-    }
-
     let remindersSent = 0;
 
     for (const witness of pendingWitnesses) {
@@ -118,25 +110,9 @@ const handler = async (req: Request): Promise<Response> => {
 
         const reminderMessage = `LEMBRETE AFROLOC: Você ainda não respondeu à validação do endereço ${address}. Por favor, responda SIM ou NÃO.`;
 
-        const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
-        
-        const smsResponse = await fetch(
-          `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-          {
-            method: "POST",
-            headers: {
-              "Authorization": `Basic ${twilioAuth}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-              To: validationNumber,
-              From: twilioPhoneNumber,
-              Body: reminderMessage,
-            }).toString(),
-          }
-        );
+        const smsResult = await sendSms(validationNumber, reminderMessage);
 
-        if (smsResponse.ok) {
+        if (smsResult.ok) {
           remindersSent++;
           console.log("Reminder sent successfully", {
             event: "reminder_sent",
@@ -144,10 +120,10 @@ const handler = async (req: Request): Promise<Response> => {
             timestamp: new Date().toISOString()
           });
         } else {
-          console.error("Reminder failed", {
+          console.error("Validation-reminder SMS failed (Infobip)", {
             event: "reminder_failed",
             witness_id: witness.id,
-            status: smsResponse.status,
+            error: smsResult.error,
             timestamp: new Date().toISOString()
           });
         }

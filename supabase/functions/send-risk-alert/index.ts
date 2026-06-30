@@ -2,11 +2,9 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { Resend } from "https://esm.sh/resend@4.0.0";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
-const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID");
-const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN");
-const TWILIO_PHONE_NUMBER = Deno.env.get("TWILIO_PHONE_NUMBER");
 
 interface AlertRequest {
   userId: string;
@@ -111,32 +109,16 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send SMS
-    if ((sendVia === 'sms' || sendVia === 'both') && userPhone && TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN) {
+    if ((sendVia === 'sms' || sendVia === 'both') && userPhone) {
       try {
         const smsMessage = `${alertType === 'critical_risk' ? '🚨 CRÍTICO' : '⚠️ ALERTA'}: Score ${riskScore} para ${afrolocCode}. Acesse seu painel AFROLOC imediatamente.`;
-        
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
-        const twilioAuth = btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`);
 
-        const response = await fetch(twilioUrl, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Basic ${twilioAuth}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            To: userPhone,
-            From: TWILIO_PHONE_NUMBER!,
-            Body: smsMessage,
-          }),
-        });
-
-        if (response.ok) {
+        const smsResult = await sendSms(userPhone, smsMessage);
+        if (!smsResult.ok) {
+          console.error("Risk-alert SMS failed (Infobip)", { error: smsResult.error });
+        } else {
           smsSent = true;
           console.log(`SMS alert sent to ${userPhone}`);
-        } else {
-          const errorData = await response.text();
-          console.error(`Failed to send SMS: ${errorData}`);
         }
       } catch (error: unknown) {
         const err = error as Error;

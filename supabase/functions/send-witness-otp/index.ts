@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const sendOTPSchema = z.object({
   witness_id: z.string().uuid("Invalid witness ID format"),
@@ -387,107 +388,56 @@ const handler = async (req: Request): Promise<Response> => {
       // Don't fail the whole request if email fails
     }
 
-    // Send SMS via Twilio to regional validation number
+    // Send SMS via Infobip to regional validation number
     try {
-      const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+      // Update validation number usage
+      await supabaseClient.rpc('update_validation_number_usage', {
+        p_phone_number: validationNumber
+      });
 
-      if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-        console.warn("Twilio credentials not configured, skipping SMS");
-      } else {
-        // Update validation number usage
-        await supabaseClient.rpc('update_validation_number_usage', {
-          p_phone_number: validationNumber
+      // Detect telecom operator for the validation number
+      const { data: operatorData, error: operatorError } = await supabaseClient
+        .rpc('get_telecom_operator_by_phone', { phone_number: validationNumber });
+
+      let operator = null;
+      if (!operatorError && operatorData && operatorData.length > 0) {
+        operator = operatorData[0];
+        console.log("Detected telecom operator for validation number", {
+          event: "operator_detected",
+          operator: operator.operator_name,
+          provider: operator.otp_provider,
+          timestamp: new Date().toISOString()
         });
+      }
 
-        // Detect telecom operator for the validation number
-        const { data: operatorData, error: operatorError } = await supabaseClient
-          .rpc('get_telecom_operator_by_phone', { phone_number: validationNumber });
+      // Build complete AFRO ID address with georeferencing
+      const geoCoords = fullAfrolocRecord?.geo_lat && fullAfrolocRecord?.geo_lon
+        ? `(${fullAfrolocRecord.geo_lat}, ${fullAfrolocRecord.geo_lon})`
+        : "";
+      const address = geoCoords ? `${afroloc_code} ${geoCoords}` : afroloc_code;
 
-        let operator = null;
-        if (!operatorError && operatorData && operatorData.length > 0) {
-          operator = operatorData[0];
-          console.log("Detected telecom operator for validation number", { 
-            event: "operator_detected",
-            operator: operator.operator_name,
-            provider: operator.otp_provider,
-            timestamp: new Date().toISOString()
-          });
-        }
+      const smsMessage = `AFROLOC: ${witnessName} indicou você como testemunha para o endereço ${address}. Confirma? Responda SIM ou NÃO. Válido por 30 min.`;
 
-        // Build complete AFRO ID address with georeferencing
-        const geoCoords = fullAfrolocRecord?.geo_lat && fullAfrolocRecord?.geo_lon 
-          ? `(${fullAfrolocRecord.geo_lat}, ${fullAfrolocRecord.geo_lon})`
-          : "";
-        const address = geoCoords ? `${afroloc_code} ${geoCoords}` : afroloc_code;
+      const smsResult = await sendSms(validationNumber, smsMessage);
 
-        const smsMessage = `AFROLOC: ${witnessName} indicou você como testemunha para o endereço ${address}. Confirma? Responda SIM ou NÃO. Válido por 30 min.`;
-        
-        const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
-        
-        // Use Sender ID for African countries (more recognizable)
-        const messagingServiceSid = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
-        const senderIdSupported = ['AO', 'CD', 'ZA', 'KE', 'NG', 'GH', 'MZ', 'ZM', 'ZW'];
-        const useAlphanumericSender = operator && senderIdSupported.includes(operator.country_code);
-        
-        const smsParams: Record<string, string> = {
-          To: validationNumber,
-          Body: smsMessage,
-        };
-        
-        // Priority: Messaging Service > Alphanumeric Sender ID > Phone Number
-        if (messagingServiceSid) {
-          smsParams.MessagingServiceSid = messagingServiceSid;
-          console.log("Using Messaging Service for witness", { 
-            event: "using_messaging_service",
-            timestamp: new Date().toISOString()
-          });
-        } else if (useAlphanumericSender) {
-          smsParams.From = "AFROLOC";
-          console.log("Using Alphanumeric Sender ID for witness", { 
-            event: "using_sender_id",
-            country: operator.country_code,
-            timestamp: new Date().toISOString()
-          });
-        } else {
-          smsParams.From = twilioPhoneNumber;
-          console.log("Using phone number for witness", { 
-            event: "using_phone_number",
-            timestamp: new Date().toISOString()
-          });
-        }
-        
-        const smsResponse = await fetch(
-          `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-          {
-            method: "POST",
-            headers: {
-              "Authorization": `Basic ${twilioAuth}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams(smsParams).toString(),
-          }
-        );
-
-        if (!smsResponse.ok) {
-          console.error("SMS notification failed", { 
-            event: "sms_send_error",
-            operator: operator?.operator_name || 'unknown',
-            validation_number: validationNumber,
-            division: divisionInfo.name,
-            timestamp: new Date().toISOString()
-          });
-        } else {
-          console.log("SMS notification sent to regional validator", { 
-            event: "sms_sent",
-            operator: operator?.operator_name || 'unknown',
-            provider: operator?.otp_provider || 'default',
-            validation_number: validationNumber,
-            division: divisionInfo.name,
-            timestamp: new Date().toISOString()
-          });
-        }
+      if (!smsResult.ok) {
+        console.error("SMS notification failed (Infobip)", {
+          event: "sms_send_error",
+          error: smsResult.error,
+          operator: operator?.operator_name || 'unknown',
+          validation_number: validationNumber,
+          division: divisionInfo.name,
+          timestamp: new Date().toISOString()
+        });
+      } else {
+        console.log("SMS notification sent to regional validator", {
+          event: "sms_sent",
+          operator: operator?.operator_name || 'unknown',
+          provider: operator?.otp_provider || 'default',
+          validation_number: validationNumber,
+          division: divisionInfo.name,
+          timestamp: new Date().toISOString()
+        });
       }
     } catch (smsError) {
       console.error("SMS notification exception", { 

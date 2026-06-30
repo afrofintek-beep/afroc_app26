@@ -3,6 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -180,31 +181,13 @@ const handler = async (req: Request): Promise<Response> => {
 
       console.log("Email sent:", emailResponse);
     } else if (method === 'sms' && phone) {
-      // SMS sending via Twilio
-      const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const authToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const fromNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+      // SMS sending via Infobip (helper partilhado _shared/sms.ts).
+      const smsMessage = `Your AFROLOC admin verification code is: ${code}. Valid for 10 minutes. Do not share this code.`;
 
-      const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-      const auth = btoa(`${accountSid}:${authToken}`);
-
-      const smsResponse = await fetch(twilioUrl, {
-        method: "POST",
-        headers: {
-          "Authorization": `Basic ${auth}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          To: phone,
-          From: fromNumber!,
-          Body: `Your AFROLOC admin verification code is: ${code}. Valid for 10 minutes. Do not share this code.`,
-        }),
-      });
-
-      if (!smsResponse.ok) {
-        const error = await smsResponse.text();
-        console.error("SMS error:", error);
-        throw new Error("Failed to send SMS");
+      const smsResult = await sendSms(phone, smsMessage);
+      if (!smsResult.ok) {
+        console.error("SMS send failed (Infobip)", { error: smsResult.error });
+        throw new Error("Falha ao enviar SMS. " + (smsResult.error ?? "Tente novamente."));
       }
 
       console.log("SMS sent successfully");

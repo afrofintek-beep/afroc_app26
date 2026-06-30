@@ -5,8 +5,9 @@ import {
   getCurrentUser, 
   jsonResponse, 
   errorResponse, 
-  audit 
+  audit
 } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -75,28 +76,12 @@ const handler = async (req: Request): Promise<Response> => {
         .eq("id", request_id);
       
       // Send SMS notification to requester
-      const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-      
-      if (twilioAccountSid && twilioAuthToken && twilioPhoneNumber) {
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
-        const message = `AFROLOC: Lamentamos informar que o seu pedido para ${request.street_name} ${request.house_number} foi rejeitado. Motivo: ${rejection_reason}`;
-        
-        await fetch(twilioUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
-          },
-          body: new URLSearchParams({
-            To: request.requester_phone,
-            From: twilioPhoneNumber,
-            Body: message,
-          }),
-        });
+      const message = `AFROLOC: Lamentamos informar que o seu pedido para ${request.street_name} ${request.house_number} foi rejeitado. Motivo: ${rejection_reason}`;
+      const smsResult = await sendSms(request.requester_phone, message);
+      if (!smsResult.ok) {
+        console.error("Completion SMS failed (Infobip)", { error: smsResult.error });
       }
-      
+
       await audit(supabase, user.id, "afroloc_request_rejected", "complete-afroloc-request", {
         request_id,
         rejection_reason,
@@ -186,28 +171,12 @@ const handler = async (req: Request): Promise<Response> => {
         .eq("id", request_id);
       
       // Send SMS notification to requester
-      const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
-      
-      if (twilioAccountSid && twilioAuthToken && twilioPhoneNumber) {
-        const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`;
-        const message = `AFROLOC: Parabéns! O seu código AFROLOC foi criado: ${qgData.code}. Visite afroloc.com para registar a sua conta.`;
-        
-        await fetch(twilioUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": `Basic ${btoa(`${twilioAccountSid}:${twilioAuthToken}`)}`,
-          },
-          body: new URLSearchParams({
-            To: request.requester_phone,
-            From: twilioPhoneNumber,
-            Body: message,
-          }),
-        });
+      const message = `AFROLOC: Parabéns! O seu código AFROLOC foi criado: ${qgData.code}. Visite afroloc.com para registar a sua conta.`;
+      const smsResult = await sendSms(request.requester_phone, message);
+      if (!smsResult.ok) {
+        console.error("Completion SMS failed (Infobip)", { error: smsResult.error });
       }
-      
+
       await audit(supabase, user.id, "afroloc_request_completed", "complete-afroloc-request", {
         request_id,
         afroloc_id: afrolocRecord.id,

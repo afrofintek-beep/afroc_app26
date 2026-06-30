@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sendSms } from "../_shared/sms.ts";
 
 const sendOTPSchema = z.object({
   new_phone: z.string()
@@ -257,72 +258,23 @@ const handler = async (req: Request): Promise<Response> => {
       throw insertError;
     }
 
-    // Send SMS via Twilio
-    try {
-      const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
-      const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN");
-      const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER");
+    // Send SMS via Infobip (shared helper)
+    const smsMessage = `Seu código de verificação para alteração de telefone AFROLOC: ${otpCode}. Válido por 10 minutos. Não compartilhe este código.`;
 
-      if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
-        throw new Error("Twilio credentials not configured");
-      }
-
-      const smsMessage = `Seu código de verificação para alteração de telefone AFROLOC: ${otpCode}. Válido por 10 minutos. Não compartilhe este código.`;
-      
-      const twilioAuth = btoa(`${twilioAccountSid}:${twilioAuthToken}`);
-      
-      const messagingServiceSid = Deno.env.get("TWILIO_MESSAGING_SERVICE_SID");
-      const senderIdSupported = ['AO', 'CD', 'ZA', 'KE', 'NG', 'GH', 'MZ', 'ZM', 'ZW'];
-      const useAlphanumericSender = senderIdSupported.includes(operator.country_code);
-      
-      const smsParams: Record<string, string> = {
-        To: new_phone,
-        Body: smsMessage,
-      };
-      
-      if (messagingServiceSid) {
-        smsParams.MessagingServiceSid = messagingServiceSid;
-      } else if (useAlphanumericSender) {
-        smsParams.From = "AFROLOC";
-      } else {
-        smsParams.From = twilioPhoneNumber;
-      }
-      
-      const smsResponse = await fetch(
-        `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Basic ${twilioAuth}`,
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams(smsParams).toString(),
-        }
-      );
-
-      if (!smsResponse.ok) {
-        const errorData = await smsResponse.json();
-        console.error("SMS send failed", {
-          event: "sms_send_error",
-          error: errorData,
-          timestamp: new Date().toISOString()
-        });
-        throw new Error("Falha ao enviar SMS. Tente novamente.");
-      }
-
-      console.log("SMS sent successfully", {
-        event: "sms_sent",
+    const smsResult = await sendSms(new_phone, smsMessage);
+    if (!smsResult.ok) {
+      console.error("SMS send failed (Infobip)", {
+        event: "sms_send_error",
+        error: smsResult.error,
         timestamp: new Date().toISOString()
       });
-    } catch (smsError) {
-      const errorMessage = smsError instanceof Error ? smsError.message : String(smsError);
-      console.error("SMS exception", {
-        event: "sms_exception",
-        error: errorMessage,
-        timestamp: new Date().toISOString()
-      });
-      throw new Error(errorMessage);
+      throw new Error("Falha ao enviar SMS. " + (smsResult.error ?? "Tente novamente."));
     }
+
+    console.log("SMS sent successfully", {
+      event: "sms_sent",
+      timestamp: new Date().toISOString()
+    });
 
     console.log("Change phone OTP process completed", {
       event: "change_phone_otp_complete",
