@@ -6,6 +6,7 @@ import afrolocSymbol from "@/assets/afroloc-symbol-brand.webp";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { PageReader } from "@/components/PageReader";
+import { APP_FULL_LABEL } from "@/lib/version";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AnimatedFeatureCard } from "@/components/AnimatedFeatureCard";
 import { AnimatedProcessCard } from "@/components/AnimatedProcessCard";
@@ -689,7 +690,7 @@ export default function Landing() {
             <p className="font-semibold text-foreground">{t('footer_initiative')}</p>
             <p className="mt-2">{t('footer_proponent')}</p>
             <p className="mt-3">{t('footer_copyright')}</p>
-            <p className="mt-1">{t('footer_version')}</p>
+            <p className="mt-1">{APP_FULL_LABEL}</p>
           </div>
         </div>
       </footer>
