@@ -11,8 +11,10 @@ export interface AuthUser {
 
 // Allowed origins for CORS — domínio próprio + produção Vercel + previews + localhost.
 const ALLOWED_ORIGINS = [
-  "https://afroloc.ao",                    // domínio próprio (apex)
-  "https://www.afroloc.ao",                // domínio próprio (www)
+  "https://afroloc.com",                   // domínio próprio (.com — apex)
+  "https://www.afroloc.com",               // domínio próprio (.com — www)
+  "https://afroloc.ao",                    // domínio próprio (.ao — apex)
+  "https://www.afroloc.ao",                // domínio próprio (.ao — www)
   "https://afroc-app26-rose.vercel.app",   // Vercel (produção)
   "https://afroc-app26",   // cobre os preview deployments afroc-app26-*.vercel.app
   "http://localhost",
