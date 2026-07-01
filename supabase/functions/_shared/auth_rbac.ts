@@ -9,10 +9,11 @@ export interface AuthUser {
   jurisdiction_country: string | null;
 }
 
-// Allowed origins for CORS — produção + previews Vercel + localhost.
-// (Acrescenta aqui o domínio próprio quando o ligares, ex.: https://afroloc.ao)
+// Allowed origins for CORS — domínio próprio + produção Vercel + previews + localhost.
 const ALLOWED_ORIGINS = [
-  "https://afroc-app26-rose.vercel.app",
+  "https://afroloc.ao",                    // domínio próprio (apex)
+  "https://www.afroloc.ao",                // domínio próprio (www)
+  "https://afroc-app26-rose.vercel.app",   // Vercel (produção)
   "https://afroc-app26",   // cobre os preview deployments afroc-app26-*.vercel.app
   "http://localhost",
 ];
