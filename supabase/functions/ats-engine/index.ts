@@ -533,9 +533,24 @@ serve(async (req) => {
     console.log(`ATS Engine: Computing score for ${request.afroidRecordId || 'direct input'}`);
     
     const result = await computeATS(request, supabase);
-    
+
     console.log(`ATS Engine: Score ${result.score.total}, Level ${result.certificationLevel.level}`);
-    
+
+    // Persistir no registo (fonte de verdade para o cliente LER, em vez de
+    // recalcular o algoritmo no browser). Só quando temos um registo real.
+    if (request.afroidRecordId) {
+      const { error: persistErr } = await supabase
+        .from('afroloc_records')
+        .update({
+          ats_score: Math.round(result.score.total),
+          ats_breakdown: result.score,
+          certification_level: result.certificationLevel.level,
+          ats_computed_at: new Date().toISOString(),
+        })
+        .eq('id', request.afroidRecordId);
+      if (persistErr) console.error('ATS persist error:', persistErr.message);
+    }
+
     return new Response(
       JSON.stringify(result),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
