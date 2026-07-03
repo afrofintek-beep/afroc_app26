@@ -11,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { AnimatedFeatureCard } from "@/components/AnimatedFeatureCard";
 import { AnimatedProcessCard } from "@/components/AnimatedProcessCard";
 import { StickFigure } from "@/components/StickFigure";
+import { HeroAddressCard } from "@/components/HeroAddressCard";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -138,48 +139,56 @@ export default function Landing() {
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 sm:py-28 relative">
-        <div className="mx-auto max-w-5xl">
-          <div className="text-center space-y-8 animate-fade-in">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-strong border border-border/50 shadow-soft mb-6 animate-scale-in">
-              <MapPin className="h-4 w-4 text-primary animate-pulse-glow" />
-              <span className="text-sm font-medium">{t('continental_system_badge')}</span>
+        <div className="mx-auto max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            {/* Coluna do texto */}
+            <div className="text-center lg:text-left space-y-6 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-strong border border-border/50 shadow-soft animate-scale-in">
+                <MapPin className="h-4 w-4 text-primary animate-pulse-glow" />
+                <span className="text-sm font-medium">{t('continental_system_badge')}</span>
+              </div>
+
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent animate-fade-in" style={{ animationDelay: '0.1s' }}>
+                {t('hero_title')}
+              </h1>
+
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+                {t('hero_description')}
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center pt-2 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+                <Button
+                  size="lg"
+                  onClick={() => navigate("/pre-signup")}
+                  className="w-full sm:w-auto px-8 py-6 text-lg bg-gradient-primary hover:scale-105 shadow-premium hover:shadow-xl transition-all group"
+                >
+                  <MapPin className="mr-2 h-5 w-5 group-hover:animate-pulse-glow" />
+                  {t('create_afroloc')}
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleInstallApp}
+                  className="w-full sm:w-auto px-8 py-6 text-lg glass-strong border-2 border-primary/50 hover:border-primary hover:bg-primary/10 hover:shadow-glow transition-all group"
+                >
+                  <Smartphone className="mr-2 h-5 w-5 group-hover:animate-bounce" />
+                  {isInstallable ? 'Instalar App' : 'Baixar App'}
+                  <ArrowUpRight className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </Button>
+              </div>
+              {/* Login discreto — quem já tem conta usa o header ou este link */}
+              <p className="text-sm text-muted-foreground pt-1">
+                {t('already_have_account')}{" "}
+                <button onClick={() => navigate("/login")} className="text-primary font-medium hover:underline">
+                  {t('enter')}
+                </button>
+              </p>
             </div>
-            
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              {t('hero_title')}
-            </h1>
-            
-            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              {t('hero_description')}
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-              <Button 
-                size="lg" 
-                onClick={() => navigate("/pre-signup")} 
-                className="w-full sm:w-auto px-8 py-6 text-lg bg-gradient-primary hover:scale-105 shadow-premium hover:shadow-xl transition-all group"
-              >
-                <MapPin className="mr-2 h-5 w-5 group-hover:animate-pulse-glow" />
-                {t('create_afroloc')}
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={handleInstallApp}
-                className="w-full sm:w-auto px-8 py-6 text-lg glass-strong border-2 border-primary/50 hover:border-primary hover:bg-primary/10 hover:shadow-glow transition-all group"
-              >
-                <Smartphone className="mr-2 h-5 w-5 group-hover:animate-bounce" />
-                {isInstallable ? 'Instalar App' : 'Baixar App'}
-                <ArrowUpRight className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </Button>
+
+            {/* Coluna do produto (o "aha!") */}
+            <div className="animate-fade-in" style={{ animationDelay: '0.25s' }}>
+              <HeroAddressCard />
             </div>
-            {/* Login discreto — quem já tem conta usa o header ou este link */}
-            <p className="text-sm text-muted-foreground pt-2">
-              {t('already_have_account')}{" "}
-              <button onClick={() => navigate("/login")} className="text-primary font-medium hover:underline">
-                {t('enter')}
-              </button>
-            </p>
           </div>
         </div>
       </section>

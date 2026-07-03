@@ -1797,5 +1797,8 @@
   "view": "Ver",
   "weekly": "Weekly",
   "zone": "Zone",
-  "no_recent_activity": "Ainda sem atividade recente"
+  "no_recent_activity": "Ainda sem atividade recente",
+  "hero_community_validated": "Validado pela comunidade",
+  "hero_grid_caption": "grelha QG·SQ · 10×10 m",
+  "hero_your_address_label": "A sua morada AFROLOC"
 }

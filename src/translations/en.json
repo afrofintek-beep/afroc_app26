@@ -1626,5 +1626,8 @@
   "trusted_devices_description": "Manage devices authorized for quick sign-in",
   "last_used": "Last used",
   "expires": "Expires",
-  "no_recent_activity": "No recent activity yet"
+  "no_recent_activity": "No recent activity yet",
+  "hero_community_validated": "Community-validated",
+  "hero_grid_caption": "QG·SQ grid · 10×10 m",
+  "hero_your_address_label": "Your AFROLOC address"
 }
