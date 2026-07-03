@@ -1800,5 +1800,10 @@
   "no_recent_activity": "Ainda sem atividade recente",
   "hero_community_validated": "Validado pela comunidade",
   "hero_grid_caption": "grelha QG·SQ · 10×10 m",
-  "hero_your_address_label": "A sua morada AFROLOC"
+  "hero_your_address_label": "A sua morada AFROLOC",
+  "proof_without_address": "sem morada formal em África*",
+  "proof_countries": "países interoperáveis por desenho",
+  "proof_languages": "línguas, inclusivo de raiz",
+  "proof_precision": "precisão da grelha QG·SQ",
+  "proof_pioneer_note": "Feito em África, para África — seja dos primeiros a ter a sua morada digital. *estimativa do problema de endereçamento no continente."
 }

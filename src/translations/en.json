@@ -1629,5 +1629,10 @@
   "no_recent_activity": "No recent activity yet",
   "hero_community_validated": "Community-validated",
   "hero_grid_caption": "QG·SQ grid · 10×10 m",
-  "hero_your_address_label": "Your AFROLOC address"
+  "hero_your_address_label": "Your AFROLOC address",
+  "proof_without_address": "without a formal address in Africa*",
+  "proof_countries": "countries interoperable by design",
+  "proof_languages": "languages, inclusive from day one",
+  "proof_precision": "QG·SQ grid precision",
+  "proof_pioneer_note": "Built in Africa, for Africa — be among the first to get your digital address. *estimate of the continent's addressing gap."
 }

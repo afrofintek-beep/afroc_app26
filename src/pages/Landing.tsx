@@ -12,6 +12,7 @@ import { AnimatedFeatureCard } from "@/components/AnimatedFeatureCard";
 import { AnimatedProcessCard } from "@/components/AnimatedProcessCard";
 import { StickFigure } from "@/components/StickFigure";
 import { HeroAddressCard } from "@/components/HeroAddressCard";
+import { SocialProofBand } from "@/components/SocialProofBand";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -192,6 +193,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Faixa de prova social (honesta) */}
+      <SocialProofBand />
 
       {/* Features Grid */}
       <section className="relative border-t border-border/50 py-16 sm:py-28">
