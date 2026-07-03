@@ -191,19 +191,9 @@ export default function MyAfroloc() {
                     </Badge>
                   )}
                   <ATSScoreBadge
-                    hasGpsCoordinates={!!(record.geo_lat && record.geo_lon)}
-                    geoLat={record.geo_lat}
-                    geoLon={record.geo_lon}
-                    hasGpsValidation={hasGpsValidation}
-                    photoExifGpsLat={record.photo_exif_gps_lat}
-                    photoExifGpsLon={record.photo_exif_gps_lon}
-                    photoExifDeviceMake={record.photo_exif_device_make}
-                    photoExifDeviceModel={record.photo_exif_device_model}
-                    totalWitnesses={witnesses.length}
-                    confirmedWitnesses={confirmedWitnesses}
-                    hasStreetAddress={!!record.street_name}
-                    hasHouseNumber={!!record.number}
-                    hasOfficialValidation={hasOfficialValidation}
+                    atsScore={record.ats_score}
+                    certificationLevel={record.certification_level}
+                    breakdown={record.ats_breakdown}
                     size="sm"
                   />
                 </div>

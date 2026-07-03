@@ -1,114 +1,40 @@
-import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Shield } from "lucide-react";
-import { 
-  ATSScoreInput, 
-  calculateATSScore, 
-  getCertificationLevel 
+import {
+  ATSScoreBreakdown,
+  getCertificationLevelByLevel
 } from "@/utils/atsScore";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ATSScoreBadgeProps {
-  // GPS data
-  hasGpsCoordinates: boolean;
-  geoLat?: number | null;
-  geoLon?: number | null;
-  hasGpsValidation?: boolean;
-  
-  // EXIF data
-  photoExifGpsLat?: number | null;
-  photoExifGpsLon?: number | null;
-  photoExifDeviceMake?: string | null;
-  photoExifDeviceModel?: string | null;
-  
-  // Witnesses
-  totalWitnesses?: number;
-  confirmedWitnesses?: number;
-  
-  // Documents
-  totalDocuments?: number;
-  verifiedDocuments?: number;
-  
-  // Address
-  hasStreetAddress?: boolean;
-  hasHouseNumber?: boolean;
-  hasOfficialValidation?: boolean;
-  
+  /** Server-provided ATS score (0-100). Null = pending/not yet scored. */
+  atsScore?: number | null;
+  /** Server-provided certification level (0-4). Null defaults to level 0. */
+  certificationLevel?: number | null;
+  /** Server-provided score breakdown (jsonb). Optional. */
+  breakdown?: ATSScoreBreakdown | unknown | null;
+
   size?: "sm" | "md" | "lg";
   showScore?: boolean;
   onClick?: () => void;
 }
 
 export function ATSScoreBadge({
-  hasGpsCoordinates,
-  geoLat,
-  geoLon,
-  hasGpsValidation = false,
-  photoExifGpsLat,
-  photoExifGpsLon,
-  photoExifDeviceMake,
-  photoExifDeviceModel,
-  totalWitnesses = 0,
-  confirmedWitnesses = 0,
-  totalDocuments = 0,
-  verifiedDocuments = 0,
-  hasStreetAddress = false,
-  hasHouseNumber = false,
-  hasOfficialValidation = false,
+  atsScore,
+  certificationLevel,
+  breakdown: breakdownRaw,
   size = "md",
   showScore = true,
   onClick
 }: ATSScoreBadgeProps) {
   const { t } = useLanguage();
-  const atsData = useMemo(() => {
-    // Check if EXIF GPS matches device GPS
-    let gpsExifMatch: boolean | undefined;
-    if (geoLat && geoLon && photoExifGpsLat && photoExifGpsLon) {
-      const latDiff = Math.abs(geoLat - photoExifGpsLat);
-      const lonDiff = Math.abs(geoLon - photoExifGpsLon);
-      gpsExifMatch = latDiff < 0.001 && lonDiff < 0.001;
-    }
 
-    const input: ATSScoreInput = {
-      hasGpsCoordinates,
-      hasGpsValidation,
-      hasExifData: !!(photoExifDeviceMake || photoExifDeviceModel || photoExifGpsLat),
-      hasExifGps: !!(photoExifGpsLat && photoExifGpsLon),
-      hasDeviceInfo: !!(photoExifDeviceMake || photoExifDeviceModel),
-      gpsExifMatch,
-      totalWitnesses,
-      confirmedWitnesses,
-      hasDocuments: totalDocuments > 0,
-      verifiedDocuments,
-      hasOfficialValidation,
-      hasStreetAddress,
-      hasHouseNumber
-    };
-
-    const breakdown = calculateATSScore(input);
-    const certification = getCertificationLevel(breakdown.total);
-
-    return { breakdown, certification };
-  }, [
-    hasGpsCoordinates,
-    geoLat,
-    geoLon,
-    hasGpsValidation,
-    photoExifGpsLat,
-    photoExifGpsLon,
-    photoExifDeviceMake,
-    photoExifDeviceModel,
-    totalWitnesses,
-    confirmedWitnesses,
-    totalDocuments,
-    verifiedDocuments,
-    hasOfficialValidation,
-    hasStreetAddress,
-    hasHouseNumber
-  ]);
-
-  const { breakdown, certification } = atsData;
+  const breakdown = (breakdownRaw ?? null) as ATSScoreBreakdown | null;
+  const isPending = atsScore == null;
+  const level = (certificationLevel ?? 0) as 0 | 1 | 2 | 3 | 4;
+  const certification = getCertificationLevelByLevel(level);
+  const total = atsScore ?? 0;
 
   const sizeClasses = {
     sm: "text-xs px-2 py-1",
@@ -126,27 +52,29 @@ export function ATSScoreBadge({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Badge 
+          <Badge
             variant="outline"
             className={`${sizeClasses[size]} ${certification.bgColor} ${certification.color} border ${certification.borderColor} flex items-center gap-1.5 font-medium ${onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
             onClick={onClick}
           >
             <Shield className={iconSizes[size]} />
-            {showScore && <span className="font-bold">{breakdown.total}</span>}
+            {showScore && <span className="font-bold">{isPending ? '—' : total}</span>}
             <span className="font-normal">L{certification.level}</span>
           </Badge>
         </TooltipTrigger>
         <TooltipContent>
           <div className="space-y-1">
-            <p className="font-medium">{t('ats_title')}: {breakdown.total}/100</p>
+            <p className="font-medium">{t('ats_title')}: {isPending ? '—' : total}/100</p>
             <p className="text-sm text-muted-foreground">{certification.name}</p>
-            <div className="text-xs space-y-0.5 pt-1 border-t">
-              <p>{t('ats_category_gps')}: {breakdown.gps}/25</p>
-              <p>{t('ats_category_telecom')}: {breakdown.telecom}/25</p>
-              <p>{t('ats_category_exif')}: {breakdown.exif}/20</p>
-              <p>{t('ats_category_witness')}: {breakdown.witness}/15</p>
-              <p>{t('ats_category_audit')}: {breakdown.audit}/15</p>
-            </div>
+            {breakdown && (
+              <div className="text-xs space-y-0.5 pt-1 border-t">
+                <p>{t('ats_category_gps')}: {breakdown.gps}/25</p>
+                <p>{t('ats_category_telecom')}: {breakdown.telecom}/25</p>
+                <p>{t('ats_category_exif')}: {breakdown.exif}/20</p>
+                <p>{t('ats_category_witness')}: {breakdown.witness}/15</p>
+                <p>{t('ats_category_audit')}: {breakdown.audit}/15</p>
+              </div>
+            )}
           </div>
         </TooltipContent>
       </Tooltip>

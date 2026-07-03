@@ -471,21 +471,9 @@ export default function IdentityDetail() {
               Atualizar
             </Badge>
             <ATSScoreBadge
-              hasGpsCoordinates={!!(record.geo_lat && record.geo_lon)}
-              geoLat={record.geo_lat}
-              geoLon={record.geo_lon}
-              hasGpsValidation={!!record.gps_validated_at}
-              photoExifGpsLat={record.photo_exif_gps_lat}
-              photoExifGpsLon={record.photo_exif_gps_lon}
-              photoExifDeviceMake={record.photo_exif_device_make}
-              photoExifDeviceModel={record.photo_exif_device_model}
-              totalWitnesses={witnesses.length}
-              confirmedWitnesses={confirmedWitnesses}
-              totalDocuments={documents.length}
-              verifiedDocuments={documents.filter(d => d.status === "verified").length}
-              hasStreetAddress={!!record.street_name}
-              hasHouseNumber={!!record.number}
-              hasOfficialValidation={record.status === "certified"}
+              atsScore={record.ats_score}
+              certificationLevel={record.certification_level}
+              breakdown={record.ats_breakdown}
               size="md"
               onClick={() => scrollToSection('ats-score-section', 'details')}
             />
@@ -665,21 +653,9 @@ export default function IdentityDetail() {
                 {/* ATS Score Card */}
                 <div id="ats-score-section">
                 <ATSScoreCard
-                  hasGpsCoordinates={!!(record.geo_lat && record.geo_lon)}
-                  geoLat={record.geo_lat}
-                  geoLon={record.geo_lon}
-                  hasGpsValidation={!!record.gps_validated_at}
-                  photoExifGpsLat={record.photo_exif_gps_lat}
-                  photoExifGpsLon={record.photo_exif_gps_lon}
-                  photoExifDeviceMake={record.photo_exif_device_make}
-                  photoExifDeviceModel={record.photo_exif_device_model}
-                  totalWitnesses={witnesses.length}
-                  confirmedWitnesses={confirmedWitnesses}
-                  totalDocuments={documents.length}
-                  verifiedDocuments={documents.filter(d => d.status === "verified").length}
-                  hasStreetAddress={!!record.street_name}
-                  hasHouseNumber={!!record.number}
-                  hasOfficialValidation={record.status === "certified"}
+                  atsScore={record.ats_score}
+                  certificationLevel={record.certification_level}
+                  breakdown={record.ats_breakdown}
                 />
                 </div>
 

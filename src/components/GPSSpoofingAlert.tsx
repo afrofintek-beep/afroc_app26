@@ -18,10 +18,9 @@ import {
   AlertCircle,
   Phone
 } from "lucide-react";
-import { 
-  SpoofingDetectionInput, 
-  SpoofingDetectionResult, 
-  detectGPSSpoofing,
+import {
+  SpoofingDetectionResult,
+  SpoofRiskLevel,
   getRiskLevelColors,
   SpoofingAlert
 } from "@/utils/gpsSpoofingDetection";
@@ -34,15 +33,29 @@ import {
 } from "@/components/ui/collapsible";
 import { useLanguage } from "@/contexts/LanguageContext";
 
+/**
+ * Server-authoritative spoofing verdict. The detection algorithm now runs on
+ * the server; this component only displays the resulting verdict. When no
+ * verdict is provided (e.g. at capture time, before submission) the component
+ * shows a neutral state plus a lightweight, non-secret distance FYI.
+ */
+export interface SpoofingVerdict {
+  riskLevel: SpoofRiskLevel;
+  riskScore: number;
+  alertCodes?: string[];
+}
+
 interface GPSSpoofingAlertProps {
   deviceGPS?: { latitude: number; longitude: number; accuracy?: number } | null;
   exifGPS?: { latitude: number; longitude: number } | null;
   exifTimestamp?: string | null;
   deviceTimestamp?: Date;
   showDetails?: boolean;
+  /** Server-provided verdict. When present it is displayed as-is. */
+  verdict?: SpoofingVerdict | null;
   onRiskAssessed?: (result: SpoofingDetectionResult) => void;
   className?: string;
-  /** 
+  /**
    * When true, shows simplified public-facing messages instead of technical details.
    * Hides GPS coordinates, risk scores, and spoofing detection specifics for security.
    */
@@ -51,12 +64,29 @@ interface GPSSpoofingAlertProps {
   contactInfo?: string;
 }
 
+/**
+ * Lightweight, non-secret distance between two coordinates in meters.
+ * This is only used as a display FYI at capture time (no risk scoring or
+ * thresholds). Uses the equirectangular approximation — good enough for a hint.
+ */
+function approxDistanceMeters(
+  lat1: number, lon1: number,
+  lat2: number, lon2: number
+): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const x = toRad(lon2 - lon1) * Math.cos(toRad((lat1 + lat2) / 2));
+  const y = toRad(lat2 - lat1);
+  return Math.round(Math.sqrt(x * x + y * y) * R);
+}
+
 export function GPSSpoofingAlert({
   deviceGPS,
   exifGPS,
   exifTimestamp,
   deviceTimestamp = new Date(),
   showDetails = true,
+  verdict,
   onRiskAssessed,
   className = "",
   publicView = false,
@@ -65,27 +95,39 @@ export function GPSSpoofingAlert({
   const [isExpanded, setIsExpanded] = useState(false);
   const { t } = useLanguage();
 
-  const detectionResult = useMemo(() => {
-    const input: SpoofingDetectionInput = {
-      deviceGPS: deviceGPS
-        ? {
-            latitude: deviceGPS.latitude,
-            longitude: deviceGPS.longitude,
-            accuracy: deviceGPS.accuracy,
-          }
-        : null,
-      exifGPS: exifGPS
-        ? {
-            latitude: exifGPS.latitude,
-            longitude: exifGPS.longitude,
-          }
-        : null,
-      exifTimestamp,
-      deviceTimestamp,
-    };
+  // Lightweight FYI: raw distance between device GPS and EXIF GPS (no scoring).
+  const distanceHintMeters = useMemo(() => {
+    if (deviceGPS && exifGPS) {
+      return approxDistanceMeters(
+        deviceGPS.latitude, deviceGPS.longitude,
+        exifGPS.latitude, exifGPS.longitude
+      );
+    }
+    return null;
+  }, [deviceGPS, exifGPS]);
 
-    return detectGPSSpoofing(input);
-  }, [deviceGPS, exifGPS, exifTimestamp, deviceTimestamp]);
+  // The authoritative verdict is computed server-side. If the parent supplies
+  // one, display it; otherwise fall back to a neutral (unassessed) state.
+  const detectionResult = useMemo<SpoofingDetectionResult>(() => {
+    if (verdict) {
+      return {
+        isSuspicious: verdict.riskLevel !== 'none' && verdict.riskLevel !== 'low',
+        riskLevel: verdict.riskLevel,
+        riskScore: verdict.riskScore,
+        alerts: [],
+        recommendation: '',
+        recommendationKey: '',
+      };
+    }
+    return {
+      isSuspicious: false,
+      riskLevel: 'none',
+      riskScore: 0,
+      alerts: [],
+      recommendation: '',
+      recommendationKey: '',
+    };
+  }, [verdict]);
 
   useEffect(() => {
     onRiskAssessed?.(detectionResult);
@@ -264,13 +306,23 @@ export function GPSSpoofingAlert({
           />
         </div>
 
-        {/* Recommendation */}
-        <Alert className={`${colors.bg} ${colors.border} border`}>
-          {getRiskIcon()}
-          <AlertDescription className={`text-sm ${colors.text}`}>
-            {detectionResult.recommendation}
-          </AlertDescription>
-        </Alert>
+        {/* Recommendation (server-provided; only when present) */}
+        {detectionResult.recommendation && (
+          <Alert className={`${colors.bg} ${colors.border} border`}>
+            {getRiskIcon()}
+            <AlertDescription className={`text-sm ${colors.text}`}>
+              {detectionResult.recommendation}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Lightweight distance FYI (non-secret, no scoring) */}
+        {distanceHintMeters !== null && (
+          <div className="text-xs text-muted-foreground flex items-center gap-1">
+            <MapPin className="h-3 w-3" />
+            <span>{t('gps_spoofing_device_gps')} ↔ {t('gps_spoofing_exif_gps')}: {distanceHintMeters}m</span>
+          </div>
+        )}
 
         {/* Expandable Alert Details */}
         {showDetails && visibleAlerts.length > 0 && (

@@ -591,19 +591,9 @@ export default function Identities() {
                           </div>
                           <div className="flex flex-col gap-2 items-end">
                             <ATSScoreBadge
-                              hasGpsCoordinates={!!(record.geo_lat && record.geo_lon)}
-                              geoLat={record.geo_lat}
-                              geoLon={record.geo_lon}
-                              hasGpsValidation={!!record.gps_validated_at}
-                              photoExifGpsLat={record.photo_exif_gps_lat}
-                              photoExifGpsLon={record.photo_exif_gps_lon}
-                              photoExifDeviceMake={record.photo_exif_device_make}
-                              photoExifDeviceModel={record.photo_exif_device_model}
-                              totalWitnesses={witnessesCount[record.id]?.total || 0}
-                              confirmedWitnesses={witnessesCount[record.id]?.confirmed || 0}
-                              hasStreetAddress={!!record.street_name}
-                              hasHouseNumber={!!record.number}
-                              hasOfficialValidation={record.status === "certified"}
+                              atsScore={record.ats_score}
+                              certificationLevel={record.certification_level}
+                              breakdown={record.ats_breakdown}
                               size="sm"
                             />
                             <Badge 

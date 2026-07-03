@@ -522,13 +522,19 @@ export type Database = {
           address_type: string | null
           approved_at: string | null
           approved_by_user_id: string | null
+          ats_breakdown: Json | null
+          ats_score: number | null
           batch_id: string | null
+          certification_level: number | null
           checkin_streak: number | null
           code: string
           country: string
           created_at: string | null
           geo_lat: number | null
           geo_lon: number | null
+          gps_risk_level: string | null
+          gps_risk_score: number | null
+          gps_verified: boolean | null
           gps_validated_at: string | null
           gps_validated_by_user_id: string | null
           gps_validation_notes: string | null
@@ -569,13 +575,19 @@ export type Database = {
           address_type?: string | null
           approved_at?: string | null
           approved_by_user_id?: string | null
+          ats_breakdown?: Json | null
+          ats_score?: number | null
           batch_id?: string | null
+          certification_level?: number | null
           checkin_streak?: number | null
           code: string
           country: string
           created_at?: string | null
           geo_lat?: number | null
           geo_lon?: number | null
+          gps_risk_level?: string | null
+          gps_risk_score?: number | null
+          gps_verified?: boolean | null
           gps_validated_at?: string | null
           gps_validated_by_user_id?: string | null
           gps_validation_notes?: string | null
@@ -616,13 +628,19 @@ export type Database = {
           address_type?: string | null
           approved_at?: string | null
           approved_by_user_id?: string | null
+          ats_breakdown?: Json | null
+          ats_score?: number | null
           batch_id?: string | null
+          certification_level?: number | null
           checkin_streak?: number | null
           code?: string
           country?: string
           created_at?: string | null
           geo_lat?: number | null
           geo_lon?: number | null
+          gps_risk_level?: string | null
+          gps_risk_score?: number | null
+          gps_verified?: boolean | null
           gps_validated_at?: string | null
           gps_validated_by_user_id?: string | null
           gps_validation_notes?: string | null

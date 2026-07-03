@@ -6,65 +6,31 @@
  * and shows only generic success/failure messages for security and copyright reasons.
  */
 
-import { useMemo } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle2, AlertCircle, Phone } from "lucide-react";
-import { 
-  SpoofingDetectionInput, 
-  detectGPSSpoofing,
-} from "@/utils/gpsSpoofingDetection";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PublicValidationStatusProps {
-  deviceGPS?: { latitude: number; longitude: number; accuracy?: number } | null;
-  exifGPS?: { latitude: number; longitude: number } | null;
-  exifTimestamp?: string | null;
-  deviceTimestamp?: Date;
+  /**
+   * Server-authoritative validation flag (record.gps_verified). When omitted,
+   * defaults to false (not yet verified). The client no longer runs spoofing
+   * detection — the verdict comes from the server.
+   */
+  isValidated?: boolean | null;
   className?: string;
   /** Contact information to display when validation fails */
   contactInfo?: string;
 }
 
 export function PublicValidationStatus({
-  deviceGPS,
-  exifGPS,
-  exifTimestamp,
-  deviceTimestamp = new Date(),
+  isValidated: isValidatedProp,
   className = "",
   contactInfo
 }: PublicValidationStatusProps) {
   const { t } = useLanguage();
 
-  const isValidated = useMemo(() => {
-    // If no GPS data available, consider as needing verification
-    if (!deviceGPS && !exifGPS) {
-      return false;
-    }
-
-    const input: SpoofingDetectionInput = {
-      deviceGPS: deviceGPS
-        ? {
-            latitude: deviceGPS.latitude,
-            longitude: deviceGPS.longitude,
-            accuracy: deviceGPS.accuracy,
-          }
-        : null,
-      exifGPS: exifGPS
-        ? {
-            latitude: exifGPS.latitude,
-            longitude: exifGPS.longitude,
-          }
-        : null,
-      exifTimestamp,
-      deviceTimestamp,
-    };
-
-    const result = detectGPSSpoofing(input);
-    
-    // Only consider as validated if risk level is 'none' or 'low'
-    return result.riskLevel === 'none' || result.riskLevel === 'low';
-  }, [deviceGPS, exifGPS, exifTimestamp, deviceTimestamp]);
+  const isValidated = isValidatedProp ?? false;
 
   if (isValidated) {
     return (
