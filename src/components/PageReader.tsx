@@ -81,13 +81,14 @@ export function PageReader() {
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-50 flex gap-2">
+    <div className="fixed bottom-5 right-4 sm:bottom-8 sm:right-8 z-40 flex gap-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             onClick={readPage}
             size="lg"
-            className="h-14 w-14 rounded-full shadow-lg"
+            aria-label={isReading && !isPaused ? t('pause_reading') : isPaused ? t('resume_reading') : t('read_page')}
+            className="h-12 w-12 rounded-full shadow-lg"
             variant={isReading ? "default" : "secondary"}
           >
             {isReading && !isPaused ? (
@@ -114,7 +115,8 @@ export function PageReader() {
             <Button
               onClick={stopReading}
               size="lg"
-              className="h-14 w-14 rounded-full shadow-lg"
+              aria-label={t('stop_reading')}
+              className="h-12 w-12 rounded-full shadow-lg"
               variant="destructive"
             >
               <VolumeX className="h-6 w-6" />

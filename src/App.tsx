@@ -19,6 +19,8 @@ const Pricing = lazy(() => import("./pages/Pricing"));
 const About = lazy(() => import("./pages/About"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const Contact = lazy(() => import("./pages/Contact"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const Login = lazy(() => import("./pages/Login"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminTwoFactor = lazy(() => import("./pages/AdminTwoFactor"));
@@ -128,6 +130,8 @@ const App = () => (
                       <Route path="/about" element={<About />} />
                       <Route path="/faq" element={<FAQ />} />
                       <Route path="/contact" element={<Contact />} />
+                      <Route path="/privacy" element={<PrivacyPolicy />} />
+                      <Route path="/terms" element={<Terms />} />
                       <Route path="/map-demo" element={<MapDemo />} />
                       <Route path="/documents" element={<Documents />} />
                       <Route path="/public-documents" element={<PublicDocuments />} />

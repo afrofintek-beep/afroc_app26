@@ -680,10 +680,6 @@ export default function Landing() {
               <FileText className="h-4 w-4 mr-1" />
               Documentos
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/brand-guidelines")} className="text-muted-foreground hover:text-foreground">
-              <Book className="h-4 w-4 mr-1" />
-              Brand Book
-            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/pricing")} className="text-muted-foreground hover:text-foreground">
               Planos
             </Button>
@@ -692,6 +688,12 @@ export default function Landing() {
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/contact")} className="text-muted-foreground hover:text-foreground">
               Contacto
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/privacy")} className="text-muted-foreground hover:text-foreground">
+              Privacidade
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/terms")} className="text-muted-foreground hover:text-foreground">
+              Termos
             </Button>
           </div>
           <div className="text-center text-sm text-muted-foreground">
