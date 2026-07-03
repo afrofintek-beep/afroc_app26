@@ -162,25 +162,24 @@ export default function Landing() {
                 <MapPin className="mr-2 h-5 w-5 group-hover:animate-pulse-glow" />
                 {t('create_afroloc')}
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={handleInstallApp} 
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleInstallApp}
                 className="w-full sm:w-auto px-8 py-6 text-lg glass-strong border-2 border-primary/50 hover:border-primary hover:bg-primary/10 hover:shadow-glow transition-all group"
               >
                 <Smartphone className="mr-2 h-5 w-5 group-hover:animate-bounce" />
                 {isInstallable ? 'Instalar App' : 'Baixar App'}
                 <ArrowUpRight className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={() => navigate("/login")} 
-                className="w-full sm:w-auto px-8 py-6 text-lg glass-strong border-2 border-border/50 hover:border-primary hover:shadow-glow transition-all"
-              >
-                {t('enter')}
-              </Button>
             </div>
+            {/* Login discreto — quem já tem conta usa o header ou este link */}
+            <p className="text-sm text-muted-foreground pt-2">
+              {t('already_have_account')}{" "}
+              <button onClick={() => navigate("/login")} className="text-primary font-medium hover:underline">
+                {t('enter')}
+              </button>
+            </p>
           </div>
         </div>
       </section>

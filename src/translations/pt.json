@@ -368,8 +368,8 @@
   "user_type_admin_desc": "Gestão completa do sistema",
   "no_account": "Não tem conta?",
   "register": "Registre-se",
-  "hero_title": "Sistema Continental de Endereçamento Digital",
-  "hero_description": "Um identificador digital único e verificável para cada cidadão e morada africano, promovendo inclusão, eficiência e interoperabilidade.",
+  "hero_title": "Uma morada digital para cada pessoa — mesmo sem rua nem número.",
+  "hero_description": "Em África, milhões de pessoas não têm morada — e sem morada não há banco, entregas nem serviços. Crie a sua AFROLOC: um código único e verificável para o sítio onde vive.",
   "continental_system_badge": "Sistema Continental de Endereçamento Digital",
   "key_features_badge": "Recursos Principais",
   "how_it_works_badge": "Como Funciona",
@@ -1796,5 +1796,6 @@
   "verifying": "A verificar...",
   "view": "Ver",
   "weekly": "Weekly",
-  "zone": "Zone"
+  "zone": "Zone",
+  "no_recent_activity": "Ainda sem atividade recente"
 }

@@ -366,8 +366,8 @@
   "user_type_admin_desc": "Complete system management",
   "no_account": "Don't have an account?",
   "register": "Register",
-  "hero_title": "Continental Digital Addressing System",
-  "hero_description": "A unique and verifiable digital identifier for every African citizen and address, promoting inclusion, efficiency and interoperability.",
+  "hero_title": "A digital address for everyone — even without a street or number.",
+  "hero_description": "Millions of people in Africa have no address — and without one, there's no banking, deliveries or services. Create your AFROLOC: a unique, verifiable code for where you live.",
   "continental_system_badge": "Continental Digital Addressing System",
   "key_features_badge": "Key Features",
   "how_it_works_badge": "How It Works",
@@ -1625,5 +1625,6 @@
   "trusted_devices_title": "Trusted Devices",
   "trusted_devices_description": "Manage devices authorized for quick sign-in",
   "last_used": "Last used",
-  "expires": "Expires"
+  "expires": "Expires",
+  "no_recent_activity": "No recent activity yet"
 }

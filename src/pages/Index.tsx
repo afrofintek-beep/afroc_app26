@@ -21,6 +21,21 @@ const Index = () => {
   const { role, isCitizen } = useUserRole();
   const { t } = useLanguage();
   const [userName, setUserName] = useState<string>("");
+  const [stats, setStats] = useState({ users: 0, identities: 0, documents: 0 });
+
+  // Estatísticas REAIS (nunca inventadas). Só para painel de gestão.
+  useEffect(() => {
+    if (isCitizen) return;
+    const fetchStats = async () => {
+      const [u, i, d] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('afroloc_records').select('*', { count: 'exact', head: true }),
+        supabase.from('identity_documents').select('*', { count: 'exact', head: true }),
+      ]);
+      setStats({ users: u.count ?? 0, identities: i.count ?? 0, documents: d.count ?? 0 });
+    };
+    fetchStats();
+  }, [isCitizen]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -153,11 +168,7 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-1">{t("total_users")}</p>
-              <h3 className="text-3xl font-display font-bold mb-2">2,543</h3>
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +12.5% desde último mês
-              </p>
+              <h3 className="text-3xl font-display font-bold mb-2">{stats.users.toLocaleString()}</h3>
             </div>
             
             <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
@@ -167,11 +178,7 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-1">{t("active_identities")}</p>
-              <h3 className="text-3xl font-display font-bold mb-2">1,892</h3>
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +8.2% desde último mês
-              </p>
+              <h3 className="text-3xl font-display font-bold mb-2">{stats.identities.toLocaleString()}</h3>
             </div>
             
             <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
@@ -181,11 +188,7 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground mb-1">{t("verified_documents")}</p>
-              <h3 className="text-3xl font-display font-bold mb-2">4,231</h3>
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <TrendingUp className="h-3 w-3" />
-                +23.1% desde último mês
-              </p>
+              <h3 className="text-3xl font-display font-bold mb-2">{stats.documents.toLocaleString()}</h3>
             </div>
             
             <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
@@ -214,24 +217,11 @@ const Index = () => {
                 <CardDescription className="text-base">{t("recent_activity_desc")}</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div 
-                      key={i} 
-                      className="group flex items-center gap-4 rounded-2xl glass border border-border/50 p-5 hover:border-primary/50 hover:shadow-glow transition-all duration-500 hover:scale-[1.02]"
-                    >
-                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-elegant group-hover:shadow-glow group-hover:scale-110 transition-all animate-float" style={{ animationDelay: `${i * 0.1}s` }}>
-                        <Shield className="h-7 w-7 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-display font-semibold">{t("identity_verification")} #{1000 + i}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{t("completed_hours_ago").replace('{hours}', i.toString())}</p>
-                      </div>
-                      <div className="px-4 py-2 rounded-xl bg-green-100 text-green-700 text-sm font-semibold shadow-soft">
-                        {t("approved")}
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="p-4 rounded-2xl bg-muted/50 mb-4">
+                    <Activity className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm text-muted-foreground">{t("no_recent_activity")}</p>
                 </div>
               </CardContent>
             </Card>
