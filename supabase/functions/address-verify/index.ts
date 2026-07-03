@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { detectSpoofing } from "../_shared/spoofing.ts";
 
 /**
  * POST /address/verify
@@ -237,13 +238,27 @@ serve(async (req) => {
     const atsResult = await callATSEngine(record.id);
     console.log(`[${requestId}] Verification: distance=${distanceMeters.toFixed(2)}m, threshold=${threshold}m, match=${isLocationMatch}`);
 
-    // Update last verified if match
-    if (isLocationMatch) {
-      await supabase
-        .from('afroloc_records')
-        .update({ last_verified_at: new Date().toISOString() })
-        .eq('id', record.id);
-    }
+    // Server-side GPS spoofing detection (autoritativa — não depende do cliente).
+    // Compara o GPS atual do dispositivo com o EXIF da foto guardada no registo.
+    const spoof = detectSpoofing({
+      deviceLat: body.currentLatitude,
+      deviceLon: body.currentLongitude,
+      exifLat: record.photo_exif_gps_lat,
+      exifLon: record.photo_exif_gps_lon,
+      exifTimestamp: record.photo_exif_timestamp,
+      referenceTimestamp: timestamp,
+    });
+    console.log(`[${requestId}] Spoofing: level=${spoof.riskLevel} score=${spoof.riskScore} alerts=${spoof.alertCodes.join(',')}`);
+
+    // Persistir veredito de spoofing (+ last_verified_at se a localização bate).
+    const recordUpdate: Record<string, unknown> = {
+      gps_risk_score: spoof.riskScore,
+      gps_risk_level: spoof.riskLevel,
+      gps_verified: !spoof.isSuspicious,
+      gps_checked_at: timestamp,
+    };
+    if (isLocationMatch) recordUpdate.last_verified_at = timestamp;
+    await supabase.from('afroloc_records').update(recordUpdate).eq('id', record.id);
 
     // Log audit
     await supabase.from('security_audit_log').insert({
@@ -291,6 +306,12 @@ serve(async (req) => {
         certificationName: atsResult.certificationLevel.name,
         validationFlags: atsResult.validationFlags,
         recommendations: atsResult.recommendations,
+        gpsRisk: {
+          level: spoof.riskLevel,
+          score: spoof.riskScore,
+          verified: !spoof.isSuspicious,
+          alertCodes: spoof.alertCodes,
+        },
       },
       requestId,
       timestamp,
