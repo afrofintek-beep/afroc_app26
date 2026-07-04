@@ -124,7 +124,7 @@ export function ClickProposalModal({
         registered_by_user_id: user.id,
         status: canAutoApprove ? 'approved' : 'pending_validation',
         address_type: addressCategory, // 'formal' or 'informal' - both are now digital addresses
-        property_type: 'residential',
+        property_type: 'house', // valor válido da CHECK constraint (house|apartment|commercial|land|other)
         // Add street and number for formal addresses
         ...(addressCategory === 'formal' && {
           street_name: streetName.trim(),
@@ -183,7 +183,9 @@ export function ClickProposalModal({
       
     } catch (err) {
       console.error('Error creating AFROLOC:', err);
-      const errorMessage = err instanceof Error ? err.message : '';
+      // Os erros do Supabase são PostgrestError (não Error), por isso lemos .message
+      // diretamente — senão a causa real fica escondida e mostra só "Tente novamente".
+      const errorMessage = (err as { message?: string })?.message || '';
       
       // Check for specific error about user limit
       if (errorMessage.includes('Maximum limit') && errorMessage.includes('AFROLOC addresses')) {
