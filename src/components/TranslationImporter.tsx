@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Upload, Download, AlertCircle, CheckCircle, FileText, Archive } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   importTranslationsFromExcel,
   generateTranslationFiles,
@@ -14,6 +15,7 @@ import {
 
 export default function TranslationImporter() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [importing, setImporting] = useState(false);
   const [importResult, setImportResult] = useState<ImportValidationResult | null>(null);
 
@@ -30,20 +32,20 @@ export default function TranslationImporter() {
 
       if (result.isValid) {
         toast({
-          title: "Importação validada",
-          description: `${result.stats.totalKeys} chaves processadas com sucesso`,
+          title: t('transimport_toast_validated_title'),
+          description: `${result.stats.totalKeys} ${t('transimport_toast_validated_desc')}`,
         });
       } else {
         toast({
-          title: "Erro na importação",
-          description: result.errors[0] || "Erro desconhecido",
+          title: t('transimport_toast_import_error_title'),
+          description: result.errors[0] || t('transimport_toast_unknown_error'),
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "Erro",
-        description: "Erro ao processar arquivo",
+        title: t('transimport_toast_error_title'),
+        description: t('transimport_toast_process_error'),
         variant: "destructive",
       });
     } finally {
@@ -69,8 +71,8 @@ export default function TranslationImporter() {
     });
 
     toast({
-      title: "Arquivos gerados",
-      description: `${Object.keys(files).length} arquivos JSON baixados`,
+      title: t('transimport_toast_files_generated_title'),
+      description: `${Object.keys(files).length} ${t('transimport_toast_files_generated_desc')}`,
     });
   };
 
@@ -83,10 +85,10 @@ export default function TranslationImporter() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="h-5 w-5" />
-          Importar Traduções
+          {t('transimport_title')}
         </CardTitle>
         <CardDescription>
-          Importe o arquivo Excel com traduções corrigidas para atualizar o sistema
+          {t('transimport_description')}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -98,7 +100,7 @@ export default function TranslationImporter() {
               disabled={importing}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {importing ? "Processando..." : "Selecionar Arquivo Excel"}
+              {importing ? t('transimport_processing') : t('transimport_select_file')}
             </Button>
             <input
               id="file-upload"
@@ -120,15 +122,15 @@ export default function TranslationImporter() {
                 )}
                 <AlertDescription>
                   {importResult.isValid
-                    ? "Validação concluída com sucesso!"
-                    : "Erros encontrados durante a validação"}
+                    ? t('transimport_validation_success')
+                    : t('transimport_validation_errors')}
                 </AlertDescription>
               </Alert>
 
               {/* Errors */}
               {importResult.errors.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-destructive">Erros:</h4>
+                  <h4 className="text-sm font-semibold text-destructive">{t('transimport_errors_label')}</h4>
                   {importResult.errors.map((error, i) => (
                     <p key={i} className="text-sm text-destructive">{error}</p>
                   ))}
@@ -138,7 +140,7 @@ export default function TranslationImporter() {
               {/* Warnings */}
               {importResult.warnings.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-yellow-600">Avisos:</h4>
+                  <h4 className="text-sm font-semibold text-yellow-600">{t('transimport_warnings_label')}</h4>
                   {importResult.warnings.map((warning, i) => (
                     <p key={i} className="text-sm text-yellow-600">{warning}</p>
                   ))}
@@ -150,30 +152,30 @@ export default function TranslationImporter() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Total de Chaves</p>
+                      <p className="text-sm text-muted-foreground">{t('transimport_stat_total_keys')}</p>
                       <p className="text-2xl font-bold">{importResult.stats.totalKeys}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Atualizadas</p>
+                      <p className="text-sm text-muted-foreground">{t('transimport_stat_updated')}</p>
                       <p className="text-2xl font-bold text-blue-600">
                         {importResult.stats.updatedKeys}
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Novas</p>
+                      <p className="text-sm text-muted-foreground">{t('transimport_stat_new')}</p>
                       <p className="text-2xl font-bold text-green-600">
                         {importResult.stats.newKeys}
                       </p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm text-muted-foreground">Idiomas</p>
+                      <p className="text-sm text-muted-foreground">{t('transimport_stat_languages')}</p>
                       <p className="text-2xl font-bold">{importResult.stats.languages.length}</p>
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">Taxa de Atualização</span>
+                      <span className="text-sm font-medium">{t('transimport_update_rate')}</span>
                       <span className="text-sm font-medium">{completionRate}%</span>
                     </div>
                     <Progress value={completionRate} className="h-2" />
@@ -190,16 +192,14 @@ export default function TranslationImporter() {
                   <div className="flex gap-2 pt-4">
                     <Button onClick={handleDownloadFiles} className="flex-1">
                       <Archive className="h-4 w-4 mr-2" />
-                      Baixar Arquivos JSON Atualizados
+                      {t('transimport_download_button')}
                     </Button>
                   </div>
 
                   <Alert>
                     <FileText className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>Próximos passos:</strong> Após baixar os arquivos JSON, substitua os
-                      arquivos na pasta <code>src/translations/</code> do projeto e faça o deploy
-                      das alterações.
+                      <strong>{t('transimport_next_steps_label')}</strong> {t('transimport_next_steps_before')}<code>src/translations/</code>{t('transimport_next_steps_after')}
                     </AlertDescription>
                   </Alert>
                 </div>

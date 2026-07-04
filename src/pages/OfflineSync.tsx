@@ -14,11 +14,13 @@ import {
 } from "@/utils/offlineStorage";
 import { supabase } from "@/integrations/supabase/client";
 import ConflictResolutionPanel from "@/components/ConflictResolutionPanel";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function OfflineSync() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isOnline } = useNetworkStatus();
+  const { t } = useLanguage();
   
   const [records, setRecords] = useState<any[]>([]);
   const [syncing, setSyncing] = useState(false);
@@ -48,8 +50,8 @@ export default function OfflineSync() {
   const syncAllRecords = async () => {
     if (!isOnline) {
       toast({
-        title: "No Internet",
-        description: "Connect to internet to sync records",
+        title: t('offlinesync_no_internet_title'),
+        description: t('offlinesync_no_internet_desc'),
         variant: "destructive",
       });
       return;
@@ -146,14 +148,14 @@ export default function OfflineSync() {
       }
 
       toast({
-        title: "Sync Complete",
-        description: `${successCount} records synced${failCount > 0 ? `, ${failCount} failed` : ''}`,
+        title: t('offlinesync_sync_complete_title'),
+        description: `${successCount} ${t('offlinesync_records_synced')}${failCount > 0 ? `, ${failCount} ${t('offlinesync_failed')}` : ''}`,
       });
 
       loadRecords();
     } catch (error: any) {
       toast({
-        title: "Sync Failed",
+        title: t('offlinesync_sync_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -166,13 +168,13 @@ export default function OfflineSync() {
     try {
       await deleteOfflineAfroloc(id);
       toast({
-        title: "Record Deleted",
-        description: "Offline record removed",
+        title: t('offlinesync_record_deleted_title'),
+        description: t('offlinesync_record_deleted_desc'),
       });
       loadRecords();
     } catch (error: any) {
       toast({
-        title: "Delete Failed",
+        title: t('offlinesync_delete_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -182,7 +184,7 @@ export default function OfflineSync() {
   const unsyncedCount = records.filter(r => !r.synced).length;
 
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return <div className="p-4">{t('offlinesync_loading')}</div>;
   }
 
   return (
@@ -202,12 +204,12 @@ export default function OfflineSync() {
             {isOnline ? (
               <Badge variant="outline" className="gap-1">
                 <Wifi className="h-3 w-3" />
-                Online
+                {t('offlinesync_online')}
               </Badge>
             ) : (
               <Badge variant="destructive" className="gap-1">
                 <WifiOff className="h-3 w-3" />
-                Offline
+                {t('offlinesync_offline')}
               </Badge>
             )}
           </div>
@@ -215,10 +217,10 @@ export default function OfflineSync() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Offline Records</CardTitle>
+            <CardTitle>{t('offlinesync_records_title')}</CardTitle>
             <CardDescription>
-              {records.length} total record{records.length !== 1 ? 's' : ''} 
-              {unsyncedCount > 0 && ` · ${unsyncedCount} pending sync`}
+              {records.length} {t('offlinesync_total_records')}
+              {unsyncedCount > 0 && ` · ${unsyncedCount} ${t('offlinesync_pending_sync')}`}
             </CardDescription>
           </CardHeader>
           
@@ -233,19 +235,19 @@ export default function OfflineSync() {
                 className="w-full"
               >
                 <Upload className={`h-4 w-4 mr-2 ${syncing ? 'animate-bounce' : ''}`} />
-                {syncing ? 'Syncing...' : `Sync ${unsyncedCount} Record${unsyncedCount !== 1 ? 's' : ''}`}
+                {syncing ? t('offlinesync_syncing') : `${t('offlinesync_sync_button')} ${unsyncedCount} ${t('offlinesync_records_label')}`}
               </Button>
             )}
 
             {records.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                <p>No offline records</p>
+                <p>{t('offlinesync_no_records')}</p>
                 <Button
                   onClick={() => navigate("/offline-create")}
                   variant="outline"
                   className="mt-4"
                 >
-                  Create First Record
+                  {t('offlinesync_create_first')}
                 </Button>
               </div>
             ) : (
@@ -260,9 +262,9 @@ export default function OfflineSync() {
                               {record.code}
                             </code>
                             {record.synced ? (
-                              <Badge variant="outline" className="text-xs">Synced</Badge>
+                              <Badge variant="outline" className="text-xs">{t('offlinesync_synced_badge')}</Badge>
                             ) : (
-                              <Badge variant="secondary" className="text-xs">Pending</Badge>
+                              <Badge variant="secondary" className="text-xs">{t('offlinesync_pending_badge')}</Badge>
                             )}
                           </div>
                           
@@ -277,7 +279,7 @@ export default function OfflineSync() {
                             <p className="text-sm text-muted-foreground">
                               {record.street_name}
                               {record.number && ` ${record.number}`}
-                              {record.unit && ` Unit ${record.unit}`}
+                              {record.unit && ` ${t('offlinesync_unit_label')} ${record.unit}`}
                             </p>
                           )}
                           
@@ -291,7 +293,7 @@ export default function OfflineSync() {
                           {record.witnesses && record.witnesses.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border">
                               <p className="text-xs font-semibold text-muted-foreground mb-1">
-                                Witnesses ({record.witnesses.length}):
+                                {t('offlinesync_witnesses_label')} ({record.witnesses.length}):
                               </p>
                               {record.witnesses.map((w: any, idx: number) => (
                                 <div key={idx} className="flex items-center justify-between text-xs text-muted-foreground mb-1">
@@ -303,7 +305,7 @@ export default function OfflineSync() {
                                   </span>
                                   {w.photo && (
                                     <Badge variant="secondary" className="text-xs">
-                                      📸 Photo
+                                      📸 {t('offlinesync_photo_badge')}
                                     </Badge>
                                   )}
                                 </div>
@@ -312,7 +314,7 @@ export default function OfflineSync() {
                           )}
                           
                           <p className="text-xs text-muted-foreground">
-                            Created: {new Date(record.created_at).toLocaleString()}
+                            {t('offlinesync_created_label')}: {new Date(record.created_at).toLocaleString()}
                           </p>
                         </div>
                         
@@ -339,7 +341,7 @@ export default function OfflineSync() {
           className="w-full"
         >
           <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
+          {t('offlinesync_refresh')}
         </Button>
       </div>
     </div>

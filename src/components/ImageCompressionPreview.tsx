@@ -10,6 +10,7 @@ import { compressImageInWorker, type WorkerCompressionResult } from '@/utils/ima
 import { ImageCompressionStats } from './ImageCompressionStats';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useExifExtractor, ExifData } from '@/hooks/useExifExtractor';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Props {
   open: boolean;
@@ -26,6 +27,7 @@ interface Props {
 type ResolutionMode = 'fast' | 'high';
 
 export function ImageCompressionPreview({ open, originalImage, onSave, onCancel, outputFormat = 'blobUrl' }: Props) {
+  const { t } = useLanguage();
   const [quality, setQuality] = useState(85);
   const [resolutionMode, setResolutionMode] = useState<ResolutionMode>('fast');
   const [compressing, setCompressing] = useState(false);
@@ -230,7 +232,7 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Otimizar Foto</DialogTitle>
+          <DialogTitle>{t('imgcompress_title')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -239,7 +241,7 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
             {compressing && (
               <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10">
                 <div className="flex flex-col items-center gap-3 px-8 w-full max-w-xs">
-                  <p className="text-sm font-medium">A otimizar foto...</p>
+                  <p className="text-sm font-medium">{t('imgcompress_optimizing')}</p>
                   <Progress value={progress} className="w-full h-2" />
                   <p className="text-xs text-muted-foreground">{progress}%</p>
                 </div>
@@ -248,19 +250,19 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
             {displayImage ? (
               <img
                 src={displayImage}
-                alt="Preview"
+                alt={t('imgcompress_preview_alt')}
                 className="w-full h-auto max-h-[300px] object-contain"
               />
             ) : (
               <div className="w-full h-48 flex items-center justify-center">
-                <p className="text-muted-foreground text-sm">A carregar pré-visualização...</p>
+                <p className="text-muted-foreground text-sm">{t('imgcompress_loading_preview')}</p>
               </div>
             )}
           </div>
 
           {/* Resolution Mode Toggle */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Modo de Resolução</Label>
+            <Label className="text-sm font-medium">{t('imgcompress_resolution_mode')}</Label>
             <ToggleGroup 
               type="single" 
               value={resolutionMode} 
@@ -268,19 +270,19 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
               className="justify-start"
               disabled={compressing}
             >
-              <ToggleGroupItem value="fast" aria-label="Modo rápido" className="gap-2">
+              <ToggleGroupItem value="fast" aria-label={t('imgcompress_fast_mode_aria')} className="gap-2">
                 <Zap className="h-4 w-4" />
-                <span>Rápido (1280px)</span>
+                <span>{t('imgcompress_fast_mode')}</span>
               </ToggleGroupItem>
-              <ToggleGroupItem value="high" aria-label="Alta qualidade" className="gap-2">
+              <ToggleGroupItem value="high" aria-label={t('imgcompress_high_quality_aria')} className="gap-2">
                 <Image className="h-4 w-4" />
-                <span>Alta Qualidade (1920px)</span>
+                <span>{t('imgcompress_high_quality')}</span>
               </ToggleGroupItem>
             </ToggleGroup>
             <p className="text-xs text-muted-foreground">
-              {resolutionMode === 'fast' 
-                ? 'Processamento mais rápido, ideal para mobile' 
-                : 'Maior resolução, melhor para documentos detalhados'}
+              {resolutionMode === 'fast'
+                ? t('imgcompress_fast_hint')
+                : t('imgcompress_high_hint')}
             </p>
           </div>
 
@@ -288,10 +290,10 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="quality-slider" className="text-sm font-medium">
-                Qualidade: {quality}%
+                {t('imgcompress_quality_label')}: {quality}%
               </Label>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>Menor qualidade = Ficheiro menor</span>
+                <span>{t('imgcompress_quality_tradeoff')}</span>
               </div>
             </div>
             <Slider
@@ -305,9 +307,9 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
               disabled={compressing}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>60% (Menor)</span>
-              <span>85% (Recomendado)</span>
-              <span>100% (Melhor)</span>
+              <span>60% ({t('imgcompress_scale_lower')})</span>
+              <span>85% ({t('imgcompress_scale_recommended')})</span>
+              <span>100% ({t('imgcompress_scale_best')})</span>
             </div>
           </div>
 
@@ -324,11 +326,11 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
 
           {/* Quality Recommendations */}
           <div className="rounded-lg bg-muted/50 p-4 space-y-2">
-            <p className="text-sm font-medium">Guia de Qualidade:</p>
+            <p className="text-sm font-medium">{t('imgcompress_quality_guide')}</p>
             <ul className="text-xs text-muted-foreground space-y-1">
-              <li>• <strong>85-100%</strong>: Melhor para verificação de ID (recomendado)</li>
-              <li>• <strong>75-85%</strong>: Bom equilíbrio entre qualidade e tamanho</li>
-              <li>• <strong>60-75%</strong>: Ficheiros menores, pode perder detalhes</li>
+              <li>• <strong>85-100%</strong>: {t('imgcompress_guide_high')}</li>
+              <li>• <strong>75-85%</strong>: {t('imgcompress_guide_balance')}</li>
+              <li>• <strong>60-75%</strong>: {t('imgcompress_guide_low')}</li>
             </ul>
           </div>
         </div>
@@ -340,14 +342,14 @@ export function ImageCompressionPreview({ open, originalImage, onSave, onCancel,
             disabled={compressing}
           >
             <X className="h-4 w-4 mr-2" />
-            Cancelar
+            {t('imgcompress_cancel')}
           </Button>
           <Button
             onClick={handleSave}
             disabled={compressing || !compressionResult}
           >
             <Check className="h-4 w-4 mr-2" />
-            Guardar Foto
+            {t('imgcompress_save')}
           </Button>
         </DialogFooter>
       </DialogContent>

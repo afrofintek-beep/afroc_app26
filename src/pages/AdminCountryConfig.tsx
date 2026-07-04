@@ -381,7 +381,7 @@ export default function AdminCountryConfig() {
                   <SelectContent>
                     {[1, 2, 3, 4, 5].map((level) => (
                       <SelectItem key={level} value={level.toString()}>
-                        {level} {t('level')}{level > 1 ? 's' : ''}
+                        {level} {level > 1 ? t('countryconfig_levels') : t('countryconfig_level')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -454,7 +454,7 @@ export default function AdminCountryConfig() {
                   <SelectContent>
                     {[1, 2, 3, 4, 5].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num} {t('witness')}{num > 1 ? 'es' : ''}
+                        {num} {num > 1 ? t('countryconfig_witnesses') : t('countryconfig_witness')}
                       </SelectItem>
                     ))}
                   </SelectContent>

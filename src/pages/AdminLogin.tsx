@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, LogIn, ArrowLeft } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import afrolocSymbol from "@/assets/afroloc-symbol.png";
 
 export default function AdminLogin() {
@@ -16,6 +17,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +43,7 @@ export default function AdminLogin() {
       if (roleError || !hasAdminRole) {
         // Sign out the user if they're not an admin
         await supabase.auth.signOut();
-        throw new Error('Access denied. Administrator privileges required.');
+        throw new Error(t('adminlogin_access_denied'));
       }
 
       // Get user profile for 2FA preferences
@@ -68,8 +70,8 @@ export default function AdminLogin() {
         if (sendError) throw sendError;
 
         toast({
-          title: 'Verification Code Sent',
-          description: `A verification code has been sent to your ${method}`,
+          title: t('adminlogin_code_sent_title'),
+          description: `${t('adminlogin_code_sent_desc')} ${method}`,
         });
 
         // Navigate to 2FA verification page
@@ -84,14 +86,14 @@ export default function AdminLogin() {
       } else {
         // No 2FA, proceed directly
         toast({
-          title: 'Access Granted',
-          description: 'Welcome to the administrative dashboard',
+          title: t('adminlogin_access_granted_title'),
+          description: t('adminlogin_access_granted_desc'),
         });
         navigate("/admin/import-divisions");
       }
     } catch (error: any) {
       toast({
-        title: 'Authentication Failed',
+        title: t('adminlogin_auth_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -107,7 +109,7 @@ export default function AdminLogin() {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/")}
-          title="Back"
+          title={t('adminlogin_back')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -126,16 +128,16 @@ export default function AdminLogin() {
               </div>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Administrator Access</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('adminlogin_title')}</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Restricted area - authorized personnel only
+            {t('adminlogin_subtitle')}
           </CardDescription>
         </CardHeader>
         
         <form onSubmit={handleAdminLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="admin-email">Email Address</Label>
+              <Label htmlFor="admin-email">{t('adminlogin_email_label')}</Label>
               <Input
                 id="admin-email"
                 type="email"
@@ -148,12 +150,12 @@ export default function AdminLogin() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="admin-password">Password</Label>
-                <Link 
-                  to="/forgot-password" 
+                <Label htmlFor="admin-password">{t('adminlogin_password_label')}</Label>
+                <Link
+                  to="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
-                  Forgot password?
+                  {t('adminlogin_forgot_password')}
                 </Link>
               </div>
               <Input
@@ -169,7 +171,7 @@ export default function AdminLogin() {
             <div className="bg-muted/50 border border-border rounded-md p-3 text-xs text-muted-foreground">
               <p className="flex items-center gap-2">
                 <Shield className="h-3 w-3" />
-                This login portal is for system administrators only. All access attempts are logged and monitored.
+                {t('adminlogin_security_notice')}
               </p>
             </div>
           </CardContent>
@@ -177,14 +179,14 @@ export default function AdminLogin() {
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={loading}>
               <LogIn className="mr-2 h-4 w-4" />
-              {loading ? 'Verifying credentials...' : 'Sign In as Administrator'}
+              {loading ? t('adminlogin_verifying') : t('adminlogin_sign_in')}
             </Button>
             
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
-                Not an administrator?{" "}
+                {t('adminlogin_not_admin')}{" "}
                 <Link to="/login" className="text-primary hover:underline">
-                  Regular user login
+                  {t('adminlogin_regular_login')}
                 </Link>
               </p>
             </div>

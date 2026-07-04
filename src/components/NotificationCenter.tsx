@@ -15,8 +15,10 @@ import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const NotificationCenter = () => {
+  const { t } = useLanguage();
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead, deleteNotification } =
     useNotifications();
   const { isSupported, isSubscribed, loading: pushLoading, subscribeToPush, unsubscribeFromPush } = 
@@ -92,7 +94,7 @@ export const NotificationCenter = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 sm:w-96 p-0">
         <div className="flex items-center justify-between p-4 border-b">
-          <h3 className="font-semibold text-lg">Notificações</h3>
+          <h3 className="font-semibold text-lg">{t('notifcenter_title')}</h3>
           <div className="flex items-center gap-2">
             {isSupported && (
               <Button
@@ -101,10 +103,10 @@ export const NotificationCenter = () => {
                 onClick={handleTogglePush}
                 disabled={pushLoading}
                 className="h-8 px-2 text-xs"
-                title={isSubscribed ? "Desativar notificações push" : "Ativar notificações push"}
+                title={isSubscribed ? t('notifcenter_push_disable') : t('notifcenter_push_enable')}
               >
                 <BellRing className="h-4 w-4 mr-1" />
-                Push
+                {t('notifcenter_push')}
               </Button>
             )}
             {unreadCount > 0 && (
@@ -115,7 +117,7 @@ export const NotificationCenter = () => {
                 className="h-8 px-2 text-xs"
               >
                 <CheckCheck className="h-4 w-4 mr-1" />
-                Marcar todas
+                {t('notifcenter_mark_all')}
               </Button>
             )}
             <Button
@@ -134,9 +136,9 @@ export const NotificationCenter = () => {
             <div className="flex items-start gap-3">
               <BellRing className="h-5 w-5 text-primary mt-0.5" />
               <div className="flex-1">
-                <h4 className="font-semibold text-sm mb-1">Ativar notificações push?</h4>
+                <h4 className="font-semibold text-sm mb-1">{t('notifcenter_prompt_title')}</h4>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Receba alertas mesmo quando o app estiver fechado
+                  {t('notifcenter_prompt_desc')}
                 </p>
                 <div className="flex gap-2">
                   <Button
@@ -145,7 +147,7 @@ export const NotificationCenter = () => {
                     disabled={pushLoading}
                     className="h-7 text-xs"
                   >
-                    Ativar
+                    {t('notifcenter_enable')}
                   </Button>
                   <Button
                     size="sm"
@@ -153,7 +155,7 @@ export const NotificationCenter = () => {
                     onClick={handleDismissPushPrompt}
                     className="h-7 text-xs"
                   >
-                    Agora não
+                    {t('notifcenter_not_now')}
                   </Button>
                 </div>
               </div>
@@ -169,7 +171,7 @@ export const NotificationCenter = () => {
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
               <Bell className="h-12 w-12 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Nenhuma notificação</p>
+              <p className="text-sm text-muted-foreground">{t('notifcenter_empty')}</p>
             </div>
           ) : (
             <div className="divide-y">
@@ -231,7 +233,7 @@ export const NotificationCenter = () => {
                         </span>
                         {!notification.read && (
                           <Badge variant="secondary" className="text-xs px-1.5 py-0">
-                            Nova
+                            {t('notifcenter_new')}
                           </Badge>
                         )}
                       </div>
@@ -255,7 +257,7 @@ export const NotificationCenter = () => {
                   // Navigate to notifications page if exists
                 }}
               >
-                Ver todas as notificações
+                {t('notifcenter_view_all')}
               </Button>
             </div>
           </>

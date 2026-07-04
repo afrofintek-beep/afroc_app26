@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Copy, Download, RefreshCw, ArrowLeft, AlertTriangle, Check } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import afrolocSymbol from "@/assets/afroloc-symbol.png";
 
 export default function AdminBackupCodes() {
@@ -15,6 +16,7 @@ export default function AdminBackupCodes() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkExistingCodes();
@@ -49,15 +51,15 @@ export default function AdminBackupCodes() {
         setCodes(data.codes);
         setExistingCodesCount(data.codes.length);
         toast({
-          title: "Backup Codes Generated",
-          description: "Save these codes in a secure location",
+          title: t('backupcodes_toast_generated_title'),
+          description: t('backupcodes_toast_generated_desc'),
         });
       } else {
-        throw new Error(data.error || "Failed to generate codes");
+        throw new Error(data.error || t('backupcodes_error_generate_failed'));
       }
     } catch (error: any) {
       toast({
-        title: "Generation Failed",
+        title: t('backupcodes_toast_generation_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -71,8 +73,8 @@ export default function AdminBackupCodes() {
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
     toast({
-      title: "Copied",
-      description: "Backup code copied to clipboard",
+      title: t('backupcodes_toast_copied_title'),
+      description: t('backupcodes_toast_copied_desc'),
     });
   };
 
@@ -80,13 +82,13 @@ export default function AdminBackupCodes() {
     const allCodes = codes.join("\n");
     navigator.clipboard.writeText(allCodes);
     toast({
-      title: "All Codes Copied",
-      description: "All backup codes copied to clipboard",
+      title: t('backupcodes_toast_all_copied_title'),
+      description: t('backupcodes_toast_all_copied_desc'),
     });
   };
 
   const downloadCodes = () => {
-    const content = `AFROLOC Admin Backup Codes\nGenerated: ${new Date().toLocaleString()}\n\n${codes.join("\n")}\n\nIMPORTANT: Store these codes securely. Each code can only be used once.`;
+    const content = `${t('backupcodes_file_heading')}\n${t('backupcodes_file_generated_label')}: ${new Date().toLocaleString()}\n\n${codes.join("\n")}\n\n${t('backupcodes_file_important')}`;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -98,8 +100,8 @@ export default function AdminBackupCodes() {
     URL.revokeObjectURL(url);
     
     toast({
-      title: "Codes Downloaded",
-      description: "Backup codes saved to file",
+      title: t('backupcodes_toast_downloaded_title'),
+      description: t('backupcodes_toast_downloaded_desc'),
     });
   };
 
@@ -110,7 +112,7 @@ export default function AdminBackupCodes() {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/admin/import-divisions")}
-          title="Back to dashboard"
+          title={t('backupcodes_back_to_dashboard')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -129,9 +131,9 @@ export default function AdminBackupCodes() {
               </div>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">2FA Backup Codes</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('backupcodes_title')}</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Generate and manage recovery codes for two-factor authentication
+            {t('backupcodes_description')}
           </CardDescription>
         </CardHeader>
 
@@ -140,7 +142,7 @@ export default function AdminBackupCodes() {
             <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-md p-4">
               <p className="text-sm text-green-800 dark:text-green-200">
                 <Check className="h-4 w-4 inline mr-2" />
-                You have {existingCodesCount} unused backup code{existingCodesCount !== 1 ? 's' : ''} available.
+                {t('backupcodes_have_prefix')} {existingCodesCount} {existingCodesCount !== 1 ? t('backupcodes_unused_codes_plural') : t('backupcodes_unused_codes_singular')} {t('backupcodes_available_suffix')}
               </p>
             </div>
           )}
@@ -149,13 +151,13 @@ export default function AdminBackupCodes() {
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
               <div className="text-sm text-amber-800 dark:text-amber-200 space-y-2">
-                <p className="font-semibold">Important Security Information:</p>
+                <p className="font-semibold">{t('backupcodes_security_info_title')}</p>
                 <ul className="list-disc list-inside space-y-1 text-xs">
-                  <li>Each backup code can only be used once</li>
-                  <li>Store codes in a secure location (password manager, safe, etc.)</li>
-                  <li>Generating new codes will invalidate all previous unused codes</li>
-                  <li>Never share these codes with anyone</li>
-                  <li>Use backup codes only when you cannot access your primary 2FA method</li>
+                  <li>{t('backupcodes_security_item_once')}</li>
+                  <li>{t('backupcodes_security_item_store')}</li>
+                  <li>{t('backupcodes_security_item_invalidate')}</li>
+                  <li>{t('backupcodes_security_item_never_share')}</li>
+                  <li>{t('backupcodes_security_item_primary_method')}</li>
                 </ul>
               </div>
             </div>
@@ -170,11 +172,11 @@ export default function AdminBackupCodes() {
                 className="gap-2"
               >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                {loading ? 'Generating...' : existingCodesCount > 0 ? 'Regenerate Backup Codes' : 'Generate Backup Codes'}
+                {loading ? t('backupcodes_btn_generating') : existingCodesCount > 0 ? t('backupcodes_btn_regenerate') : t('backupcodes_btn_generate')}
               </Button>
               {existingCodesCount > 0 && (
                 <p className="text-xs text-muted-foreground mt-3">
-                  Generating new codes will invalidate your existing {existingCodesCount} unused code{existingCodesCount !== 1 ? 's' : ''}
+                  {t('backupcodes_invalidate_prefix')} {existingCodesCount} {existingCodesCount !== 1 ? t('backupcodes_unused_codes_plural') : t('backupcodes_unused_codes_singular')}
                 </p>
               )}
             </div>
@@ -188,7 +190,7 @@ export default function AdminBackupCodes() {
                   className="flex-1"
                 >
                   <Copy className="h-4 w-4 mr-2" />
-                  Copy All
+                  {t('backupcodes_btn_copy_all')}
                 </Button>
                 <Button
                   onClick={downloadCodes}
@@ -197,7 +199,7 @@ export default function AdminBackupCodes() {
                   className="flex-1"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download
+                  {t('backupcodes_btn_download')}
                 </Button>
               </div>
 
@@ -228,10 +230,10 @@ export default function AdminBackupCodes() {
 
               <div className="bg-destructive/10 border border-destructive/20 rounded-md p-4 text-center">
                 <p className="text-sm text-destructive font-semibold mb-2">
-                  ⚠️ Save These Codes Now
+                  ⚠️ {t('backupcodes_save_now')}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  These codes will not be shown again. Make sure to save them in a secure location before leaving this page.
+                  {t('backupcodes_not_shown_again')}
                 </p>
               </div>
 
@@ -242,7 +244,7 @@ export default function AdminBackupCodes() {
                 disabled={loading}
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Generate New Codes
+                {t('backupcodes_btn_generate_new')}
               </Button>
             </div>
           )}

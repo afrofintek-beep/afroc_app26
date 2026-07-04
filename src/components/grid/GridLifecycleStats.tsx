@@ -6,6 +6,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Grid3X3, 
   MapPin, 
@@ -38,6 +39,7 @@ interface GridLifecycleStatsProps {
 }
 
 export default function GridLifecycleStats({ stats, loading }: GridLifecycleStatsProps) {
+  const { t } = useLanguage();
   const allocationRate = stats.totalCells > 0 
     ? Math.round((stats.allocatedCells / stats.totalCells) * 100) 
     : 0;
@@ -73,7 +75,7 @@ export default function GridLifecycleStats({ stats, loading }: GridLifecycleStat
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total de Células</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_total_cells')}</CardTitle>
             <Grid3X3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -81,11 +83,11 @@ export default function GridLifecycleStats({ stats, loading }: GridLifecycleStat
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="secondary" className="text-xs">
                 <Building2 className="h-3 w-3 mr-1" />
-                {stats.urbanCells.toLocaleString()} urbanas
+                {stats.urbanCells.toLocaleString()} {t('lifecyclestats_urban')}
               </Badge>
               <Badge variant="outline" className="text-xs">
                 <TreePine className="h-3 w-3 mr-1" />
-                {stats.ruralCells.toLocaleString()} rurais
+                {stats.ruralCells.toLocaleString()} {t('lifecyclestats_rural')}
               </Badge>
             </div>
           </CardContent>
@@ -93,41 +95,41 @@ export default function GridLifecycleStats({ stats, loading }: GridLifecycleStat
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Alocação</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_allocation_rate')}</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{allocationRate}%</div>
             <Progress value={allocationRate} className="mt-2" />
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.allocatedCells.toLocaleString()} de {stats.totalCells.toLocaleString()}
+              {stats.allocatedCells.toLocaleString()} {t('lifecyclestats_of')} {stats.totalCells.toLocaleString()}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Taxa de Aprovação</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_approval_rate')}</CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{approvalRate}%</div>
             <Progress value={approvalRate} className="mt-2 [&>div]:bg-green-500" />
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.approvedCells.toLocaleString()} aprovadas
+              {stats.approvedCells.toLocaleString()} {t('lifecyclestats_approved')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Tempo Médio</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_avg_time')}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.avgProcessingTime}h</div>
             <p className="text-xs text-muted-foreground mt-2">
-              Criação → Alocação
+              {t('lifecyclestats_creation_to_allocation')}
             </p>
           </CardContent>
         </Card>
@@ -137,53 +139,53 @@ export default function GridLifecycleStats({ stats, loading }: GridLifecycleStat
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Zonas Urbanas</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_urban_zones')}</CardTitle>
             <Building2 className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.urbanZones}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.urbanAreaKm2.toFixed(1)} km² total
+              {stats.urbanAreaKm2.toFixed(1)} km² {t('lifecyclestats_total')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Pendentes</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_pending')}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-600">{stats.pendingCells}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Aguardando aprovação
+              {t('lifecyclestats_awaiting_approval')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Criadas Hoje</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_created_today')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.todayCreated}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {stats.weekCreated} esta semana
+              {stats.weekCreated} {t('lifecyclestats_this_week')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Urbano/Rural</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('lifecyclestats_urban_rural')}</CardTitle>
             <Grid3X3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{urbanRatio}%</div>
             <Progress value={urbanRatio} className="mt-2 [&>div]:bg-blue-500" />
             <p className="text-xs text-muted-foreground mt-1">
-              Proporção urbana
+              {t('lifecyclestats_urban_proportion')}
             </p>
           </CardContent>
         </Card>

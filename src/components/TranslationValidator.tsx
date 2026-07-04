@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   validateTranslations,
   groupMissingByLanguage,
@@ -16,6 +17,7 @@ import {
 } from "@/utils/translationValidator";
 
 export function TranslationValidator() {
+  const { t } = useLanguage();
   const [report, setReport] = useState<ValidationReport | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -54,9 +56,9 @@ export function TranslationValidator() {
   };
 
   const getCompletionBadge = (rate: number) => {
-    if (rate === 100) return <Badge variant="default" className="bg-green-600">Complete</Badge>;
-    if (rate >= 90) return <Badge variant="secondary" className="bg-yellow-600">Good</Badge>;
-    return <Badge variant="destructive">Incomplete</Badge>;
+    if (rate === 100) return <Badge variant="default" className="bg-green-600">{t('transvalidator_complete')}</Badge>;
+    if (rate >= 90) return <Badge variant="secondary" className="bg-yellow-600">{t('transvalidator_good')}</Badge>;
+    return <Badge variant="destructive">{t('transvalidator_incomplete')}</Badge>;
   };
 
   if (!report || !import.meta.env.DEV) {
@@ -73,7 +75,7 @@ export function TranslationValidator() {
           className="shadow-lg"
         >
           <FileText className="h-4 w-4 mr-2" />
-          Translation Status
+          {t('transvalidator_translation_status')}
           {!report.isValid && (
             <Badge variant="destructive" className="ml-2">
               {report.missingTranslations.length}
@@ -98,9 +100,9 @@ export function TranslationValidator() {
                 <AlertCircle className="h-6 w-6 text-yellow-500" />
               )}
               <div>
-                <CardTitle>Translation Validation Report</CardTitle>
+                <CardTitle>{t('transvalidator_report_title')}</CardTitle>
                 <CardDescription>
-                  {report.totalKeys} total keys across {report.languages.length} languages
+                  {report.totalKeys} {t('transvalidator_total_keys_across')} {report.languages.length} {t('transvalidator_languages')}
                 </CardDescription>
               </div>
             </div>
@@ -111,7 +113,7 @@ export function TranslationValidator() {
                 onClick={handleDownloadReport}
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export
+                {t('transvalidator_export')}
               </Button>
               <Button
                 variant="ghost"
@@ -127,9 +129,9 @@ export function TranslationValidator() {
         <CardContent className="flex-1 overflow-hidden">
           <Tabs defaultValue="overview" className="h-full flex flex-col">
             <TabsList className="flex-shrink-0">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="overview">{t('transvalidator_overview')}</TabsTrigger>
               <TabsTrigger value="missing">
-                Missing Keys
+                {t('transvalidator_missing_keys')}
                 {!report.isValid && (
                   <Badge variant="destructive" className="ml-2">
                     {report.missingTranslations.length}
@@ -144,25 +146,25 @@ export function TranslationValidator() {
                   {/* Overall Status */}
                   <div className="p-4 rounded-lg bg-muted">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">Overall Status</h3>
+                      <h3 className="font-semibold">{t('transvalidator_overall_status')}</h3>
                       {report.isValid ? (
-                        <Badge variant="default" className="bg-green-600">All Complete</Badge>
+                        <Badge variant="default" className="bg-green-600">{t('transvalidator_all_complete')}</Badge>
                       ) : (
                         <Badge variant="destructive">
-                          {report.missingTranslations.length} Missing
+                          {report.missingTranslations.length} {t('transvalidator_missing')}
                         </Badge>
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {report.isValid
-                        ? "All translations are complete across all languages."
-                        : `Found ${report.missingTranslations.length} missing translations.`}
+                        ? t('transvalidator_all_translations_complete')
+                        : `${t('transvalidator_found')} ${report.missingTranslations.length} ${t('transvalidator_missing_translations')}`}
                     </p>
                   </div>
 
                   {/* Completion Rates */}
                   <div className="space-y-3">
-                    <h3 className="font-semibold">Language Completion Rates</h3>
+                    <h3 className="font-semibold">{t('transvalidator_language_completion_rates')}</h3>
                     {report.languages.map((lang) => {
                       const rate = report.completionRate[lang];
                       const missing = groupedMissing[lang]?.length || 0;
@@ -175,7 +177,7 @@ export function TranslationValidator() {
                               {getCompletionBadge(rate)}
                               {missing > 0 && (
                                 <span className="text-muted-foreground">
-                                  ({missing} missing)
+                                  ({missing} {t('transvalidator_missing')})
                                 </span>
                               )}
                             </div>
@@ -198,9 +200,9 @@ export function TranslationValidator() {
                 {report.isValid ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">All Translations Complete!</h3>
+                    <h3 className="text-xl font-semibold mb-2">{t('transvalidator_all_translations_complete_heading')}</h3>
                     <p className="text-muted-foreground">
-                      Every language has all required translation keys.
+                      {t('transvalidator_every_language_has_keys')}
                     </p>
                   </div>
                 ) : (
@@ -209,7 +211,7 @@ export function TranslationValidator() {
                       <div key={language} className="space-y-2">
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold uppercase">{language}</h3>
-                          <Badge variant="outline">{missing.length} missing</Badge>
+                          <Badge variant="outline">{missing.length} {t('transvalidator_missing')}</Badge>
                         </div>
                         <div className="space-y-1">
                           {missing.map((m: MissingTranslation, index: number) => (

@@ -21,6 +21,7 @@ import {
 import { GridRealtimeEvent } from '@/hooks/useGridRealtime';
 import { formatDistanceToNow } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface GridRealtimeFeedProps {
   events: GridRealtimeEvent[];
@@ -35,6 +36,7 @@ export default function GridRealtimeFeed({
   lastEventTime,
   onClear 
 }: GridRealtimeFeedProps) {
+  const { t } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to top on new events
@@ -62,25 +64,25 @@ export default function GridRealtimeFeed({
 
   const getEventLabel = (event: GridRealtimeEvent) => {
     if (event.type === 'INSERT') {
-      return 'Nova célula criada';
+      return t('realtimefeed_cell_created');
     }
     if (event.type === 'UPDATE') {
       if (event.payload.old_status && event.payload.new_status) {
-        return `Estado: ${event.payload.old_status} → ${event.payload.new_status}`;
+        return `${t('realtimefeed_status_label')}: ${event.payload.old_status} → ${event.payload.new_status}`;
       }
-      return 'Célula atualizada';
+      return t('realtimefeed_cell_updated');
     }
-    return 'Célula removida';
+    return t('realtimefeed_cell_removed');
   };
 
   const getEventBadge = (event: GridRealtimeEvent) => {
     switch (event.type) {
       case 'INSERT':
-        return <Badge className="bg-primary/10 text-primary border-primary/20">Criação</Badge>;
+        return <Badge className="bg-primary/10 text-primary border-primary/20">{t('realtimefeed_badge_creation')}</Badge>;
       case 'UPDATE':
-        return <Badge className="bg-secondary text-secondary-foreground border-secondary">Atualização</Badge>;
+        return <Badge className="bg-secondary text-secondary-foreground border-secondary">{t('realtimefeed_badge_update')}</Badge>;
       case 'DELETE':
-        return <Badge className="bg-destructive/10 text-destructive border-destructive/20">Remoção</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive border-destructive/20">{t('realtimefeed_badge_removal')}</Badge>;
     }
   };
 
@@ -91,11 +93,11 @@ export default function GridRealtimeFeed({
           <div className="flex items-center gap-2">
             <Activity className="h-5 w-5 text-primary" />
             <div>
-              <CardTitle className="text-base">Eventos em Tempo Real</CardTitle>
+              <CardTitle className="text-base">{t('realtimefeed_title')}</CardTitle>
               <CardDescription className="text-xs">
-                {lastEventTime 
-                  ? `Último: ${formatDistanceToNow(lastEventTime, { addSuffix: true, locale: pt })}`
-                  : 'A aguardar eventos...'}
+                {lastEventTime
+                  ? `${t('realtimefeed_last')}: ${formatDistanceToNow(lastEventTime, { addSuffix: true, locale: pt })}`
+                  : t('realtimefeed_waiting_events')}
               </CardDescription>
             </div>
           </div>
@@ -103,17 +105,17 @@ export default function GridRealtimeFeed({
             {isConnected ? (
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                 <Wifi className="h-3 w-3 mr-1" />
-                Conectado
+                {t('realtimefeed_connected')}
               </Badge>
             ) : (
               <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
                 <WifiOff className="h-3 w-3 mr-1" />
-                Desconectado
+                {t('realtimefeed_disconnected')}
               </Badge>
             )}
             {events.length > 0 && (
               <Button variant="ghost" size="sm" onClick={onClear}>
-                Limpar
+                {t('realtimefeed_clear')}
               </Button>
             )}
           </div>
@@ -124,8 +126,8 @@ export default function GridRealtimeFeed({
           {events.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground py-12">
               <Activity className="h-8 w-8 mb-2 opacity-50" />
-              <p className="text-sm">Nenhum evento ainda</p>
-              <p className="text-xs">Os eventos aparecerão aqui em tempo real</p>
+              <p className="text-sm">{t('realtimefeed_no_events')}</p>
+              <p className="text-xs">{t('realtimefeed_events_appear_here')}</p>
             </div>
           ) : (
             <div className="space-y-2">

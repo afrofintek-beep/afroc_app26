@@ -10,6 +10,7 @@ import { Loader2, MapPin, Users, CheckCircle, XCircle, AlertTriangle, ArrowLeft,
 import { Link } from 'react-router-dom';
 import DashboardLayout from '@/components/DashboardLayout';
 import { useQuery } from '@tanstack/react-query';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AfrolocWithWitnesses {
   id: string;
@@ -52,13 +53,14 @@ const statusColors: Record<string, string> = {
   rejected: 'bg-red-500/20 text-red-600',
 };
 
-const statusLabels: Record<string, string> = {
-  pending: 'Pendente',
-  confirmed: 'Confirmado',
-  rejected: 'Rejeitado',
+const statusSlugs: Record<string, string> = {
+  pending: 'proxmap_status_pending',
+  confirmed: 'proxmap_status_confirmed',
+  rejected: 'proxmap_status_rejected',
 };
 
 export default function WitnessProximityMap() {
+  const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -83,7 +85,7 @@ export default function WitnessProximityMap() {
         }
       } catch (err) {
         console.error('Error fetching Mapbox token:', err);
-        setError('Erro ao carregar o mapa');
+        setError(t('proxmap_error_load_map'));
       }
     }
     
@@ -245,9 +247,9 @@ export default function WitnessProximityMap() {
       .setLngLat([propertyLon, propertyLat])
       .setPopup(new mapboxgl.Popup().setHTML(`
         <div style="padding: 8px;">
-          <strong>Propriedade</strong><br/>
+          <strong>${t('proxmap_popup_property')}</strong><br/>
           <code style="font-size: 11px;">${selectedAfroloc.code}</code><br/>
-          <span style="color: #22c55e;">Raio: ${threshold}m</span>
+          <span style="color: #22c55e;">${t('proxmap_popup_radius')}: ${threshold}m</span>
         </div>
       `))
       .addTo(map.current);
@@ -288,13 +290,13 @@ export default function WitnessProximityMap() {
         .setLngLat([witness.witness_lon, witness.witness_lat])
         .setPopup(new mapboxgl.Popup().setHTML(`
           <div style="padding: 8px;">
-            <strong>Testemunha ${index + 1}</strong><br/>
+            <strong>${t('proxmap_popup_witness')} ${index + 1}</strong><br/>
             <span style="font-size: 12px;">${witness.witness_name || witness.witness_afro_id}</span><br/>
             <span style="color: ${color};">
-              Distância: ${Math.round(distance)}m
+              ${t('proxmap_popup_distance')}: ${Math.round(distance)}m
               ${isWithinRange ? '✓' : '✗'}
             </span><br/>
-            <span style="font-size: 11px;">Reputação: ${witness.witness_reputation_score}</span>
+            <span style="font-size: 11px;">${t('proxmap_reputation')}: ${witness.witness_reputation_score}</span>
           </div>
         `))
         .addTo(map.current!);
@@ -365,10 +367,10 @@ export default function WitnessProximityMap() {
           <div className="p-4 border-b">
             <h2 className="font-semibold text-lg flex items-center gap-2">
               <Ruler className="h-5 w-5 text-primary" />
-              Proximidade Testemunhas
+              {t('proxmap_sidebar_title')}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Validação de distância máxima de 100m (urbano) / 500m (rural)
+              {t('proxmap_sidebar_subtitle')}
             </p>
           </div>
 
@@ -376,19 +378,19 @@ export default function WitnessProximityMap() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-green-500" />
-                <span>Dentro do raio</span>
+                <span>{t('proxmap_legend_within')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-red-500" />
-                <span>Fora do raio</span>
+                <span>{t('proxmap_legend_outside')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-amber-500" />
-                <span>Propriedade</span>
+                <span>{t('proxmap_legend_property')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded-full bg-green-500/20 border border-green-500" />
-                <span>Zona válida</span>
+                <span>{t('proxmap_legend_valid_zone')}</span>
               </div>
             </div>
           </div>
@@ -418,7 +420,7 @@ export default function WitnessProximityMap() {
                           {afroloc.code}
                         </p>
                         <p className="text-sm text-muted-foreground truncate mt-0.5">
-                          {afroloc.street_name ? `${afroloc.street_name}, ${afroloc.number || ''}` : afroloc.level2_name || 'Endereço'}
+                          {afroloc.street_name ? `${afroloc.street_name}, ${afroloc.number || ''}` : afroloc.level2_name || t('proxmap_address_fallback')}
                         </p>
                         <div className="flex items-center gap-2 mt-2">
                           <Badge variant="outline" className="text-xs gap-1">
@@ -428,17 +430,17 @@ export default function WitnessProximityMap() {
                           {allValid ? (
                             <Badge className="text-xs bg-green-500/20 text-green-600 gap-1">
                               <CheckCircle className="h-3 w-3" />
-                              Válido
+                              {t('proxmap_badge_valid')}
                             </Badge>
                           ) : stats.outside > 0 ? (
                             <Badge className="text-xs bg-red-500/20 text-red-600 gap-1">
                               <XCircle className="h-3 w-3" />
-                              {stats.outside} fora
+                              {stats.outside} {t('proxmap_badge_outside')}
                             </Badge>
                           ) : (
                             <Badge className="text-xs bg-yellow-500/20 text-yellow-600 gap-1">
                               <AlertTriangle className="h-3 w-3" />
-                              Sem GPS
+                              {t('proxmap_badge_no_gps')}
                             </Badge>
                           )}
                         </div>
@@ -455,7 +457,7 @@ export default function WitnessProximityMap() {
             {!afrolocsLoading && (!afrolocs || afrolocs.length === 0) && (
               <div className="p-8 text-center text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhum Afroloc com testemunhas encontrado</p>
+                <p>{t('proxmap_empty_no_witnesses')}</p>
               </div>
             )}
           </div>
@@ -499,14 +501,14 @@ export default function WitnessProximityMap() {
                   </Button>
                 </div>
                 <CardDescription>
-                  {selectedAfroloc.street_name ? `${selectedAfroloc.street_name}, ${selectedAfroloc.number || ''}` : 'Endereço não especificado'}
+                  {selectedAfroloc.street_name ? `${selectedAfroloc.street_name}, ${selectedAfroloc.number || ''}` : t('proxmap_address_unspecified')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
                 <div className="mb-4">
                   <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Testemunhas ({selectedAfroloc.witnesses.length})
+                    {t('proxmap_witnesses_heading')} ({selectedAfroloc.witnesses.length})
                   </h4>
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {selectedAfroloc.witnesses.map((witness, index) => {
@@ -532,16 +534,16 @@ export default function WitnessProximityMap() {
                                 {witness.witness_name || witness.witness_afro_id}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Reputação: {witness.witness_reputation_score}
+                                {t('proxmap_reputation')}: {witness.witness_reputation_score}
                               </p>
                             </div>
                           </div>
                           <div className="text-right">
                             <p className={`text-sm font-mono ${isWithinRange ? 'text-green-600' : 'text-red-600'}`}>
-                              {distance !== null ? `${Math.round(distance)}m` : 'N/A'}
+                              {distance !== null ? `${Math.round(distance)}m` : t('proxmap_distance_na')}
                             </p>
                             <Badge className={statusColors[witness.status]}>
-                              {statusLabels[witness.status]}
+                              {t(statusSlugs[witness.status] || 'proxmap_status_pending')}
                             </Badge>
                           </div>
                         </div>
@@ -552,15 +554,15 @@ export default function WitnessProximityMap() {
                 
                 <div className="pt-3 border-t flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">
-                    Raio de validação: {(selectedAfroloc.metadata as Record<string, unknown>)?.cellType === 'urban' ? '100m (urbano)' : '500m (rural)'}
+                    {t('proxmap_validation_radius')}: {(selectedAfroloc.metadata as Record<string, unknown>)?.cellType === 'urban' ? t('proxmap_radius_urban') : t('proxmap_radius_rural')}
                   </span>
                   <div className="flex gap-2">
                     <Badge className="bg-green-500/20 text-green-600">
-                      {getProximityStats(selectedAfroloc).within} válidos
+                      {getProximityStats(selectedAfroloc).within} {t('proxmap_valid_plural')}
                     </Badge>
                     {getProximityStats(selectedAfroloc).outside > 0 && (
                       <Badge className="bg-red-500/20 text-red-600">
-                        {getProximityStats(selectedAfroloc).outside} inválidos
+                        {getProximityStats(selectedAfroloc).outside} {t('proxmap_invalid_plural')}
                       </Badge>
                     )}
                   </div>
@@ -575,12 +577,10 @@ export default function WitnessProximityMap() {
               <CardContent className="p-4">
                 <h3 className="font-medium mb-2 flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
-                  Visualização de Proximidade
+                  {t('proxmap_instructions_title')}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Selecione um Afroloc na barra lateral para visualizar a localização 
-                  das testemunhas e verificar se estão dentro do raio de 100m (urbano) 
-                  ou 500m (rural).
+                  {t('proxmap_instructions_body')}
                 </p>
               </CardContent>
             </Card>

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface RequesterProfile {
   user_id: string;
@@ -32,10 +33,11 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
   const [results, setResults] = useState<RequesterProfile[]>([]);
   const [searched, setSearched] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSearch = async () => {
     if (!phone.trim() || phone.trim().length < 6) {
-      toast({ title: "Número inválido", description: "Insira pelo menos 6 dígitos.", variant: "destructive" });
+      toast({ title: t('requester_invalid_number'), description: t('requester_min_digits'), variant: "destructive" });
       return;
     }
 
@@ -51,7 +53,7 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
       });
 
       if (resp.error) {
-        toast({ title: "Erro na pesquisa", description: resp.error.message, variant: "destructive" });
+        toast({ title: t('requester_search_error'), description: resp.error.message, variant: "destructive" });
         setResults([]);
         return;
       }
@@ -60,11 +62,11 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
       setResults(data.results || []);
 
       if (!data.found || data.results.length === 0) {
-        toast({ title: "Não encontrado", description: "Nenhum utilizador registado com este número.", variant: "destructive" });
+        toast({ title: t('requester_not_found'), description: t('requester_no_user_registered'), variant: "destructive" });
       }
     } catch (err) {
       console.error("Lookup error:", err);
-      toast({ title: "Erro", description: "Falha na pesquisa do solicitante.", variant: "destructive" });
+      toast({ title: t('requester_error'), description: t('requester_search_failed'), variant: "destructive" });
     } finally {
       setSearching(false);
     }
@@ -72,9 +74,9 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
 
   const documentTypeLabel = (type: string | null) => {
     switch (type) {
-      case "bi": return "Bilhete de Identidade";
-      case "passport": return "Passaporte";
-      case "driving_license": return "Carta de Condução";
+      case "bi": return t('requester_doc_bi');
+      case "passport": return t('requester_doc_passport');
+      case "driving_license": return t('requester_doc_driving_license');
       default: return type || "—";
     }
   };
@@ -87,20 +89,20 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
           <div className="flex items-center justify-between">
             <CardTitle className="text-base flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-              Solicitante Identificado
+              {t('requester_identified')}
             </CardTitle>
             <Button variant="ghost" size="sm" onClick={onClear} className="text-muted-foreground">
               <XCircle className="h-4 w-4 mr-1" />
-              Alterar
+              {t('requester_change')}
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <ProfileField icon={<User className="h-4 w-4" />} label="Nome" value={selectedProfile.full_name} highlight />
-            <ProfileField icon={<Phone className="h-4 w-4" />} label="Telefone" value={selectedProfile.phone} highlight />
+            <ProfileField icon={<User className="h-4 w-4" />} label={t('requester_name')} value={selectedProfile.full_name} highlight />
+            <ProfileField icon={<Phone className="h-4 w-4" />} label={t('requester_phone')} value={selectedProfile.phone} highlight />
             <ProfileField icon={<Mail className="h-4 w-4" />} label="Email" value={selectedProfile.email} highlight />
-            <ProfileField icon={<CreditCard className="h-4 w-4" />} label="BI / Documento" value={
+            <ProfileField icon={<CreditCard className="h-4 w-4" />} label={t('requester_document')} value={
               selectedProfile.document_number
                 ? `${documentTypeLabel(selectedProfile.document_type)}: ${selectedProfile.document_number}`
                 : null
@@ -121,10 +123,10 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Search className="h-5 w-5 text-amber-500" />
-          Identificar Solicitante
+          {t('requester_identify')}
         </CardTitle>
         <p className="text-xs text-muted-foreground">
-          Pesquise o número de telefone do solicitante registado no Yamioo
+          {t('requester_search_hint')}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -145,7 +147,7 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
         {searched && results.length > 0 && (
           <div className="space-y-2">
             <Separator />
-            <p className="text-xs text-muted-foreground">{results.length} resultado(s) encontrado(s)</p>
+            <p className="text-xs text-muted-foreground">{results.length} {t('requester_results_found')}</p>
             {results.map((r) => (
               <button
                 key={r.user_id}
@@ -154,7 +156,7 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1 min-w-0">
-                    <p className="font-medium text-sm">{r.full_name || "Sem nome"}</p>
+                    <p className="font-medium text-sm">{r.full_name || t('requester_no_name')}</p>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{r.phone || "—"}</span>
                       <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{r.email || "—"}</span>
@@ -163,7 +165,7 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
                       )}
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-[10px] shrink-0">Selecionar</Badge>
+                  <Badge variant="secondary" className="text-[10px] shrink-0">{t('requester_select')}</Badge>
                 </div>
               </button>
             ))}
@@ -172,7 +174,7 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
 
         {searched && results.length === 0 && !searching && (
           <div className="text-center py-4 text-sm text-muted-foreground">
-            Nenhum utilizador encontrado com este número.
+            {t('requester_no_user_found')}
           </div>
         )}
       </CardContent>
