@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Globe, MapPin, Users, Shield, CheckCircle2, ArrowRight, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SetupStep {
   id: string;
@@ -19,6 +20,7 @@ interface SetupStep {
 }
 
 export default function AdminSystemSetup() {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState<string>('countries');
 
@@ -65,29 +67,29 @@ export default function AdminSystemSetup() {
   const setupSteps: SetupStep[] = [
     {
       id: 'countries',
-      title: 'Configurar Países',
-      description: 'Ative e configure os países onde o sistema irá operar',
+      title: t('syssetup_step_countries_title'),
+      description: t('syssetup_step_countries_desc'),
       icon: Globe,
       status: setupStatus?.hasCountries ? 'completed' : 'pending'
     },
     {
       id: 'divisions',
-      title: 'Divisões Administrativas',
-      description: 'Importe as divisões administrativas (províncias, territórios, comunas)',
+      title: t('syssetup_step_divisions_title'),
+      description: t('syssetup_step_divisions_desc'),
       icon: MapPin,
       status: setupStatus?.hasDivisions ? 'completed' : 'pending'
     },
     {
       id: 'admins',
-      title: 'Administradores Globais',
-      description: 'Crie administradores com acesso total ao sistema',
+      title: t('syssetup_step_admins_title'),
+      description: t('syssetup_step_admins_desc'),
       icon: Shield,
       status: setupStatus?.hasAdmins ? 'completed' : 'pending'
     },
     {
       id: 'regional',
-      title: 'Administradores Regionais',
-      description: 'Atribua funcionários para gerenciar regiões específicas',
+      title: t('syssetup_step_regional_title'),
+      description: t('syssetup_step_regional_desc'),
       icon: Users,
       status: setupStatus?.hasRegionalAdmins ? 'completed' : 'pending'
     }
@@ -107,28 +109,26 @@ export default function AdminSystemSetup() {
         <div className="flex items-center gap-2">
           <Settings className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold">Configuração Inicial do Sistema</h1>
+            <h1 className="text-3xl font-bold">{t('syssetup_page_title')}</h1>
             <p className="text-muted-foreground">
-              Configure o sistema para operação multi-regional e multi-nacional
+              {t('syssetup_page_subtitle')}
             </p>
           </div>
         </div>
 
         <Alert>
           <CheckCircle2 className="h-4 w-4" />
-          <AlertTitle>Modelo Hierárquico de Gestão</AlertTitle>
+          <AlertTitle>{t('syssetup_hier_alert_title')}</AlertTitle>
           <AlertDescription>
-            O sistema opera em 5 níveis de autorização: Nível 1 (Local) → Nível 2 (Comunal) → 
-            Nível 3 (Territorial) → Nível 4 (Provincial) → Nível 5 (Nacional). Cada nível superior 
-            supervisiona os níveis inferiores em sua jurisdição.
+            {t('syssetup_hier_alert_desc')}
           </AlertDescription>
         </Alert>
 
         {/* Progress Overview */}
         <Card>
           <CardHeader>
-            <CardTitle>Progresso da Configuração</CardTitle>
-            <CardDescription>Siga estas etapas para configurar o sistema completo</CardDescription>
+            <CardTitle>{t('syssetup_progress_title')}</CardTitle>
+            <CardDescription>{t('syssetup_progress_desc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -152,7 +152,7 @@ export default function AdminSystemSetup() {
                           </p>
                         </div>
                         <Badge variant={getStatusColor(step.status) as any}>
-                          {step.status === 'completed' ? 'Concluído' : 'Pendente'}
+                          {step.status === 'completed' ? t('syssetup_status_completed') : t('syssetup_status_pending')}
                         </Badge>
                       </div>
                     </CardContent>
@@ -171,22 +171,22 @@ export default function AdminSystemSetup() {
         {/* Detailed Configuration Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="hierarchy">Hierarquia</TabsTrigger>
-            <TabsTrigger value="workflow">Fluxo de Trabalho</TabsTrigger>
+            <TabsTrigger value="overview">{t('syssetup_tab_overview')}</TabsTrigger>
+            <TabsTrigger value="hierarchy">{t('syssetup_tab_hierarchy')}</TabsTrigger>
+            <TabsTrigger value="workflow">{t('syssetup_tab_workflow')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Status Atual do Sistema</CardTitle>
+                <CardTitle>{t('syssetup_status_card_title')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Globe className="h-5 w-5 text-primary" />
-                      <p className="text-sm font-medium">Países Ativos</p>
+                      <p className="text-sm font-medium">{t('syssetup_stat_active_countries')}</p>
                     </div>
                     <p className="text-3xl font-bold">{setupStatus?.countriesCount || 0}</p>
                   </div>
@@ -194,7 +194,7 @@ export default function AdminSystemSetup() {
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="h-5 w-5 text-primary" />
-                      <p className="text-sm font-medium">Divisões Admin.</p>
+                      <p className="text-sm font-medium">{t('syssetup_stat_admin_divisions')}</p>
                     </div>
                     <p className="text-3xl font-bold">{setupStatus?.divisionsCount || 0}</p>
                   </div>
@@ -202,7 +202,7 @@ export default function AdminSystemSetup() {
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Shield className="h-5 w-5 text-primary" />
-                      <p className="text-sm font-medium">Admins Globais</p>
+                      <p className="text-sm font-medium">{t('syssetup_stat_global_admins')}</p>
                     </div>
                     <p className="text-3xl font-bold">{setupStatus?.adminsCount || 0}</p>
                   </div>
@@ -210,19 +210,19 @@ export default function AdminSystemSetup() {
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center gap-2 mb-2">
                       <Users className="h-5 w-5 text-primary" />
-                      <p className="text-sm font-medium">Admins Regionais</p>
+                      <p className="text-sm font-medium">{t('syssetup_stat_regional_admins')}</p>
                     </div>
                     <p className="text-3xl font-bold">{setupStatus?.regionalAdminsCount || 0}</p>
                   </div>
                 </div>
 
                 <div className="space-y-2 mt-6">
-                  <h3 className="font-semibold">Próximas Ações Recomendadas:</h3>
+                  <h3 className="font-semibold">{t('syssetup_next_actions')}</h3>
                   {!setupStatus?.hasCountries && (
                     <Button variant="outline" className="w-full justify-start" asChild>
                       <a href="/admin/country-config">
                         <Globe className="h-4 w-4 mr-2" />
-                        Configurar Países
+                        {t('syssetup_action_config_countries')}
                       </a>
                     </Button>
                   )}
@@ -230,7 +230,7 @@ export default function AdminSystemSetup() {
                     <Button variant="outline" className="w-full justify-start" asChild>
                       <a href="/admin/import-divisions">
                         <MapPin className="h-4 w-4 mr-2" />
-                        Importar Divisões Administrativas
+                        {t('syssetup_action_import_divisions')}
                       </a>
                     </Button>
                   )}
@@ -238,7 +238,7 @@ export default function AdminSystemSetup() {
                     <Button variant="outline" className="w-full justify-start" asChild>
                       <a href="/admin/user-management">
                         <Shield className="h-4 w-4 mr-2" />
-                        Criar Administradores
+                        {t('syssetup_action_create_admins')}
                       </a>
                     </Button>
                   )}
@@ -246,7 +246,7 @@ export default function AdminSystemSetup() {
                     <Button variant="outline" className="w-full justify-start" asChild>
                       <a href="/admin/user-management">
                         <Users className="h-4 w-4 mr-2" />
-                        Atribuir Administradores Regionais
+                        {t('syssetup_action_assign_regional')}
                       </a>
                     </Button>
                   )}
@@ -258,19 +258,19 @@ export default function AdminSystemSetup() {
           <TabsContent value="hierarchy" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Estrutura Hierárquica do Sistema</CardTitle>
+                <CardTitle>{t('syssetup_hier_card_title')}</CardTitle>
                 <CardDescription>
-                  Modelo de 5 níveis com supervisão hierárquica
+                  {t('syssetup_hier_card_desc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {[
-                    { level: 5, title: 'Nacional', role: 'Administrador Nacional', scope: 'Todo o país', color: 'bg-red-100 text-red-800' },
-                    { level: 4, title: 'Provincial', role: 'Administrador Provincial', scope: 'Província/Estado', color: 'bg-orange-100 text-orange-800' },
-                    { level: 3, title: 'Territorial', role: 'Administrador Territorial', scope: 'Território/Município', color: 'bg-yellow-100 text-yellow-800' },
-                    { level: 2, title: 'Comunal', role: 'Administrador Comunal', scope: 'Comuna/Distrito', color: 'bg-green-100 text-green-800' },
-                    { level: 1, title: 'Local', role: 'Agente Local', scope: 'Quartier/Bairro', color: 'bg-blue-100 text-blue-800' }
+                    { level: 5, title: t('syssetup_lvl5_title'), role: t('syssetup_lvl5_role'), scope: t('syssetup_lvl5_scope'), color: 'bg-red-100 text-red-800' },
+                    { level: 4, title: t('syssetup_lvl4_title'), role: t('syssetup_lvl4_role'), scope: t('syssetup_lvl4_scope'), color: 'bg-orange-100 text-orange-800' },
+                    { level: 3, title: t('syssetup_lvl3_title'), role: t('syssetup_lvl3_role'), scope: t('syssetup_lvl3_scope'), color: 'bg-yellow-100 text-yellow-800' },
+                    { level: 2, title: t('syssetup_lvl2_title'), role: t('syssetup_lvl2_role'), scope: t('syssetup_lvl2_scope'), color: 'bg-green-100 text-green-800' },
+                    { level: 1, title: t('syssetup_lvl1_title'), role: t('syssetup_lvl1_role'), scope: t('syssetup_lvl1_scope'), color: 'bg-blue-100 text-blue-800' }
                   ].map((item) => (
                     <div key={item.level} className="flex items-center gap-4 p-4 border rounded-lg">
                       <div className={`px-3 py-1 rounded-full ${item.color} font-bold`}>
@@ -283,7 +283,7 @@ export default function AdminSystemSetup() {
                       <div className="text-right">
                         <p className="text-sm font-medium">{item.scope}</p>
                         <p className="text-xs text-muted-foreground">
-                          Supervisiona: Nível {item.level - 1 > 0 ? item.level - 1 : '-'}
+                          {t('syssetup_supervises_level')} {item.level - 1 > 0 ? item.level - 1 : '-'}
                         </p>
                       </div>
                     </div>
@@ -291,11 +291,9 @@ export default function AdminSystemSetup() {
                 </div>
 
                 <Alert className="mt-6">
-                  <AlertTitle>Delegação de Autoridade</AlertTitle>
+                  <AlertTitle>{t('syssetup_delegation_title')}</AlertTitle>
                   <AlertDescription>
-                    Cada nível pode criar e gerenciar usuários do nível imediatamente inferior 
-                    dentro de sua jurisdição geográfica. Um Admin Provincial (N4) pode criar 
-                    Admins Territoriais (N3) em sua província.
+                    {t('syssetup_delegation_desc')}
                   </AlertDescription>
                 </Alert>
               </CardContent>
@@ -305,8 +303,8 @@ export default function AdminSystemSetup() {
           <TabsContent value="workflow" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Fluxo de Implementação Recomendado</CardTitle>
-                <CardDescription>Siga esta sequência para implementação continental</CardDescription>
+                <CardTitle>{t('syssetup_workflow_card_title')}</CardTitle>
+                <CardDescription>{t('syssetup_workflow_card_desc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ol className="space-y-4">
@@ -315,10 +313,9 @@ export default function AdminSystemSetup() {
                       1
                     </div>
                     <div>
-                      <p className="font-semibold">Configuração de Países</p>
+                      <p className="font-semibold">{t('syssetup_wf1_title')}</p>
                       <p className="text-sm text-muted-foreground">
-                        Ative os países (Angola, Moçambique, etc.) e configure rótulos de níveis administrativos 
-                        (Província, Território, Comuna, Quartier)
+                        {t('syssetup_wf1_desc')}
                       </p>
                     </div>
                   </li>
@@ -328,10 +325,9 @@ export default function AdminSystemSetup() {
                       2
                     </div>
                     <div>
-                      <p className="font-semibold">Importação de Divisões</p>
+                      <p className="font-semibold">{t('syssetup_wf2_title')}</p>
                       <p className="text-sm text-muted-foreground">
-                        Importe via CSV todas as divisões administrativas de cada país 
-                        (dados oficiais do INE ou órgãos governamentais)
+                        {t('syssetup_wf2_desc')}
                       </p>
                     </div>
                   </li>
@@ -341,9 +337,9 @@ export default function AdminSystemSetup() {
                       3
                     </div>
                     <div>
-                      <p className="font-semibold">Super Admin Inicial</p>
+                      <p className="font-semibold">{t('syssetup_wf3_title')}</p>
                       <p className="text-sm text-muted-foreground">
-                        Promova o primeiro usuário a Admin Global (Nível 5) com acesso total ao sistema
+                        {t('syssetup_wf3_desc')}
                       </p>
                     </div>
                   </li>
@@ -353,9 +349,9 @@ export default function AdminSystemSetup() {
                       4
                     </div>
                     <div>
-                      <p className="font-semibold">Admins Nacionais por País</p>
+                      <p className="font-semibold">{t('syssetup_wf4_title')}</p>
                       <p className="text-sm text-muted-foreground">
-                        Crie um Admin Nacional (Nível 5) para cada país com jurisdição sobre todo o território nacional
+                        {t('syssetup_wf4_desc')}
                       </p>
                     </div>
                   </li>
@@ -365,10 +361,9 @@ export default function AdminSystemSetup() {
                       5
                     </div>
                     <div>
-                      <p className="font-semibold">Delegação Cascata</p>
+                      <p className="font-semibold">{t('syssetup_wf5_title')}</p>
                       <p className="text-sm text-muted-foreground">
-                        Admins Nacionais criam Admins Provinciais (N4), que criam Territoriais (N3), 
-                        que criam Comunais (N2), que criam Agentes Locais (N1)
+                        {t('syssetup_wf5_desc')}
                       </p>
                     </div>
                   </li>
@@ -378,9 +373,9 @@ export default function AdminSystemSetup() {
                       6
                     </div>
                     <div>
-                      <p className="font-semibold">Números de Validação</p>
+                      <p className="font-semibold">{t('syssetup_wf6_title')}</p>
                       <p className="text-sm text-muted-foreground">
-                        Configure números de telefone para validação SMS em cada divisão administrativa
+                        {t('syssetup_wf6_desc')}
                       </p>
                     </div>
                   </li>

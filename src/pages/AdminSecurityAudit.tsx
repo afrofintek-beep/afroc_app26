@@ -102,8 +102,8 @@ const AdminSecurityAudit = () => {
     const isAdmin = roles?.some(r => r.role === "admin");
     if (!isAdmin) {
       toast({
-        title: "Acesso negado",
-        description: "Apenas administradores podem aceder esta página.",
+        title: t('secaudit_access_denied'),
+        description: t('secaudit_access_denied_desc'),
         variant: "destructive",
       });
       navigate("/dashboard");
@@ -138,8 +138,8 @@ const AdminSecurityAudit = () => {
     } catch (error) {
       console.error("Error loading audit data:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível carregar os logs de auditoria.",
+        title: t('secaudit_error'),
+        description: t('secaudit_error_load'),
         variant: "destructive",
       });
     } finally {
@@ -150,15 +150,15 @@ const AdminSecurityAudit = () => {
   const getSeverityBadge = (severity: string) => {
     switch (severity.toLowerCase()) {
       case "critical":
-        return <Badge variant="destructive" className="bg-red-600">Crítico</Badge>;
+        return <Badge variant="destructive" className="bg-red-600">{t('secaudit_sev_critical')}</Badge>;
       case "high":
-        return <Badge variant="destructive">Alto</Badge>;
+        return <Badge variant="destructive">{t('secaudit_sev_high')}</Badge>;
       case "medium":
-        return <Badge className="bg-yellow-600">Médio</Badge>;
+        return <Badge className="bg-yellow-600">{t('secaudit_sev_medium')}</Badge>;
       case "low":
-        return <Badge variant="secondary">Baixo</Badge>;
+        return <Badge variant="secondary">{t('secaudit_sev_low')}</Badge>;
       case "info":
-        return <Badge variant="outline">Info</Badge>;
+        return <Badge variant="outline">{t('secaudit_sev_info')}</Badge>;
       default:
         return <Badge variant="outline">{severity}</Badge>;
     }
@@ -268,20 +268,20 @@ const AdminSecurityAudit = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
-              Logs de Auditoria de Segurança
+              {t('secaudit_page_title')}
             </h1>
             <p className="text-muted-foreground">
-              Visualize e analise todos os eventos de segurança e logs de auditoria do sistema
+              {t('secaudit_page_subtitle')}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={loadData} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-              Atualizar
+              {t('secaudit_refresh')}
             </Button>
             <Button variant="outline" onClick={exportToCSV}>
               <Download className="h-4 w-4 mr-2" />
-              Exportar CSV
+              {t('secaudit_export_csv')}
             </Button>
           </div>
         </div>
@@ -292,7 +292,7 @@ const AdminSecurityAudit = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Logs de Auditoria</p>
+                  <p className="text-sm text-muted-foreground">{t('secaudit_stat_audit_logs')}</p>
                   <p className="text-2xl font-bold">{stats.totalAuditLogs}</p>
                 </div>
                 <FileText className="h-8 w-8 text-blue-500" />
@@ -303,7 +303,7 @@ const AdminSecurityAudit = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Eventos de Segurança</p>
+                  <p className="text-sm text-muted-foreground">{t('secaudit_stat_events')}</p>
                   <p className="text-2xl font-bold">{stats.totalEvents}</p>
                 </div>
                 <Shield className="h-8 w-8 text-primary" />
@@ -314,7 +314,7 @@ const AdminSecurityAudit = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Não Resolvidos</p>
+                  <p className="text-sm text-muted-foreground">{t('secaudit_stat_unresolved')}</p>
                   <p className="text-2xl font-bold text-yellow-500">{stats.unresolvedEvents}</p>
                 </div>
                 <Clock className="h-8 w-8 text-yellow-500" />
@@ -325,7 +325,7 @@ const AdminSecurityAudit = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Críticos/Alto</p>
+                  <p className="text-sm text-muted-foreground">{t('secaudit_stat_critical_high')}</p>
                   <p className="text-2xl font-bold text-red-500">{stats.criticalEvents}</p>
                 </div>
                 <AlertTriangle className="h-8 w-8 text-red-500" />
@@ -336,7 +336,7 @@ const AdminSecurityAudit = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Última Hora</p>
+                  <p className="text-sm text-muted-foreground">{t('secaudit_stat_last_hour')}</p>
                   <p className="text-2xl font-bold text-green-500">{stats.recentActivity}</p>
                 </div>
                 <Activity className="h-8 w-8 text-green-500" />
@@ -353,7 +353,7 @@ const AdminSecurityAudit = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Pesquisar por ação, usuário, IP..."
+                    placeholder={t('secaudit_search_placeholder')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -362,25 +362,25 @@ const AdminSecurityAudit = () => {
               </div>
               <Select value={severityFilter} onValueChange={setSeverityFilter}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Severidade" />
+                  <SelectValue placeholder={t('secaudit_severity')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
-                  <SelectItem value="critical">Crítico</SelectItem>
-                  <SelectItem value="high">Alto</SelectItem>
-                  <SelectItem value="medium">Médio</SelectItem>
-                  <SelectItem value="low">Baixo</SelectItem>
-                  <SelectItem value="info">Info</SelectItem>
+                  <SelectItem value="all">{t('secaudit_all_fem')}</SelectItem>
+                  <SelectItem value="critical">{t('secaudit_sev_critical')}</SelectItem>
+                  <SelectItem value="high">{t('secaudit_sev_high')}</SelectItem>
+                  <SelectItem value="medium">{t('secaudit_sev_medium')}</SelectItem>
+                  <SelectItem value="low">{t('secaudit_sev_low')}</SelectItem>
+                  <SelectItem value="info">{t('secaudit_sev_info')}</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={resolvedFilter} onValueChange={setResolvedFilter}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t('secaudit_status')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="unresolved">Não Resolvidos</SelectItem>
-                  <SelectItem value="resolved">Resolvidos</SelectItem>
+                  <SelectItem value="all">{t('secaudit_all_masc')}</SelectItem>
+                  <SelectItem value="unresolved">{t('secaudit_stat_unresolved')}</SelectItem>
+                  <SelectItem value="resolved">{t('secaudit_resolved_plural')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -392,20 +392,20 @@ const AdminSecurityAudit = () => {
           <TabsList>
             <TabsTrigger value="audit" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Logs de Auditoria ({filteredAuditLogs.length})
+              {t('secaudit_stat_audit_logs')} ({filteredAuditLogs.length})
             </TabsTrigger>
             <TabsTrigger value="events" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Eventos de Segurança ({filteredSecurityEvents.length})
+              {t('secaudit_stat_events')} ({filteredSecurityEvents.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="audit" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Logs de Auditoria</CardTitle>
+                <CardTitle>{t('secaudit_stat_audit_logs')}</CardTitle>
                 <CardDescription>
-                  Registro de todas as ações administrativas e mudanças no sistema
+                  {t('secaudit_audit_card_desc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -420,19 +420,19 @@ const AdminSecurityAudit = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Data/Hora</TableHead>
-                          <TableHead>Ação</TableHead>
-                          <TableHead>Função</TableHead>
-                          <TableHead>User ID</TableHead>
-                          <TableHead>IP</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
+                          <TableHead>{t('secaudit_col_datetime')}</TableHead>
+                          <TableHead>{t('secaudit_col_action')}</TableHead>
+                          <TableHead>{t('secaudit_col_function')}</TableHead>
+                          <TableHead>{t('secaudit_col_user_id')}</TableHead>
+                          <TableHead>{t('secaudit_col_ip')}</TableHead>
+                          <TableHead className="text-right">{t('secaudit_col_actions')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredAuditLogs.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                              Nenhum log de auditoria encontrado
+                              {t('secaudit_no_audit_logs')}
                             </TableCell>
                           </TableRow>
                         ) : (
@@ -472,9 +472,9 @@ const AdminSecurityAudit = () => {
           <TabsContent value="events" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Eventos de Segurança</CardTitle>
+                <CardTitle>{t('secaudit_stat_events')}</CardTitle>
                 <CardDescription>
-                  Eventos de segurança detectados pelo sistema (tentativas de acesso, erros, etc.)
+                  {t('secaudit_events_card_desc')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -489,20 +489,20 @@ const AdminSecurityAudit = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Data/Hora</TableHead>
-                          <TableHead>Tipo</TableHead>
-                          <TableHead>Severidade</TableHead>
-                          <TableHead>User ID</TableHead>
-                          <TableHead>IP</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
+                          <TableHead>{t('secaudit_col_datetime')}</TableHead>
+                          <TableHead>{t('secaudit_col_type')}</TableHead>
+                          <TableHead>{t('secaudit_severity')}</TableHead>
+                          <TableHead>{t('secaudit_col_user_id')}</TableHead>
+                          <TableHead>{t('secaudit_col_ip')}</TableHead>
+                          <TableHead>{t('secaudit_status')}</TableHead>
+                          <TableHead className="text-right">{t('secaudit_col_actions')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredSecurityEvents.length === 0 ? (
                           <TableRow>
                             <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                              Nenhum evento de segurança encontrado
+                              {t('secaudit_no_events')}
                             </TableCell>
                           </TableRow>
                         ) : (
@@ -523,12 +523,12 @@ const AdminSecurityAudit = () => {
                                 {event.resolved ? (
                                   <Badge variant="outline" className="text-green-500 border-green-500">
                                     <CheckCircle className="h-3 w-3 mr-1" />
-                                    Resolvido
+                                    {t('secaudit_resolved')}
                                   </Badge>
                                 ) : (
                                   <Badge variant="outline" className="text-yellow-500 border-yellow-500">
                                     <Clock className="h-3 w-3 mr-1" />
-                                    Pendente
+                                    {t('secaudit_pending')}
                                   </Badge>
                                 )}
                               </TableCell>
@@ -559,10 +559,10 @@ const AdminSecurityAudit = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-primary" />
-                Detalhes do Registro
+                {t('secaudit_details_title')}
               </DialogTitle>
               <DialogDescription>
-                Informações completas do log selecionado
+                {t('secaudit_details_desc')}
               </DialogDescription>
             </DialogHeader>
             {selectedLog && (
@@ -573,17 +573,17 @@ const AdminSecurityAudit = () => {
                     <p className="font-mono text-xs break-all">{selectedLog.id}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Data/Hora</p>
+                    <p className="text-sm text-muted-foreground">{t('secaudit_col_datetime')}</p>
                     <p>{format(new Date(selectedLog.created_at), "dd/MM/yyyy HH:mm:ss", { locale: dateLocale })}</p>
                   </div>
                   {"action" in selectedLog && (
                     <>
                       <div>
-                        <p className="text-sm text-muted-foreground">Ação</p>
+                        <p className="text-sm text-muted-foreground">{t('secaudit_col_action')}</p>
                         <p>{getActionBadge(selectedLog.action)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Função</p>
+                        <p className="text-sm text-muted-foreground">{t('secaudit_col_function')}</p>
                         <p className="font-mono text-sm">{selectedLog.function_name}</p>
                       </div>
                     </>
@@ -591,50 +591,50 @@ const AdminSecurityAudit = () => {
                   {"event_type" in selectedLog && (
                     <>
                       <div>
-                        <p className="text-sm text-muted-foreground">Tipo de Evento</p>
+                        <p className="text-sm text-muted-foreground">{t('secaudit_event_type')}</p>
                         <p>{selectedLog.event_type}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Severidade</p>
+                        <p className="text-sm text-muted-foreground">{t('secaudit_severity')}</p>
                         {getSeverityBadge(selectedLog.severity)}
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Endpoint</p>
+                        <p className="text-sm text-muted-foreground">{t('secaudit_endpoint')}</p>
                         <p className="font-mono text-sm">{selectedLog.endpoint || "-"}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Status</p>
-                        <p>{selectedLog.resolved ? "Resolvido" : "Pendente"}</p>
+                        <p className="text-sm text-muted-foreground">{t('secaudit_status')}</p>
+                        <p>{selectedLog.resolved ? t('secaudit_resolved') : t('secaudit_pending')}</p>
                       </div>
                     </>
                   )}
                   <div>
-                    <p className="text-sm text-muted-foreground">User ID</p>
+                    <p className="text-sm text-muted-foreground">{t('secaudit_col_user_id')}</p>
                     <p className="font-mono text-xs break-all">{selectedLog.user_id || "-"}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">IP Address</p>
+                    <p className="text-sm text-muted-foreground">{t('secaudit_ip_address')}</p>
                     <p className="font-mono">{selectedLog.ip_address || "-"}</p>
                   </div>
                 </div>
                 
                 {selectedLog.user_agent && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">User Agent</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t('secaudit_user_agent')}</p>
                     <p className="font-mono text-xs break-all bg-muted p-2 rounded">{selectedLog.user_agent}</p>
                   </div>
                 )}
 
                 {"notes" in selectedLog && selectedLog.notes && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Notas</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t('secaudit_notes')}</p>
                     <p className="bg-muted p-2 rounded">{selectedLog.notes}</p>
                   </div>
                 )}
                 
                 {selectedLog.details && Object.keys(selectedLog.details).length > 0 && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Detalhes (JSON)</p>
+                    <p className="text-sm text-muted-foreground mb-1">{t('secaudit_details_json')}</p>
                     <pre className="font-mono text-xs bg-muted p-3 rounded overflow-x-auto">
                       {JSON.stringify(selectedLog.details, null, 2)}
                     </pre>

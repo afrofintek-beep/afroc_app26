@@ -213,9 +213,9 @@ export default function AdminCellTowers() {
     }
 
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      toast({ title: t("celltowers_error"), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: editingTower ? "Torre atualizada" : "Torre adicionada" });
+      toast({ title: editingTower ? t("celltowers_tower_updated") : t("celltowers_tower_added") });
       fetchTowers();
       resetForm();
     }
@@ -224,7 +224,7 @@ export default function AdminCellTowers() {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("cell_towers").delete().eq("id", id);
     if (!error) {
-      toast({ title: "Torre removida" });
+      toast({ title: t("celltowers_tower_removed") });
       fetchTowers();
     }
   };
@@ -265,27 +265,27 @@ export default function AdminCellTowers() {
           <div className="flex items-center gap-3">
             <Radio className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-2xl font-bold">{t("cell_towers") || "Torres de Celular"}</h1>
-              <p className="text-muted-foreground">{t("manage_cell_towers") || "Gerenciar torres de rede móvel"}</p>
+              <h1 className="text-2xl font-bold">{t("celltowers_title")}</h1>
+              <p className="text-muted-foreground">{t("celltowers_subtitle")}</p>
             </div>
           </div>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={() => { resetForm(); setIsAddDialogOpen(true); }}>
-                <Plus className="h-4 w-4 mr-2" /> {t("add_tower") || "Adicionar Torre"}
+                <Plus className="h-4 w-4 mr-2" /> {t("celltowers_add_tower")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>{editingTower ? "Editar Torre" : "Nova Torre"}</DialogTitle>
+                <DialogTitle>{editingTower ? t("celltowers_edit_tower") : t("celltowers_new_tower")}</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>Cell ID</Label><Input value={formData.cell_id} onChange={e => setFormData({...formData, cell_id: e.target.value})} /></div>
-                  <div><Label>Tecnologia</Label>
+                  <div><Label>{t("celltowers_technology")}</Label>
                     <Select value={formData.technology} onValueChange={v => setFormData({...formData, technology: v})}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent><SelectItem value="4G">4G LTE</SelectItem><SelectItem value="3G">3G</SelectItem><SelectItem value="2G">2G GSM</SelectItem></SelectContent>
+                      <SelectContent><SelectItem value="4G">{t("celltowers_4g_lte")}</SelectItem><SelectItem value="3G">3G</SelectItem><SelectItem value="2G">{t("celltowers_2g_gsm")}</SelectItem></SelectContent>
                     </Select>
                   </div>
                 </div>
@@ -294,10 +294,10 @@ export default function AdminCellTowers() {
                   <div><Label>Longitude</Label><Input type="number" step="any" value={formData.longitude} onChange={e => setFormData({...formData, longitude: e.target.value})} /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Raio (m)</Label><Input type="number" value={formData.coverage_radius_meters} onChange={e => setFormData({...formData, coverage_radius_meters: e.target.value})} /></div>
-                  <div><Label>Operadora</Label>
+                  <div><Label>{t("celltowers_radius_m")}</Label><Input type="number" value={formData.coverage_radius_meters} onChange={e => setFormData({...formData, coverage_radius_meters: e.target.value})} /></div>
+                  <div><Label>{t("celltowers_operator")}</Label>
                     <Select value={formData.telecom_operator_id} onValueChange={v => setFormData({...formData, telecom_operator_id: v})}>
-                      <SelectTrigger><SelectValue placeholder="Selecionar" /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("celltowers_select")} /></SelectTrigger>
                       <SelectContent>{operators.map(op => <SelectItem key={op.id} value={op.id}>{op.operator_name}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
@@ -307,10 +307,10 @@ export default function AdminCellTowers() {
                   <div><Label>MNC</Label><Input value={formData.mnc} onChange={e => setFormData({...formData, mnc: e.target.value})} /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Província</Label><Input value={formData.level1_name} onChange={e => setFormData({...formData, level1_name: e.target.value})} /></div>
-                  <div><Label>Município</Label><Input value={formData.level2_name} onChange={e => setFormData({...formData, level2_name: e.target.value})} /></div>
+                  <div><Label>{t("celltowers_province")}</Label><Input value={formData.level1_name} onChange={e => setFormData({...formData, level1_name: e.target.value})} /></div>
+                  <div><Label>{t("celltowers_municipality")}</Label><Input value={formData.level2_name} onChange={e => setFormData({...formData, level2_name: e.target.value})} /></div>
                 </div>
-                <Button onClick={handleSubmit} className="w-full">{editingTower ? "Atualizar" : "Adicionar"}</Button>
+                <Button onClick={handleSubmit} className="w-full">{editingTower ? t("celltowers_update") : t("celltowers_add")}</Button>
               </div>
             </DialogContent>
           </Dialog>
@@ -320,10 +320,10 @@ export default function AdminCellTowers() {
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" /> Mapa de Torres</CardTitle>
+                <CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" /> {t("celltowers_map_title")}</CardTitle>
                 <div className="flex items-center gap-2">
                   <Circle className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Cobertura</span>
+                  <span className="text-sm text-muted-foreground">{t("celltowers_coverage")}</span>
                   <Switch checked={showCoverage} onCheckedChange={setShowCoverage} />
                 </div>
               </div>
@@ -334,32 +334,32 @@ export default function AdminCellTowers() {
                 <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500" /> 4G</span>
                 <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500" /> 3G</span>
                 <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500" /> 2G</span>
-                {showCoverage && <span className="flex items-center gap-1 ml-4"><Circle className="h-3 w-3 text-muted-foreground" /> Área de cobertura</span>}
+                {showCoverage && <span className="flex items-center gap-1 ml-4"><Circle className="h-3 w-3 text-muted-foreground" /> {t("celltowers_coverage_area")}</span>}
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2"><Signal className="h-5 w-5" /> Estatísticas</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Signal className="h-5 w-5" /> {t("celltowers_statistics")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-muted rounded-lg text-center">
                   <div className="text-3xl font-bold text-primary">{towers.length}</div>
-                  <div className="text-sm text-muted-foreground">Total de Torres</div>
+                  <div className="text-sm text-muted-foreground">{t("celltowers_total_towers")}</div>
                 </div>
                 <div className="p-4 bg-muted rounded-lg text-center">
                   <div className="text-3xl font-bold text-green-500">{towers.filter(t => t.technology === "4G").length}</div>
-                  <div className="text-sm text-muted-foreground">Torres 4G</div>
+                  <div className="text-sm text-muted-foreground">{t("celltowers_towers")} 4G</div>
                 </div>
                 <div className="p-4 bg-muted rounded-lg text-center">
                   <div className="text-3xl font-bold text-yellow-500">{towers.filter(t => t.technology === "3G").length}</div>
-                  <div className="text-sm text-muted-foreground">Torres 3G</div>
+                  <div className="text-sm text-muted-foreground">{t("celltowers_towers")} 3G</div>
                 </div>
                 <div className="p-4 bg-muted rounded-lg text-center">
                   <div className="text-3xl font-bold text-red-500">{towers.filter(t => t.technology === "2G").length}</div>
-                  <div className="text-sm text-muted-foreground">Torres 2G</div>
+                  <div className="text-sm text-muted-foreground">{t("celltowers_towers")} 2G</div>
                 </div>
               </div>
             </CardContent>
@@ -369,18 +369,18 @@ export default function AdminCellTowers() {
         <Card>
           <CardHeader className="pb-3">
             <div className="flex flex-col sm:flex-row gap-4 justify-between">
-              <CardTitle>Lista de Torres ({filtered.length})</CardTitle>
+              <CardTitle>{t("celltowers_tower_list")} ({filtered.length})</CardTitle>
               <div className="flex gap-2 flex-wrap">
                 <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Buscar..." className="pl-9 w-48" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                  <Input placeholder={t("celltowers_search")} className="pl-9 w-48" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                 </div>
                 <Select value={filterTech} onValueChange={setFilterTech}>
                   <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
-                  <SelectContent><SelectItem value="all">Todas</SelectItem><SelectItem value="4G">4G</SelectItem><SelectItem value="3G">3G</SelectItem><SelectItem value="2G">2G</SelectItem></SelectContent>
+                  <SelectContent><SelectItem value="all">{t("celltowers_all")}</SelectItem><SelectItem value="4G">4G</SelectItem><SelectItem value="3G">3G</SelectItem><SelectItem value="2G">2G</SelectItem></SelectContent>
                 </Select>
                 <Select value={filterOperator} onValueChange={setFilterOperator}>
-                  <SelectTrigger className="w-40"><SelectValue placeholder="Operadora" /></SelectTrigger>
-                  <SelectContent><SelectItem value="all">Todas</SelectItem>{operators.map(op => <SelectItem key={op.id} value={op.id}>{op.operator_name}</SelectItem>)}</SelectContent>
+                  <SelectTrigger className="w-40"><SelectValue placeholder={t("celltowers_operator")} /></SelectTrigger>
+                  <SelectContent><SelectItem value="all">{t("celltowers_all")}</SelectItem>{operators.map(op => <SelectItem key={op.id} value={op.id}>{op.operator_name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
             </div>
@@ -391,18 +391,18 @@ export default function AdminCellTowers() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Cell ID</TableHead>
-                    <TableHead>Tech</TableHead>
-                    <TableHead>Localização</TableHead>
-                    <TableHead>Raio</TableHead>
-                    <TableHead>Região</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
+                    <TableHead>{t("celltowers_tech")}</TableHead>
+                    <TableHead>{t("celltowers_location")}</TableHead>
+                    <TableHead>{t("celltowers_radius")}</TableHead>
+                    <TableHead>{t("celltowers_region")}</TableHead>
+                    <TableHead className="text-right">{t("celltowers_actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {loading ? (
-                    <TableRow><TableCell colSpan={6} className="text-center py-8">Carregando...</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} className="text-center py-8">{t("celltowers_loading")}</TableCell></TableRow>
                   ) : filtered.length === 0 ? (
-                    <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Nenhuma torre encontrada</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">{t("celltowers_no_towers")}</TableCell></TableRow>
                   ) : (
                     filtered.slice(0, 50).map(tower => (
                       <TableRow key={tower.id}>

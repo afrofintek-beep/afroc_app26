@@ -15,6 +15,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Search, 
   Filter, 
@@ -65,6 +66,7 @@ interface AllocationStatusTableProps {
 type BatchAction = 'approve' | 'reject' | null;
 
 export default function AllocationStatusTable({ countryCode }: AllocationStatusTableProps) {
+  const { t } = useLanguage();
   const [records, setRecords] = useState<AllocationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -139,13 +141,13 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
   const getStatusBadge = (status: AllocationRecord['status']) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pendente</Badge>;
+        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />{t('alloctable_status_pending')}</Badge>;
       case 'allocated':
-        return <Badge variant="default"><CheckCircle className="h-3 w-3 mr-1" />Alocado</Badge>;
+        return <Badge variant="default"><CheckCircle className="h-3 w-3 mr-1" />{t('alloctable_status_allocated')}</Badge>;
       case 'approved':
-        return <Badge className="bg-primary text-primary-foreground"><CheckCircle className="h-3 w-3 mr-1" />Aprovado</Badge>;
+        return <Badge className="bg-primary text-primary-foreground"><CheckCircle className="h-3 w-3 mr-1" />{t('alloctable_status_approved')}</Badge>;
       case 'rejected':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />Rejeitado</Badge>;
+        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" />{t('alloctable_status_rejected')}</Badge>;
     }
   };
 
@@ -218,9 +220,9 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
       if (error) throw error;
 
       toast.success(
-        batchAction === 'approve' 
-          ? `${ids.length} células aprovadas com sucesso`
-          : `${ids.length} células rejeitadas`
+        batchAction === 'approve'
+          ? `${ids.length} ${t('alloctable_toast_batch_approved')}`
+          : `${ids.length} ${t('alloctable_toast_batch_rejected')}`
       );
 
       // Clear selection and refresh
@@ -230,7 +232,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
       await fetchRecords();
     } catch (err) {
       console.error('Batch action error:', err);
-      toast.error('Erro ao processar ação em lote');
+      toast.error(t('alloctable_toast_batch_error'));
     } finally {
       setProcessing(false);
     }
@@ -244,11 +246,11 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
         .eq('id', id);
 
       if (error) throw error;
-      toast.success('Célula aprovada');
+      toast.success(t('alloctable_toast_cell_approved'));
       await fetchRecords();
     } catch (err) {
       console.error('Approve error:', err);
-      toast.error('Erro ao aprovar');
+      toast.error(t('alloctable_toast_approve_error'));
     }
   };
 
@@ -260,11 +262,11 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
         .eq('id', id);
 
       if (error) throw error;
-      toast.success('Célula rejeitada');
+      toast.success(t('alloctable_toast_cell_rejected'));
       await fetchRecords();
     } catch (err) {
       console.error('Reject error:', err);
-      toast.error('Erro ao rejeitar');
+      toast.error(t('alloctable_toast_reject_error'));
     }
   };
 
@@ -275,10 +277,10 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                Estado de Alocação
+                {t('alloctable_title')}
               </CardTitle>
               <CardDescription>
-                Monitorizar ciclo de vida das células
+                {t('alloctable_description')}
               </CardDescription>
             </div>
             <Button 
@@ -288,7 +290,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
               disabled={loading}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Atualizar
+              {t('alloctable_refresh')}
             </Button>
           </div>
         </CardHeader>
@@ -297,7 +299,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
           {selectedIds.size > 0 && (
             <div className="flex items-center gap-3 mb-4 p-3 rounded-lg bg-muted border animate-in fade-in slide-in-from-top-2">
               <Badge variant="secondary" className="font-medium">
-                {selectedIds.size} selecionado{selectedIds.size !== 1 ? 's' : ''}
+                {selectedIds.size} {selectedIds.size !== 1 ? t('alloctable_selected_plural') : t('alloctable_selected_singular')}
               </Badge>
               <div className="flex-1" />
               <Button
@@ -307,7 +309,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                 className="gap-2"
               >
                 <CheckCheck className="h-4 w-4" />
-                Aprovar Selecionados
+                {t('alloctable_approve_selected')}
               </Button>
               <Button
                 size="sm"
@@ -316,7 +318,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                 className="gap-2"
               >
                 <XCircle className="h-4 w-4" />
-                Rejeitar Selecionados
+                {t('alloctable_reject_selected')}
               </Button>
               <Button
                 size="sm"
@@ -333,7 +335,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Pesquisar código, região ou email..."
+                placeholder={t('alloctable_search_placeholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -342,14 +344,14 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Estado" />
+                <SelectValue placeholder={t('alloctable_filter_status')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="pending">Pendente</SelectItem>
-                <SelectItem value="allocated">Alocado</SelectItem>
-                <SelectItem value="approved">Aprovado</SelectItem>
-                <SelectItem value="rejected">Rejeitado</SelectItem>
+                <SelectItem value="all">{t('alloctable_filter_all')}</SelectItem>
+                <SelectItem value="pending">{t('alloctable_status_pending')}</SelectItem>
+                <SelectItem value="allocated">{t('alloctable_status_allocated')}</SelectItem>
+                <SelectItem value="approved">{t('alloctable_status_approved')}</SelectItem>
+                <SelectItem value="rejected">{t('alloctable_status_rejected')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -373,15 +375,15 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                           }
                         }}
                         onCheckedChange={handleSelectAll}
-                        aria-label="Selecionar todos"
+                        aria-label={t('alloctable_select_all')}
                         disabled={selectableRecords.length === 0}
                       />
                     </TableHead>
-                    <TableHead>Código AFROLOC</TableHead>
-                    <TableHead>Zona</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Região</TableHead>
-                    <TableHead>Criado</TableHead>
+                    <TableHead>{t('alloctable_col_code')}</TableHead>
+                    <TableHead>{t('alloctable_col_zone')}</TableHead>
+                    <TableHead>{t('alloctable_col_status')}</TableHead>
+                    <TableHead>{t('alloctable_col_region')}</TableHead>
+                    <TableHead>{t('alloctable_col_created')}</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -400,7 +402,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => handleSelectOne(record.id)}
-                              aria-label={`Selecionar ${record.afroloc}`}
+                              aria-label={`${t('alloctable_select_one')} ${record.afroloc}`}
                               disabled={!isSelectable}
                             />
                           </TableCell>
@@ -431,20 +433,20 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem>
                                   <Eye className="h-4 w-4 mr-2" />
-                                  Ver detalhes
+                                  {t('alloctable_view_details')}
                                 </DropdownMenuItem>
                                 {isSelectable && (
                                   <>
                                     <DropdownMenuItem onClick={() => handleSingleApprove(record.id)}>
                                       <CheckCircle className="h-4 w-4 mr-2" />
-                                      Aprovar
+                                      {t('alloctable_approve')}
                                     </DropdownMenuItem>
                                     <DropdownMenuItem 
                                       className="text-destructive"
                                       onClick={() => handleSingleReject(record.id)}
                                     >
                                       <XCircle className="h-4 w-4 mr-2" />
-                                      Rejeitar
+                                      {t('alloctable_reject')}
                                     </DropdownMenuItem>
                                   </>
                                 )}
@@ -457,7 +459,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                   ) : (
                     <TableRow>
                       <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        Nenhum registo encontrado
+                        {t('alloctable_empty')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -468,16 +470,16 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
 
           {/* Summary */}
           <div className="flex items-center gap-4 mt-4 pt-4 border-t text-sm text-muted-foreground">
-            <span>{filteredRecords.length} registos</span>
+            <span>{filteredRecords.length} {t('alloctable_summary_records')}</span>
             <span>•</span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-secondary" />
-              {filteredRecords.filter(r => r.status === 'pending').length} pendentes
+              {filteredRecords.filter(r => r.status === 'pending').length} {t('alloctable_summary_pending')}
             </span>
             <span>•</span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-primary" />
-              {filteredRecords.filter(r => r.status === 'approved').length} aprovados
+              {filteredRecords.filter(r => r.status === 'approved').length} {t('alloctable_summary_approved')}
             </span>
           </div>
         </CardContent>
@@ -489,11 +491,11 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <CheckCheck className="h-5 w-5 text-primary" />
-              Confirmar Aprovação em Lote
+              {t('alloctable_dialog_approve_title')}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Tem a certeza que deseja aprovar <strong>{selectedIds.size}</strong> célula{selectedIds.size !== 1 ? 's' : ''}?
-              Esta ação irá marcar todas as células selecionadas como aprovadas.
+              {t('alloctable_dialog_approve_confirm')} <strong>{selectedIds.size}</strong> {selectedIds.size !== 1 ? t('alloctable_cells') : t('alloctable_cell')}?
+              {' '}{t('alloctable_dialog_approve_note')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4">
@@ -507,13 +509,13 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                 );
               })}
               {selectedIds.size > 10 && (
-                <Badge variant="outline">+{selectedIds.size - 10} mais</Badge>
+                <Badge variant="outline">+{selectedIds.size - 10} {t('alloctable_more')}</Badge>
               )}
             </div>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={processing}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel disabled={processing}>{t('alloctable_cancel')}</AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmBatchAction}
               disabled={processing}
               className="gap-2"
@@ -523,7 +525,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
               ) : (
                 <CheckCheck className="h-4 w-4" />
               )}
-              Aprovar {selectedIds.size} célula{selectedIds.size !== 1 ? 's' : ''}
+              {t('alloctable_approve')} {selectedIds.size} {selectedIds.size !== 1 ? t('alloctable_cells') : t('alloctable_cell')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -535,11 +537,11 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Confirmar Rejeição em Lote
+              {t('alloctable_dialog_reject_title')}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Tem a certeza que deseja rejeitar <strong>{selectedIds.size}</strong> célula{selectedIds.size !== 1 ? 's' : ''}?
-              Esta ação não pode ser desfeita facilmente.
+              {t('alloctable_dialog_reject_confirm')} <strong>{selectedIds.size}</strong> {selectedIds.size !== 1 ? t('alloctable_cells') : t('alloctable_cell')}?
+              {' '}{t('alloctable_dialog_reject_note')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="py-4 space-y-4">
@@ -553,15 +555,15 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                 );
               })}
               {selectedIds.size > 8 && (
-                <Badge variant="outline">+{selectedIds.size - 8} mais</Badge>
+                <Badge variant="outline">+{selectedIds.size - 8} {t('alloctable_more')}</Badge>
               )}
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">
-                Motivo da rejeição (opcional)
+                {t('alloctable_rejection_reason_label')}
               </label>
               <Textarea
-                placeholder="Descreva o motivo da rejeição..."
+                placeholder={t('alloctable_rejection_reason_placeholder')}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 rows={3}
@@ -569,8 +571,8 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
             </div>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={processing}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogCancel disabled={processing}>{t('alloctable_cancel')}</AlertDialogCancel>
+            <AlertDialogAction
               onClick={confirmBatchAction}
               disabled={processing}
               className="gap-2 bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -580,7 +582,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
               ) : (
                 <XCircle className="h-4 w-4" />
               )}
-              Rejeitar {selectedIds.size} célula{selectedIds.size !== 1 ? 's' : ''}
+              {t('alloctable_reject')} {selectedIds.size} {selectedIds.size !== 1 ? t('alloctable_cells') : t('alloctable_cell')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

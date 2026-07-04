@@ -32,6 +32,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import SampleScatterMap from '@/components/podp/SampleScatterMap';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CycleKpi {
   verified_pct?: number;
@@ -101,6 +102,7 @@ interface DrillState {
 }
 
 export default function AdminPodpDashboard() {
+  const { t } = useLanguage();
   const [recordId, setRecordId] = useState('');
   const [loading, setLoading] = useState(false);
   const [cycles, setCycles] = useState<Cycle[]>([]);
@@ -126,7 +128,7 @@ export default function AdminPodpDashboard() {
       setCycles(data?.cycles ?? []);
       setDaily(data?.daily ?? []);
     } catch (e: any) {
-      setError(e?.message || 'Erro ao carregar PoDP');
+      setError(e?.message || t('podpdash_err_load'));
     } finally {
       setLoading(false);
     }
@@ -154,7 +156,7 @@ export default function AdminPodpDashboard() {
         address: data?.address ?? null,
       }));
     } catch (e: any) {
-      setDrill((d) => ({ ...d, loading: false, error: e?.message || 'Erro ao carregar detalhes' }));
+      setDrill((d) => ({ ...d, loading: false, error: e?.message || t('podpdash_err_details') }));
     }
   };
 
@@ -229,27 +231,27 @@ export default function AdminPodpDashboard() {
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
           <div>
-            <h1 className="text-2xl font-semibold">PoDP — Verificador silencioso</h1>
+            <h1 className="text-2xl font-semibold">{t('podpdash_title')}</h1>
             <p className="text-sm text-muted-foreground">
-              Métricas internas de presença diária. Apenas administradores nível 4+.
+              {t('podpdash_subtitle')}
             </p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Consultar endereço</CardTitle>
-            <CardDescription>Deixe vazio para ver os últimos ciclos globais.</CardDescription>
+            <CardTitle>{t('podpdash_query_title')}</CardTitle>
+            <CardDescription>{t('podpdash_query_desc')}</CardDescription>
           </CardHeader>
           <CardContent className="flex gap-2">
             <Input
-              placeholder="ID do registo AFROLOC (opcional)"
+              placeholder={t('podpdash_query_placeholder')}
               value={recordId}
               onChange={(e) => setRecordId(e.target.value)}
             />
             <Button onClick={load} disabled={loading}>
               <Search className="mr-2 h-4 w-4" />
-              {loading ? 'A carregar…' : 'Consultar'}
+              {loading ? t('podpdash_loading') : t('podpdash_query_btn')}
             </Button>
           </CardContent>
         </Card>
@@ -260,28 +262,28 @@ export default function AdminPodpDashboard() {
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Ciclos</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('podpdash_kpi_cycles')}</CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent><div className="text-2xl font-bold">{summary.totalCycles}</div></CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Final médio</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('podpdash_kpi_avg_final')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent><div className="text-2xl font-bold">{summary.avgFinal}</div></CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">% Verificada média</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('podpdash_kpi_avg_verified')}</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent><div className="text-2xl font-bold">{summary.avgVerified}%</div></CardContent>
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Streak máx.</CardTitle>
+                <CardTitle className="text-sm font-medium">{t('podpdash_kpi_max_streak')}</CardTitle>
                 <Flame className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent><div className="text-2xl font-bold">{summary.maxStreak}d</div></CardContent>
@@ -292,8 +294,8 @@ export default function AdminPodpDashboard() {
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Score final e % verificada por ciclo</CardTitle>
-              <CardDescription>Evolução cronológica.</CardDescription>
+              <CardTitle>{t('podpdash_chart_final_title')}</CardTitle>
+              <CardDescription>{t('podpdash_chart_final_desc')}</CardDescription>
             </CardHeader>
             <CardContent style={{ height: 280 }}>
               {cycleSeries.length ? (
@@ -304,21 +306,21 @@ export default function AdminPodpDashboard() {
                     <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Line type="monotone" dataKey="final_score" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name="Final" />
-                    <Line type="monotone" dataKey="base_score" stroke="hsl(var(--muted-foreground))" strokeWidth={1} dot={false} name="Base" />
-                    <Line type="monotone" dataKey="verified_pct" stroke="hsl(var(--chart-2, 142 71% 45%))" strokeWidth={1.5} dot={false} name="% Verif." />
+                    <Line type="monotone" dataKey="final_score" stroke="hsl(var(--primary))" strokeWidth={2} dot={false} name={t('podpdash_legend_final')} />
+                    <Line type="monotone" dataKey="base_score" stroke="hsl(var(--muted-foreground))" strokeWidth={1} dot={false} name={t('podpdash_legend_base')} />
+                    <Line type="monotone" dataKey="verified_pct" stroke="hsl(var(--chart-2, 142 71% 45%))" strokeWidth={1.5} dot={false} name={t('podpdash_legend_verified')} />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-sm text-muted-foreground">Sem dados.</p>
+                <p className="text-sm text-muted-foreground">{t('podpdash_no_data')}</p>
               )}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Streaks por ciclo</CardTitle>
-              <CardDescription>Mais longo vs. actual.</CardDescription>
+              <CardTitle>{t('podpdash_chart_streaks_title')}</CardTitle>
+              <CardDescription>{t('podpdash_chart_streaks_desc')}</CardDescription>
             </CardHeader>
             <CardContent style={{ height: 280 }}>
               {cycleSeries.length ? (
@@ -329,20 +331,20 @@ export default function AdminPodpDashboard() {
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="longest_streak" fill="hsl(var(--primary))" name="Longest" />
-                    <Bar dataKey="current_streak" fill="hsl(var(--muted-foreground))" name="Current" />
+                    <Bar dataKey="longest_streak" fill="hsl(var(--primary))" name={t('podpdash_legend_longest')} />
+                    <Bar dataKey="current_streak" fill="hsl(var(--muted-foreground))" name={t('podpdash_legend_current')} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-sm text-muted-foreground">Sem dados.</p>
+                <p className="text-sm text-muted-foreground">{t('podpdash_no_data')}</p>
               )}
             </CardContent>
           </Card>
 
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle>Final médio por endereço (Top {Math.min(addressAggregates.length, 20)})</CardTitle>
-              <CardDescription>Agregado de todos os ciclos carregados.</CardDescription>
+              <CardTitle>{t('podpdash_chart_addr_title')} (Top {Math.min(addressAggregates.length, 20)})</CardTitle>
+              <CardDescription>{t('podpdash_chart_addr_desc')}</CardDescription>
             </CardHeader>
             <CardContent style={{ height: 320 }}>
               {addressAggregates.length ? (
@@ -360,12 +362,12 @@ export default function AdminPodpDashboard() {
                     <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
                     <Tooltip />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="avgFinalScore" fill="hsl(var(--primary))" name="Final méd." />
-                    <Bar dataKey="avgVerifiedPct" fill="hsl(var(--chart-2, 142 71% 45%))" name="% Verif. méd." />
+                    <Bar dataKey="avgFinalScore" fill="hsl(var(--primary))" name={t('podpdash_legend_avg_final')} />
+                    <Bar dataKey="avgVerifiedPct" fill="hsl(var(--chart-2, 142 71% 45%))" name={t('podpdash_legend_avg_verified')} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-sm text-muted-foreground">Sem dados.</p>
+                <p className="text-sm text-muted-foreground">{t('podpdash_no_data')}</p>
               )}
             </CardContent>
           </Card>
@@ -373,20 +375,20 @@ export default function AdminPodpDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Agregado por endereço ({addressAggregates.length})</CardTitle>
-            <CardDescription>Média entre todos os ciclos retornados.</CardDescription>
+            <CardTitle>{t('podpdash_agg_title')} ({addressAggregates.length})</CardTitle>
+            <CardDescription>{t('podpdash_agg_desc')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Registo</TableHead>
-                  <TableHead># Ciclos</TableHead>
-                  <TableHead>Final méd.</TableHead>
-                  <TableHead>Último final</TableHead>
-                  <TableHead>% Verif. méd.</TableHead>
-                  <TableHead>Streak máx.</TableHead>
-                  <TableHead className="text-right">Detalhes</TableHead>
+                  <TableHead>{t('podpdash_th_record')}</TableHead>
+                  <TableHead>{t('podpdash_th_cyclecount')}</TableHead>
+                  <TableHead>{t('podpdash_th_avg_final')}</TableHead>
+                  <TableHead>{t('podpdash_th_last_final')}</TableHead>
+                  <TableHead>{t('podpdash_th_avg_verified')}</TableHead>
+                  <TableHead>{t('podpdash_th_max_streak')}</TableHead>
+                  <TableHead className="text-right">{t('podpdash_th_details')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -412,13 +414,13 @@ export default function AdminPodpDashboard() {
                         variant="outline"
                         onClick={(e) => { e.stopPropagation(); openDrill(a.recordId); }}
                       >
-                        Abrir
+                        {t('podpdash_btn_open')}
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
                 {addressAggregates.length === 0 && (
-                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">Sem dados.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">{t('podpdash_no_data')}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
@@ -427,22 +429,22 @@ export default function AdminPodpDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Ciclos fechados ({cycles.length})</CardTitle>
+            <CardTitle>{t('podpdash_closed_title')} ({cycles.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Registo</TableHead>
-                  <TableHead>Início</TableHead>
-                  <TableHead>Fim</TableHead>
-                  <TableHead>Dias válidos</TableHead>
-                  <TableHead>% Verificada</TableHead>
-                  <TableHead>Streak (max/actual)</TableHead>
-                  <TableHead>h/dia (méd)</TableHead>
-                  <TableHead>Consist.</TableHead>
-                  <TableHead>Base</TableHead>
-                  <TableHead>Final</TableHead>
+                  <TableHead>{t('podpdash_th_record')}</TableHead>
+                  <TableHead>{t('podpdash_th_start')}</TableHead>
+                  <TableHead>{t('podpdash_th_end')}</TableHead>
+                  <TableHead>{t('podpdash_th_valid_days')}</TableHead>
+                  <TableHead>{t('podpdash_th_verified')}</TableHead>
+                  <TableHead>{t('podpdash_th_streak_maxcur')}</TableHead>
+                  <TableHead>{t('podpdash_th_hours_day')}</TableHead>
+                  <TableHead>{t('podpdash_th_consist')}</TableHead>
+                  <TableHead>{t('podpdash_th_base')}</TableHead>
+                  <TableHead>{t('podpdash_th_final')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -469,7 +471,7 @@ export default function AdminPodpDashboard() {
                   );
                 })}
                 {cycles.length === 0 && (
-                  <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground">Sem ciclos.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={10} className="text-center text-muted-foreground">{t('podpdash_no_cycles')}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
@@ -478,17 +480,17 @@ export default function AdminPodpDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Rollup diário ({daily.length})</CardTitle>
+            <CardTitle>{t('podpdash_rollup_title')} ({daily.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Registo</TableHead>
-                  <TableHead>Dia</TableHead>
-                  <TableHead>Amostras válidas</TableHead>
-                  <TableHead>Horas</TableHead>
-                  <TableHead>Válido</TableHead>
+                  <TableHead>{t('podpdash_th_record')}</TableHead>
+                  <TableHead>{t('podpdash_th_day')}</TableHead>
+                  <TableHead>{t('podpdash_th_valid_samples')}</TableHead>
+                  <TableHead>{t('podpdash_th_hours')}</TableHead>
+                  <TableHead>{t('podpdash_th_valid')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -500,13 +502,13 @@ export default function AdminPodpDashboard() {
                     <TableCell>{Number(d.hours_present).toFixed(2)}h</TableCell>
                     <TableCell>
                       <Badge variant={d.day_is_valid ? 'default' : 'secondary'}>
-                        {d.day_is_valid ? 'Sim' : 'Não'}
+                        {d.day_is_valid ? t('podpdash_yes') : t('podpdash_no')}
                       </Badge>
                     </TableCell>
                   </TableRow>
                 ))}
                 {daily.length === 0 && (
-                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">Sem dados.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground">{t('podpdash_no_data')}</TableCell></TableRow>
                 )}
               </TableBody>
             </Table>
@@ -518,21 +520,21 @@ export default function AdminPodpDashboard() {
         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-mono text-sm">
-              Endereço {drill.recordId?.slice(0, 8)}… — Drill-down
+              {t('podpdash_drill_addr')} {drill.recordId?.slice(0, 8)}… — {t('podpdash_drill_label')}
             </DialogTitle>
             <DialogDescription>
-              Ciclos, amostras e razões de reprovação registadas para este endereço.
+              {t('podpdash_drill_desc')}
             </DialogDescription>
           </DialogHeader>
 
-          {drill.loading && <p className="text-sm text-muted-foreground">A carregar detalhes…</p>}
+          {drill.loading && <p className="text-sm text-muted-foreground">{t('podpdash_loading_details')}</p>}
           {drill.error && <p className="text-sm text-destructive">{drill.error}</p>}
 
           {!drill.loading && !drill.error && (
             <div className="space-y-6">
               <section>
                 <h3 className="mb-2 text-sm font-semibold">
-                  Dispersão GPS{drill.address ? '' : ' (endereço sem coordenadas)'}
+                  {t('podpdash_scatter_title')}{drill.address ? '' : ` ${t('podpdash_scatter_nocoords')}`}
                 </h3>
                 <SampleScatterMap
                   address={drill.address}
@@ -548,14 +550,14 @@ export default function AdminPodpDashboard() {
                   height={360}
                 />
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Círculo verde = tolerância urbana (75 m); círculo amarelo tracejado = tolerância rural (250 m).
+                  {t('podpdash_scatter_legend')}
                 </p>
               </section>
 
               <section>
-                <h3 className="mb-2 text-sm font-semibold">Razões de reprovação ({Object.values(drill.rejectionBreakdown).reduce((a, b) => a + b, 0)})</h3>
+                <h3 className="mb-2 text-sm font-semibold">{t('podpdash_reject_title')} ({Object.values(drill.rejectionBreakdown).reduce((a, b) => a + b, 0)})</h3>
                 {Object.keys(drill.rejectionBreakdown).length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Sem reprovações registadas.</p>
+                  <p className="text-sm text-muted-foreground">{t('podpdash_reject_none')}</p>
                 ) : (
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(drill.rejectionBreakdown)
@@ -570,16 +572,16 @@ export default function AdminPodpDashboard() {
               </section>
 
               <section>
-                <h3 className="mb-2 text-sm font-semibold">Ciclos ({drill.cycles.length})</h3>
+                <h3 className="mb-2 text-sm font-semibold">{t('podpdash_drill_cycles')} ({drill.cycles.length})</h3>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Início</TableHead>
-                      <TableHead>Fim</TableHead>
-                      <TableHead>Dias</TableHead>
-                      <TableHead>% Verif.</TableHead>
-                      <TableHead>Streak</TableHead>
-                      <TableHead>Final</TableHead>
+                      <TableHead>{t('podpdash_th_start')}</TableHead>
+                      <TableHead>{t('podpdash_th_end')}</TableHead>
+                      <TableHead>{t('podpdash_th_days')}</TableHead>
+                      <TableHead>{t('podpdash_th_verified_short')}</TableHead>
+                      <TableHead>{t('podpdash_th_streak')}</TableHead>
+                      <TableHead>{t('podpdash_th_final')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -602,24 +604,24 @@ export default function AdminPodpDashboard() {
                       );
                     })}
                     {drill.cycles.length === 0 && (
-                      <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">Sem ciclos.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">{t('podpdash_no_cycles')}</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
               </section>
 
               <section>
-                <h3 className="mb-2 text-sm font-semibold">Amostras recentes ({drill.samples.length})</h3>
+                <h3 className="mb-2 text-sm font-semibold">{t('podpdash_drill_samples')} ({drill.samples.length})</h3>
                 <div className="max-h-96 overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Capturada em</TableHead>
-                        <TableHead>Lat / Lon</TableHead>
-                        <TableHead>Acc.</TableHead>
-                        <TableHead>Dist.</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Reprovação</TableHead>
+                        <TableHead>{t('podpdash_th_captured')}</TableHead>
+                        <TableHead>{t('podpdash_th_latlon')}</TableHead>
+                        <TableHead>{t('podpdash_th_acc')}</TableHead>
+                        <TableHead>{t('podpdash_th_dist')}</TableHead>
+                        <TableHead>{t('podpdash_th_status')}</TableHead>
+                        <TableHead>{t('podpdash_th_rejection')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -633,7 +635,7 @@ export default function AdminPodpDashboard() {
                           <TableCell>{s.distance_from_address_m != null ? `${Number(s.distance_from_address_m).toFixed(0)}m` : '—'}</TableCell>
                           <TableCell>
                             <Badge variant={s.is_within_radius ? 'default' : 'destructive'}>
-                              {s.is_within_radius ? 'OK' : 'Fora'}
+                              {s.is_within_radius ? t('podpdash_status_ok') : t('podpdash_status_out')}
                             </Badge>
                           </TableCell>
                           <TableCell className="font-mono text-xs">{s.rejection_reason ?? '—'}</TableCell>

@@ -51,7 +51,7 @@ export default function AuthorityGPSValidation() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error("Acesso não autorizado");
+        toast.error(t('gpsval_unauthorized'));
         navigate("/login");
         return;
       }
@@ -64,7 +64,7 @@ export default function AuthorityGPSValidation() {
         .single();
 
       if (authError || !authData || authData.current_level < 3) {
-        toast.error("Nível de autorização insuficiente. Necessário nível 3 ou superior.");
+        toast.error(t('gpsval_insufficient_level'));
         navigate("/dashboard");
         return;
       }
@@ -83,7 +83,7 @@ export default function AuthorityGPSValidation() {
       setAddresses(addressesData || []);
     } catch (error) {
       console.error("Error loading addresses:", error);
-      toast.error("Erro ao carregar endereços");
+      toast.error(t('gpsval_load_error'));
     } finally {
       setLoading(false);
     }
@@ -97,17 +97,17 @@ export default function AuthorityGPSValidation() {
     const lon = parseFloat(gpsLon);
 
     if (isNaN(lat) || isNaN(lon)) {
-      toast.error("Coordenadas GPS inválidas");
+      toast.error(t('gpsval_invalid_coords'));
       return;
     }
 
     if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-      toast.error("Coordenadas GPS fora dos limites válidos");
+      toast.error(t('gpsval_coords_out_of_range'));
       return;
     }
 
     if (!validationNotes.trim()) {
-      toast.error("Por favor, adicione notas sobre a validação");
+      toast.error(t('gpsval_notes_required'));
       return;
     }
 
@@ -139,7 +139,7 @@ export default function AuthorityGPSValidation() {
 
       if (validationError) throw validationError;
 
-      toast.success("Coordenadas GPS validadas e adicionadas com sucesso");
+      toast.success(t('gpsval_validate_success'));
       setSelectedAddress(null);
       setGpsLat("");
       setGpsLon("");
@@ -147,7 +147,7 @@ export default function AuthorityGPSValidation() {
       checkAuthAndLoadAddresses();
     } catch (error) {
       console.error("Error validating GPS:", error);
-      toast.error("Erro ao validar coordenadas GPS");
+      toast.error(t('gpsval_validate_error'));
     } finally {
       setSubmitting(false);
     }
@@ -175,13 +175,13 @@ export default function AuthorityGPSValidation() {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Validação GPS de Endereços Formais</h1>
+            <h1 className="text-3xl font-bold">{t('gpsval_page_title')}</h1>
           </div>
           <p className="text-muted-foreground">
-            Adicione e valide coordenadas GPS para endereços formais na sua jurisdição
+            {t('gpsval_page_subtitle')}
           </p>
           <Badge variant="default" className="mt-2">
-            Nível de Autorização: {authLevel}
+            {t('gpsval_auth_level_badge')} {authLevel}
           </Badge>
         </div>
 
@@ -189,14 +189,14 @@ export default function AuthorityGPSValidation() {
           {/* Address List */}
           <Card>
             <CardHeader>
-              <CardTitle>Endereços Formais</CardTitle>
+              <CardTitle>{t('gpsval_formal_addresses')}</CardTitle>
               <CardDescription>
-                Selecione um endereço para adicionar coordenadas GPS
+                {t('gpsval_select_to_add')}
               </CardDescription>
               <div className="relative mt-4">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por código ou endereço..."
+                  placeholder={t('gpsval_search_placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -207,7 +207,7 @@ export default function AuthorityGPSValidation() {
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
                 {filteredAddresses.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-8">
-                    Nenhum endereço formal encontrado
+                    {t('gpsval_no_addresses')}
                   </p>
                 ) : (
                   filteredAddresses.map((addr) => (
@@ -238,7 +238,7 @@ export default function AuthorityGPSValidation() {
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="ml-2 flex-shrink-0">
-                              Sem GPS
+                              {t('gpsval_no_gps')}
                             </Badge>
                           )}
                         </div>
@@ -255,19 +255,19 @@ export default function AuthorityGPSValidation() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Validação de Coordenadas GPS
+                {t('gpsval_coords_validation')}
               </CardTitle>
               <CardDescription>
                 {selectedAddress
-                  ? `Validando: ${selectedAddress.code}`
-                  : "Selecione um endereço para começar"}
+                  ? `${t('gpsval_validating')} ${selectedAddress.code}`
+                  : t('gpsval_select_to_start')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {!selectedAddress ? (
                 <Alert>
                   <AlertDescription>
-                    Selecione um endereço formal da lista para adicionar e validar coordenadas GPS oficiais.
+                    {t('gpsval_empty_state_hint')}
                   </AlertDescription>
                 </Alert>
               ) : (
@@ -275,13 +275,12 @@ export default function AuthorityGPSValidation() {
                   <Alert>
                     <Shield className="h-4 w-4" />
                     <AlertDescription>
-                      <strong>Validação Oficial:</strong> Ao submeter, você está certificando oficialmente 
-                      que estas coordenadas GPS correspondem ao endereço formal registrado.
+                      <strong>{t('gpsval_official_validation_label')}</strong> {t('gpsval_official_validation_text')}
                     </AlertDescription>
                   </Alert>
 
                   <div className="bg-muted p-4 rounded-lg space-y-2">
-                    <p className="text-sm font-semibold">Endereço Selecionado:</p>
+                    <p className="text-sm font-semibold">{t('gpsval_selected_address')}</p>
                     <p className="text-sm">{selectedAddress.street_name} #{selectedAddress.number}</p>
                     <p className="text-sm text-muted-foreground">
                       {selectedAddress.level4_name}, {selectedAddress.level3_name}, {selectedAddress.level2_name}
@@ -294,7 +293,7 @@ export default function AuthorityGPSValidation() {
                     onClick={async () => {
                       try {
                         if (!navigator.geolocation) {
-                          toast.error("Geolocalização não suportada pelo navegador");
+                          toast.error(t('gpsval_geolocation_unsupported'));
                           return;
                         }
                         
@@ -302,28 +301,28 @@ export default function AuthorityGPSValidation() {
                           (position) => {
                             setGpsLat(position.coords.latitude.toString());
                             setGpsLon(position.coords.longitude.toString());
-                            toast.success("Localização obtida com sucesso");
+                            toast.success(t('gpsval_location_success'));
                           },
                           (error) => {
                             console.error("Error getting location:", error);
-                            toast.error("Erro ao obter localização");
+                            toast.error(t('gpsval_location_error'));
                           }
                         );
                       } catch (error) {
                         console.error("Error getting location:", error);
-                        toast.error("Erro ao obter localização");
+                        toast.error(t('gpsval_location_error'));
                       }
                     }}
                     className="w-full"
                   >
                     <Navigation className="mr-2 h-4 w-4" />
-                    Obter Localização Atual
+                    {t('gpsval_get_current_location')}
                   </Button>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="gpsLat">
-                        Latitude *
+                        {t('gpsval_latitude')} *
                       </Label>
                       <Input
                         id="gpsLat"
@@ -337,7 +336,7 @@ export default function AuthorityGPSValidation() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="gpsLon">
-                        Longitude *
+                        {t('gpsval_longitude')} *
                       </Label>
                       <Input
                         id="gpsLon"
@@ -353,16 +352,16 @@ export default function AuthorityGPSValidation() {
 
                   <div className="space-y-2">
                     <Label htmlFor="validationNotes">
-                      Notas da Validação *
+                      {t('gpsval_validation_notes')} *
                       <span className="text-muted-foreground text-sm ml-2">
-                        (Descreva o método e contexto da validação)
+                        {t('gpsval_validation_notes_hint')}
                       </span>
                     </Label>
                     <Textarea
                       id="validationNotes"
                       value={validationNotes}
                       onChange={(e) => setValidationNotes(e.target.value)}
-                      placeholder="Ex: Coordenadas obtidas por levantamento topográfico oficial em [data]. Verificação realizada pela equipa técnica da administração local."
+                      placeholder={t('gpsval_notes_placeholder')}
                       rows={4}
                       required
                     />
@@ -370,9 +369,7 @@ export default function AuthorityGPSValidation() {
 
                   <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-900 p-4 rounded-lg">
                     <p className="text-sm text-blue-900 dark:text-blue-100">
-                      <strong>Termo de Responsabilidade:</strong> Ao submeter esta validação, 
-                      confirmo que as coordenadas GPS fornecidas foram verificadas oficialmente 
-                      e correspondem com precisão ao endereço formal registrado.
+                      <strong>{t('gpsval_liability_label')}</strong> {t('gpsval_liability_text')}
                     </p>
                   </div>
 
@@ -389,7 +386,7 @@ export default function AuthorityGPSValidation() {
                       disabled={submitting}
                       className="flex-1"
                     >
-                      Cancelar
+                      {t('gpsval_cancel')}
                     </Button>
                     <Button
                       type="submit"
@@ -397,7 +394,7 @@ export default function AuthorityGPSValidation() {
                       className="flex-1"
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
-                      {submitting ? "Validando..." : "Validar Oficialmente"}
+                      {submitting ? t('gpsval_validating_btn') : t('gpsval_validate_officially')}
                     </Button>
                   </div>
                 </form>

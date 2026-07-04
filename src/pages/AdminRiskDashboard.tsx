@@ -23,6 +23,7 @@ import {
   GitCompare
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useLanguage } from '@/contexts/LanguageContext';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
 
 interface AddressRecord {
@@ -111,6 +112,7 @@ export default function AdminRiskDashboard() {
     search: '',
   });
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     fetchAddressRecords();
@@ -204,8 +206,8 @@ export default function AdminRiskDashboard() {
       }
     } catch (error: any) {
       toast({
-        title: "Erro",
-        description: "Falha ao carregar dados",
+        title: t('riskdash_error'),
+        description: t('riskdash_load_failed'),
         variant: "destructive",
       });
     } finally {
@@ -265,13 +267,13 @@ export default function AdminRiskDashboard() {
       if (error) throw error;
 
       toast({
-        title: "Sucesso",
-        description: "Configurações de alerta salvas com sucesso",
+        title: t('riskdash_success'),
+        description: t('riskdash_alert_saved'),
       });
     } catch (error: any) {
       toast({
-        title: "Erro",
-        description: "Falha ao salvar configurações",
+        title: t('riskdash_error'),
+        description: t('riskdash_save_failed'),
         variant: "destructive",
       });
     }
@@ -476,7 +478,7 @@ export default function AdminRiskDashboard() {
 
   const exportData = () => {
     const csv = [
-      ['AFROLOC', 'País', 'Região', 'Endereço', 'Score de Risco', 'Nível', 'Última Verificação', 'Próxima Verificação'],
+      ['AFROLOC', t('riskdash_csv_country'), t('riskdash_csv_region'), t('riskdash_csv_address'), t('riskdash_csv_risk_score'), t('riskdash_csv_level'), t('riskdash_csv_last_verification'), t('riskdash_csv_next_verification')],
       ...filteredRecords.map(r => {
         const score = calculateRiskScore(r);
         const level = getRiskLevel(score);
@@ -484,10 +486,10 @@ export default function AdminRiskDashboard() {
           r.code,
           r.country,
           r.level1_name || '-',
-          `${r.street_name || ''} ${r.number || ''}`.trim() || 'Incompleto',
+          `${r.street_name || ''} ${r.number || ''}`.trim() || t('riskdash_incomplete'),
           score,
           level,
-          r.last_verified_at ? new Date(r.last_verified_at).toLocaleDateString('pt-BR') : 'Nunca',
+          r.last_verified_at ? new Date(r.last_verified_at).toLocaleDateString('pt-BR') : t('riskdash_never'),
           r.next_verification_due ? new Date(r.next_verification_due).toLocaleDateString('pt-BR') : '-',
         ];
       })
@@ -518,25 +520,25 @@ export default function AdminRiskDashboard() {
           <TabsList>
             <TabsTrigger value="overview">
               <Shield className="h-4 w-4 mr-2" />
-              Visão Geral
+              {t('riskdash_tab_overview')}
             </TabsTrigger>
             <TabsTrigger value="comparison">
               <GitCompare className="h-4 w-4 mr-2" />
-              Comparação
+              {t('riskdash_tab_comparison')}
             </TabsTrigger>
             <TabsTrigger value="alerts">
               <Bell className="h-4 w-4 mr-2" />
-              Alertas
+              {t('riskdash_tab_alerts')}
             </TabsTrigger>
           </TabsList>
           <div className="flex gap-2">
             <Button onClick={fetchAddressRecords} variant="outline" disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Atualizar
+              {t('riskdash_refresh')}
             </Button>
             <Button onClick={exportData} variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Exportar
+              {t('riskdash_export')}
             </Button>
           </div>
         </div>
@@ -547,7 +549,7 @@ export default function AdminRiskDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Total de Endereços</CardDescription>
+              <CardDescription>{t('riskdash_total_addresses')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -559,7 +561,7 @@ export default function AdminRiskDashboard() {
 
           <Card className="border-chart-2/50 bg-chart-2/5">
             <CardHeader className="pb-2">
-              <CardDescription>Risco Baixo</CardDescription>
+              <CardDescription>{t('riskdash_low_risk')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -573,7 +575,7 @@ export default function AdminRiskDashboard() {
 
           <Card className="border-chart-3/50 bg-chart-3/5">
             <CardHeader className="pb-2">
-              <CardDescription>Risco Médio</CardDescription>
+              <CardDescription>{t('riskdash_medium_risk')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -587,7 +589,7 @@ export default function AdminRiskDashboard() {
 
           <Card className="border-warning/50 bg-warning/5">
             <CardHeader className="pb-2">
-              <CardDescription>Risco Alto</CardDescription>
+              <CardDescription>{t('riskdash_high_risk')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -601,7 +603,7 @@ export default function AdminRiskDashboard() {
 
           <Card className="border-destructive/50 bg-destructive/5">
             <CardHeader className="pb-2">
-              <CardDescription>Risco Crítico</CardDescription>
+              <CardDescription>{t('riskdash_critical_risk')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
@@ -619,10 +621,10 @@ export default function AdminRiskDashboard() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              Tendência de Risco ao Longo do Tempo
+              {t('riskdash_trend_title')}
             </CardTitle>
             <CardDescription>
-              Histórico dos últimos 6 meses e previsão das próximas 8 semanas
+              {t('riskdash_trend_description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -657,14 +659,14 @@ export default function AdminRiskDashboard() {
                     color: 'hsl(var(--foreground))'
                   }}
                   formatter={(value: number, name: string) => {
-                    if (name === 'avgRisk') return [`${value}`, 'Score Médio'];
+                    if (name === 'avgRisk') return [`${value}`, t('riskdash_avg_score')];
                     return [value, name];
                   }}
                 />
                 <Legend 
                   wrapperStyle={{ color: 'hsl(var(--foreground))' }}
                   formatter={(value) => {
-                    if (value === 'avgRisk') return 'Score Médio de Risco';
+                    if (value === 'avgRisk') return t('riskdash_avg_risk_score');
                     return value;
                   }}
                 />
@@ -706,11 +708,11 @@ export default function AdminRiskDashboard() {
             <div className="flex items-center justify-center gap-6 mt-4 text-sm">
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-primary" />
-                <span className="text-muted-foreground">Dados Históricos</span>
+                <span className="text-muted-foreground">{t('riskdash_historical_data')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-warning border-2 border-dashed border-warning/50" />
-                <span className="text-muted-foreground">Previsão (Próximas 8 semanas)</span>
+                <span className="text-muted-foreground">{t('riskdash_forecast_legend')}</span>
               </div>
             </div>
           </CardContent>
@@ -720,11 +722,11 @@ export default function AdminRiskDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Score Médio de Risco</CardTitle>
+              <CardTitle className="text-lg">{t('riskdash_avg_risk_score')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold">{metrics.avgRiskScore}</div>
-              <p className="text-sm text-muted-foreground mt-1">de 100</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('riskdash_out_of_100')}</p>
             </CardContent>
           </Card>
 
@@ -732,27 +734,27 @@ export default function AdminRiskDashboard() {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-destructive" />
-                Verificações Atrasadas
+                {t('riskdash_overdue_verifications')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-4xl font-bold text-destructive">{metrics.overdueVerifications}</div>
-              <p className="text-sm text-muted-foreground mt-1">requer ação imediata</p>
+              <p className="text-sm text-muted-foreground mt-1">{t('riskdash_requires_immediate_action')}</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Completude de Endereços</CardTitle>
+              <CardTitle className="text-lg">{t('riskdash_address_completeness')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Completos:</span>
+                  <span>{t('riskdash_complete')}</span>
                   <span className="font-semibold">{metrics.completeAddresses}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Incompletos:</span>
+                  <span>{t('riskdash_incomplete_label')}</span>
                   <span className="font-semibold">{metrics.incompleteAddresses}</span>
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -771,38 +773,38 @@ export default function AdminRiskDashboard() {
         {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Filtros</CardTitle>
+            <CardTitle>{t('riskdash_filters')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <Select value={filters.riskLevel} onValueChange={(v) => setFilters(f => ({ ...f, riskLevel: v }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Nível de Risco" />
+                  <SelectValue placeholder={t('riskdash_risk_level')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos os níveis</SelectItem>
-                  <SelectItem value="low">Risco Baixo</SelectItem>
-                  <SelectItem value="medium">Risco Médio</SelectItem>
-                  <SelectItem value="high">Risco Alto</SelectItem>
-                  <SelectItem value="critical">Risco Crítico</SelectItem>
+                  <SelectItem value="all">{t('riskdash_all_levels')}</SelectItem>
+                  <SelectItem value="low">{t('riskdash_low_risk')}</SelectItem>
+                  <SelectItem value="medium">{t('riskdash_medium_risk')}</SelectItem>
+                  <SelectItem value="high">{t('riskdash_high_risk')}</SelectItem>
+                  <SelectItem value="critical">{t('riskdash_critical_risk')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={filters.complianceStatus} onValueChange={(v) => setFilters(f => ({ ...f, complianceStatus: v }))}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Status de Conformidade" />
+                  <SelectValue placeholder={t('riskdash_compliance_status')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
-                  <SelectItem value="compliant">Em Conformidade</SelectItem>
-                  <SelectItem value="overdue">Atrasado</SelectItem>
+                  <SelectItem value="all">{t('riskdash_all')}</SelectItem>
+                  <SelectItem value="compliant">{t('riskdash_compliant')}</SelectItem>
+                  <SelectItem value="overdue">{t('riskdash_overdue')}</SelectItem>
                 </SelectContent>
               </Select>
 
               <div className="relative md:col-span-3">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar por AFROLOC, região, endereço..."
+                  placeholder={t('riskdash_search_placeholder')}
                   value={filters.search}
                   onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
                   className="pl-10"
@@ -815,7 +817,7 @@ export default function AdminRiskDashboard() {
         {/* Records Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Registros ({filteredRecords.length})</CardTitle>
+            <CardTitle>{t('riskdash_records')} ({filteredRecords.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -835,7 +837,7 @@ export default function AdminRiskDashboard() {
                         {isOverdue && (
                           <Badge variant="destructive" className="text-xs">
                             <AlertTriangle className="h-3 w-3 mr-1" />
-                            Atrasado
+                            {t('riskdash_overdue')}
                           </Badge>
                         )}
                       </div>
@@ -848,13 +850,13 @@ export default function AdminRiskDashboard() {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <div className="text-2xl font-bold">{score}</div>
-                        <div className="text-xs text-muted-foreground">Score</div>
+                        <div className="text-xs text-muted-foreground">{t('riskdash_score')}</div>
                       </div>
                       <Badge className={getRiskBadgeColor(level)}>
-                        {level === 'low' && 'Baixo'}
-                        {level === 'medium' && 'Médio'}
-                        {level === 'high' && 'Alto'}
-                        {level === 'critical' && 'Crítico'}
+                        {level === 'low' && t('riskdash_level_low')}
+                        {level === 'medium' && t('riskdash_level_medium')}
+                        {level === 'high' && t('riskdash_level_high')}
+                        {level === 'critical' && t('riskdash_level_critical')}
                       </Badge>
                     </div>
                   </div>
@@ -862,12 +864,12 @@ export default function AdminRiskDashboard() {
               })}
               {filteredRecords.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
-                  Nenhum registro encontrado com os filtros aplicados
+                  {t('riskdash_no_records')}
                 </div>
               )}
               {filteredRecords.length > 50 && (
                 <div className="text-center text-sm text-muted-foreground pt-4">
-                  Mostrando 50 de {filteredRecords.length} registros
+                  {t('riskdash_showing_50_of')} {filteredRecords.length} {t('riskdash_records_suffix')}
                 </div>
               )}
             </div>
@@ -881,10 +883,10 @@ export default function AdminRiskDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <GitCompare className="h-5 w-5 text-primary" />
-                Comparação Regional de Risco
+                {t('riskdash_regional_comparison_title')}
               </CardTitle>
               <CardDescription>
-                Compare tendências de risco entre diferentes regiões
+                {t('riskdash_regional_comparison_description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -957,19 +959,19 @@ export default function AdminRiskDashboard() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5 text-primary" />
-                Configurações de Alertas
+                {t('riskdash_alert_settings_title')}
               </CardTitle>
               <CardDescription>
-                Configure alertas automáticos por email e SMS
+                {t('riskdash_alert_settings_description')}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="alerts-enabled">Alertas Ativados</Label>
+                    <Label htmlFor="alerts-enabled">{t('riskdash_alerts_enabled')}</Label>
                     <p className="text-sm text-muted-foreground">
-                      Receba notificações quando o risco atingir limiares críticos
+                      {t('riskdash_alerts_enabled_description')}
                     </p>
                   </div>
                   <Switch
@@ -982,7 +984,7 @@ export default function AdminRiskDashboard() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="alert-type">Tipo de Alerta</Label>
+                  <Label htmlFor="alert-type">{t('riskdash_alert_type')}</Label>
                   <Select 
                     value={alertSettings.alertType} 
                     onValueChange={(value: 'email' | 'sms' | 'both') => 
@@ -993,16 +995,16 @@ export default function AdminRiskDashboard() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="email">Email apenas</SelectItem>
-                      <SelectItem value="sms">SMS apenas</SelectItem>
-                      <SelectItem value="both">Email e SMS</SelectItem>
+                      <SelectItem value="email">{t('riskdash_email_only')}</SelectItem>
+                      <SelectItem value="sms">{t('riskdash_sms_only')}</SelectItem>
+                      <SelectItem value="both">{t('riskdash_email_and_sms')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="high-threshold">Limiar Risco Alto</Label>
+                    <Label htmlFor="high-threshold">{t('riskdash_high_threshold')}</Label>
                     <Input
                       id="high-threshold"
                       type="number"
@@ -1019,7 +1021,7 @@ export default function AdminRiskDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="critical-threshold">Limiar Risco Crítico</Label>
+                    <Label htmlFor="critical-threshold">{t('riskdash_critical_threshold')}</Label>
                     <Input
                       id="critical-threshold"
                       type="number"
@@ -1036,7 +1038,7 @@ export default function AdminRiskDashboard() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="trend-threshold">Aumento de Tendência (%)</Label>
+                    <Label htmlFor="trend-threshold">{t('riskdash_trend_increase')}</Label>
                     <Input
                       id="trend-threshold"
                       type="number"
@@ -1055,7 +1057,7 @@ export default function AdminRiskDashboard() {
 
                 <Button onClick={saveAlertSettings} className="w-full">
                   <Settings className="h-4 w-4 mr-2" />
-                  Salvar Configurações
+                  {t('riskdash_save_settings')}
                 </Button>
               </div>
             </CardContent>

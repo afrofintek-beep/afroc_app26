@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from '@/contexts/LanguageContext';
 import { CheckCircle, Shield, FileText } from "lucide-react";
 import afrolocSymbol from "@/assets/afroloc-symbol.png";
 
@@ -37,6 +38,7 @@ export default function ConfirmWitness() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const validateForm = () => {
     try {
@@ -91,8 +93,8 @@ export default function ConfirmWitness() {
       setVerified(true);
 
       toast({
-        title: "Success",
-        description: "Testemunho confirmado com sucesso!",
+        title: t('confwitness_toast_success_title'),
+        description: t('confwitness_toast_success_desc'),
       });
 
       setTimeout(() => {
@@ -101,8 +103,8 @@ export default function ConfirmWitness() {
     } catch (error: any) {
       console.error("Verification error:", error);
       toast({
-        title: "Erro",
-        description: error.message || "Código OTP inválido ou expirado",
+        title: t('confwitness_toast_error_title'),
+        description: error.message || t('confwitness_toast_error_desc'),
         variant: "destructive",
       });
     } finally {
@@ -118,17 +120,17 @@ export default function ConfirmWitness() {
             <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
               <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
             </div>
-            <CardTitle className="text-2xl">Testemunho Confirmado!</CardTitle>
+            <CardTitle className="text-2xl">{t('confwitness_confirmed_title')}</CardTitle>
             <CardDescription>
-              Obrigado por confirmar o endereço do seu vizinho
+              {t('confwitness_confirmed_desc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">
-              Sua confirmação ajuda a criar um sistema de endereçamento digital confiável para África.
+              {t('confwitness_confirmed_body')}
             </p>
             <Button onClick={() => navigate("/identities")} className="w-full">
-              Ir para Meus AFROLOCs
+              {t('confwitness_go_to_afrolocs')}
             </Button>
           </CardContent>
         </Card>
@@ -143,9 +145,9 @@ export default function ConfirmWitness() {
           <div className="flex justify-center mb-3 sm:mb-4">
             <img src={afrolocSymbol} alt="AFROLOC" className="h-12 w-12 sm:h-14 sm:w-14 object-cover rounded-xl shadow-md ring-1 ring-primary/20" />
           </div>
-          <CardTitle className="text-xl sm:text-2xl">Confirmar Testemunho</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">{t('confwitness_title')}</CardTitle>
           <CardDescription className="text-sm">
-            Insira o código OTP enviado para o seu email
+            {t('confwitness_subtitle')}
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -154,28 +156,28 @@ export default function ConfirmWitness() {
             <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
-                <h3 className="font-semibold text-sm sm:text-base">Contrato Legal de Testemunho</h3>
+                <h3 className="font-semibold text-sm sm:text-base">{t('confwitness_contract_heading')}</h3>
               </div>
               
               <ScrollArea className="h-40 sm:h-48 rounded-md border border-border p-3 sm:p-4 bg-muted/30">
                 <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-foreground/90 pr-2 sm:pr-4">
-                  <p className="font-semibold">TERMO DE COMPROMISSO DE TESTEMUNHA</p>
-                  
+                  <p className="font-semibold">{t('confwitness_contract_termo')}</p>
+
                   <p>
-                    Eu, abaixo assinado, declaro para os devidos fins que:
+                    {t('confwitness_contract_intro')}
                   </p>
-                  
+
                   <ol className="list-decimal list-inside space-y-2 ml-2">
-                    <li>Conheço pessoalmente o residente cujo endereço estou atestando;</li>
-                    <li>Confirmo que as informações de localização fornecidas são verdadeiras e corretas;</li>
-                    <li>Estou ciente de que este testemunho será usado para validação oficial de endereço no sistema AFROLOC;</li>
-                    <li>Compreendo que fornecer informações falsas pode resultar em consequências legais;</li>
-                    <li>Autorizo o uso desta declaração para fins de verificação de identidade e endereço;</li>
-                    <li>Assumo total responsabilidade pela veracidade das informações prestadas.</li>
+                    <li>{t('confwitness_contract_item1')}</li>
+                    <li>{t('confwitness_contract_item2')}</li>
+                    <li>{t('confwitness_contract_item3')}</li>
+                    <li>{t('confwitness_contract_item4')}</li>
+                    <li>{t('confwitness_contract_item5')}</li>
+                    <li>{t('confwitness_contract_item6')}</li>
                   </ol>
-                  
+
                   <p className="text-muted-foreground italic">
-                    Este termo é regido pelas leis aplicáveis e constitui um compromisso legal de veracidade das informações prestadas.
+                    {t('confwitness_contract_footer')}
                   </p>
                 </div>
               </ScrollArea>
@@ -184,7 +186,7 @@ export default function ConfirmWitness() {
             {/* Full Name Field */}
             <div className="space-y-2">
               <Label htmlFor="fullName" className="text-sm">
-                Nome Completo <span className="text-destructive">*</span>
+                {t('confwitness_label_fullname')} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="fullName"
@@ -194,7 +196,7 @@ export default function ConfirmWitness() {
                   setFullName(e.target.value);
                   setErrors({});
                 }}
-                placeholder="Digite seu nome completo"
+                placeholder={t('confwitness_placeholder_fullname')}
                 className={`text-sm sm:text-base ${errors.fullName ? "border-destructive" : ""}`}
               />
               {errors.fullName && (
@@ -218,7 +220,7 @@ export default function ConfirmWitness() {
                   htmlFor="agreeToTerms"
                   className="text-xs sm:text-sm font-medium cursor-pointer break-words"
                 >
-                  Li e concordo com os termos do contrato acima <span className="text-destructive">*</span>
+                  {t('confwitness_agree_label')} <span className="text-destructive">*</span>
                 </Label>
                 {errors.agreeToTerms && (
                   <p className="text-xs sm:text-sm text-destructive break-words">{errors.agreeToTerms}</p>
@@ -229,7 +231,7 @@ export default function ConfirmWitness() {
             {/* Signature Field */}
             <div className="space-y-2">
               <Label htmlFor="signature" className="text-sm">
-                Assinatura Digital <span className="text-destructive">*</span>
+                {t('confwitness_label_signature')} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="signature"
@@ -239,21 +241,21 @@ export default function ConfirmWitness() {
                   setSignature(e.target.value);
                   setErrors({});
                 }}
-                placeholder="Digite seu nome completo como assinatura"
+                placeholder={t('confwitness_placeholder_signature')}
                 className={`italic text-sm sm:text-base ${errors.signature ? "border-destructive" : ""}`}
               />
               {errors.signature && (
                 <p className="text-xs sm:text-sm text-destructive break-words">{errors.signature}</p>
               )}
               <p className="text-xs text-muted-foreground break-words">
-                Ao digitar seu nome, você está assinando digitalmente este contrato
+                {t('confwitness_signature_hint')}
               </p>
             </div>
 
             {/* OTP Field */}
             <div className="space-y-2">
               <Label htmlFor="otp" className="text-sm">
-                Código OTP <span className="text-destructive">*</span>
+                {t('confwitness_label_otp')} <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="otp"
@@ -276,7 +278,7 @@ export default function ConfirmWitness() {
                 <p className="text-xs sm:text-sm text-destructive text-center break-words">{errors.otp}</p>
               )}
               <p className="text-xs sm:text-sm text-muted-foreground text-center break-words">
-                Digite o código de 6 dígitos que recebeu por email
+                {t('confwitness_otp_hint')}
               </p>
             </div>
 
@@ -284,9 +286,9 @@ export default function ConfirmWitness() {
               <div className="flex items-start gap-2 sm:gap-3">
                 <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="text-xs sm:text-sm flex-1 min-w-0">
-                  <p className="font-semibold mb-1">Responsabilidade do Testemunho</p>
+                  <p className="font-semibold mb-1">{t('confwitness_responsibility_title')}</p>
                   <p className="text-muted-foreground break-words">
-                    Ao confirmar, você atesta que conhece pessoalmente o residente e que o endereço está correto.
+                    {t('confwitness_responsibility_body')}
                   </p>
                 </div>
               </div>
@@ -297,22 +299,22 @@ export default function ConfirmWitness() {
               disabled={loading || otp.length !== 6 || !agreeToTerms || !fullName || !signature} 
               className="w-full text-sm sm:text-base mt-4"
             >
-              {loading ? "Verificando..." : "Assinar e Confirmar Testemunho"}
+              {loading ? t('confwitness_btn_loading') : t('confwitness_btn_submit')}
             </Button>
 
             <p className="text-center text-xs sm:text-sm text-muted-foreground">
-              Não recebeu o código?{" "}
+              {t('confwitness_resend_question')}{" "}
               <button
                 type="button"
                 className="text-primary hover:underline font-medium"
                 onClick={() => {
                   toast({
-                    title: "Reenviando OTP",
-                    description: "Um novo código será enviado em breve",
+                    title: t('confwitness_toast_resend_title'),
+                    description: t('confwitness_toast_resend_desc'),
                   });
                 }}
               >
-                Reenviar
+                {t('confwitness_resend_link')}
               </button>
             </p>
           </CardContent>

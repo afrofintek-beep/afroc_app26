@@ -41,6 +41,13 @@ const AdminDocumentLibrary = () => {
   const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const CATEGORY_LABELS: Record<string, string> = {
+    juridico: t('docslib_cat_juridico'),
+    governo: t('docslib_cat_governo'),
+    dfis: t('docslib_cat_dfis'),
+    tecnico: t('docslib_cat_tecnico'),
+  };
+
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,10 +95,10 @@ const AdminDocumentLibrary = () => {
       if (response.success && response.data) {
         setDocuments(response.data);
       } else {
-        toast.error("Erro ao carregar documentos: " + (response.error || "Erro desconhecido"));
+        toast.error(t('docslib_toast_load_error') + ": " + (response.error || t('docslib_unknown_error')));
       }
     } catch (error: any) {
-      toast.error("Erro ao carregar documentos: " + error.message);
+      toast.error(t('docslib_toast_load_error') + ": " + error.message);
     } finally {
       setLoading(false);
     }
@@ -113,12 +120,12 @@ const AdminDocumentLibrary = () => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error("Selecione um ficheiro");
+      toast.error(t('docslib_toast_select_file'));
       return;
     }
 
     if (!formData.title.trim()) {
-      toast.error("Título é obrigatório");
+      toast.error(t('docslib_toast_title_required'));
       return;
     }
 
@@ -133,7 +140,7 @@ const AdminDocumentLibrary = () => {
       });
 
       if (response.success) {
-        toast.success("Documento carregado com sucesso");
+        toast.success(t('docslib_toast_upload_success'));
         setIsUploadDialogOpen(false);
         resetForm();
         loadDocuments();
@@ -141,7 +148,7 @@ const AdminDocumentLibrary = () => {
         throw new Error(response.error || "Upload failed");
       }
     } catch (error: any) {
-      toast.error("Erro ao carregar documento: " + error.message);
+      toast.error(t('docslib_toast_upload_error') + ": " + error.message);
     } finally {
       setUploading(false);
     }
@@ -166,12 +173,12 @@ const AdminDocumentLibrary = () => {
 
       if (error) throw error;
 
-      toast.success("Documento atualizado com sucesso");
+      toast.success(t('docslib_toast_update_success'));
       setIsEditDialogOpen(false);
       resetForm();
       loadDocuments();
     } catch (error: any) {
-      toast.error("Erro ao atualizar documento: " + error.message);
+      toast.error(t('docslib_toast_update_error') + ": " + error.message);
     }
   };
 
@@ -182,7 +189,7 @@ const AdminDocumentLibrary = () => {
       const response = await documentsApi.deleteDoc(selectedDocument.id);
       
       if (response.success) {
-        toast.success("Documento eliminado com sucesso");
+        toast.success(t('docslib_toast_delete_success'));
         setIsDeleteDialogOpen(false);
         setSelectedDocument(null);
         loadDocuments();
@@ -190,7 +197,7 @@ const AdminDocumentLibrary = () => {
         throw new Error(response.error || "Delete failed");
       }
     } catch (error: any) {
-      toast.error("Erro ao eliminar documento: " + error.message);
+      toast.error(t('docslib_toast_delete_error') + ": " + error.message);
     }
   };
 
@@ -204,7 +211,7 @@ const AdminDocumentLibrary = () => {
       setSelectedDocument(doc);
       setIsPreviewDialogOpen(true);
     } catch (error: any) {
-      toast.error("Erro ao pré-visualizar documento");
+      toast.error(t('docslib_toast_preview_error'));
     }
   };
 
@@ -220,12 +227,12 @@ const AdminDocumentLibrary = () => {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        toast.success("Download concluído");
+        toast.success(t('docslib_toast_download_success'));
       } else {
         throw new Error("Download failed");
       }
     } catch (error: any) {
-      toast.error("Erro ao descarregar documento");
+      toast.error(t('docslib_toast_download_error'));
     }
   };
 
@@ -278,15 +285,9 @@ const AdminDocumentLibrary = () => {
       dfis: "bg-green-500/20 text-green-400 border-green-500/30",
       tecnico: "bg-orange-500/20 text-orange-400 border-orange-500/30",
     };
-    const labels: Record<string, string> = {
-      juridico: "Jurídico",
-      governo: "Governo",
-      dfis: "DFIS",
-      tecnico: "Técnico",
-    };
     return (
       <Badge className={`${colors[category]} border`}>
-        {labels[category] || category}
+        {CATEGORY_LABELS[category] || category}
       </Badge>
     );
   };
@@ -309,14 +310,14 @@ const AdminDocumentLibrary = () => {
       return (
         <Badge className="bg-green-500/20 text-green-400 border border-green-500/30">
           <Globe className="h-3 w-3 mr-1" />
-          Público
+          {t('docslib_visibility_public')}
         </Badge>
       );
     }
     return (
       <Badge className="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
         <Lock className="h-3 w-3 mr-1" />
-        Restrito
+        {t('docslib_visibility_restricted')}
       </Badge>
     );
   };
@@ -343,15 +344,15 @@ const AdminDocumentLibrary = () => {
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <FileText className="h-6 w-6 text-primary" />
-              Biblioteca de Documentos
+              {t('docslib_page_title')}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Gerir documentos públicos e restritos do sistema
+              {t('docslib_page_subtitle')}
             </p>
           </div>
           <Button onClick={() => setIsUploadDialogOpen(true)} className="gap-2">
             <Plus className="h-4 w-4" />
-            Novo Documento
+            {t('docslib_new_document')}
           </Button>
         </div>
 
@@ -365,7 +366,7 @@ const AdminDocumentLibrary = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-xs text-muted-foreground">{t('docslib_stat_total')}</p>
                 </div>
               </div>
             </CardContent>
@@ -378,7 +379,7 @@ const AdminDocumentLibrary = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">{stats.public}</p>
-                  <p className="text-xs text-muted-foreground">Públicos</p>
+                  <p className="text-xs text-muted-foreground">{t('docslib_stat_public')}</p>
                 </div>
               </div>
             </CardContent>
@@ -391,7 +392,7 @@ const AdminDocumentLibrary = () => {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">{stats.restricted}</p>
-                  <p className="text-xs text-muted-foreground">Restritos</p>
+                  <p className="text-xs text-muted-foreground">{t('docslib_stat_restricted')}</p>
                 </div>
               </div>
             </CardContent>
@@ -401,7 +402,7 @@ const AdminDocumentLibrary = () => {
               <div className="flex flex-wrap gap-1">
                 {stats.byCategory.map(cat => (
                   <Badge key={cat.value} variant="outline" className="text-xs">
-                    {cat.label}: {cat.count}
+                    {CATEGORY_LABELS[cat.value] || cat.label}: {cat.count}
                   </Badge>
                 ))}
               </div>
@@ -416,7 +417,7 @@ const AdminDocumentLibrary = () => {
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Pesquisar documentos..."
+                  placeholder={t('docslib_search_placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -424,21 +425,21 @@ const AdminDocumentLibrary = () => {
               </div>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Categoria" />
+                  <SelectValue placeholder={t('docslib_filter_category')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="all">{t('docslib_filter_all_f')}</SelectItem>
                   {CATEGORIES.map(cat => (
-                    <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    <SelectItem key={cat.value} value={cat.value}>{CATEGORY_LABELS[cat.value] || cat.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Select value={languageFilter} onValueChange={setLanguageFilter}>
                 <SelectTrigger className="w-full md:w-32">
-                  <SelectValue placeholder="Idioma" />
+                  <SelectValue placeholder={t('docslib_filter_language')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="all">{t('docslib_filter_all_m')}</SelectItem>
                   {LANGUAGES.map(lang => (
                     <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
                   ))}
@@ -446,12 +447,12 @@ const AdminDocumentLibrary = () => {
               </Select>
               <Select value={visibilityFilter} onValueChange={setVisibilityFilter}>
                 <SelectTrigger className="w-full md:w-36">
-                  <SelectValue placeholder="Visibilidade" />
+                  <SelectValue placeholder={t('docslib_filter_visibility')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todas</SelectItem>
+                  <SelectItem value="all">{t('docslib_filter_all_f')}</SelectItem>
                   {VISIBILITIES.map(vis => (
-                    <SelectItem key={vis.value} value={vis.value}>{vis.label}</SelectItem>
+                    <SelectItem key={vis.value} value={vis.value}>{vis.value === "public" ? t('docslib_visibility_public') : t('docslib_visibility_restricted')}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -465,26 +466,26 @@ const AdminDocumentLibrary = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Título</TableHead>
-                  <TableHead>Categoria</TableHead>
-                  <TableHead>Idioma</TableHead>
-                  <TableHead>Versão</TableHead>
-                  <TableHead>Visibilidade</TableHead>
-                  <TableHead>Publicado</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead>{t('docslib_th_title')}</TableHead>
+                  <TableHead>{t('docslib_th_category')}</TableHead>
+                  <TableHead>{t('docslib_th_language')}</TableHead>
+                  <TableHead>{t('docslib_th_version')}</TableHead>
+                  <TableHead>{t('docslib_th_visibility')}</TableHead>
+                  <TableHead>{t('docslib_th_published')}</TableHead>
+                  <TableHead className="text-right">{t('docslib_th_actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
-                      <div className="animate-pulse text-muted-foreground">Carregando...</div>
+                      <div className="animate-pulse text-muted-foreground">{t('docslib_loading')}</div>
                     </TableCell>
                   </TableRow>
                 ) : filteredDocuments.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Nenhum documento encontrado
+                      {t('docslib_empty')}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -506,7 +507,7 @@ const AdminDocumentLibrary = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => handlePreview(doc)}
-                            title="Pré-visualizar"
+                            title={t('docslib_action_preview')}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -514,7 +515,7 @@ const AdminDocumentLibrary = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleDownload(doc)}
-                            title="Descarregar"
+                            title={t('docslib_action_download')}
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -522,7 +523,7 @@ const AdminDocumentLibrary = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => openEditDialog(doc)}
-                            title="Editar"
+                            title={t('docslib_action_edit')}
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
@@ -531,7 +532,7 @@ const AdminDocumentLibrary = () => {
                             size="icon"
                             onClick={() => openDeleteDialog(doc)}
                             className="text-destructive hover:text-destructive"
-                            title="Eliminar"
+                            title={t('docslib_action_delete')}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -552,37 +553,37 @@ const AdminDocumentLibrary = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Upload className="h-5 w-5 text-primary" />
-              Carregar Documento
+              {t('docslib_upload_title')}
             </DialogTitle>
             <DialogDescription>
-              Adicione um novo documento à biblioteca
+              {t('docslib_upload_description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Título *</Label>
+              <Label>{t('docslib_label_title')}</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Nome do documento"
+                placeholder={t('docslib_placeholder_title')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Categoria</Label>
+                <Label>{t('docslib_label_category')}</Label>
                 <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                      <SelectItem key={cat.value} value={cat.value}>{CATEGORY_LABELS[cat.value] || cat.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Idioma</Label>
+                <Label>{t('docslib_label_language')}</Label>
                 <Select value={formData.language} onValueChange={(v) => setFormData({ ...formData, language: v })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -597,7 +598,7 @@ const AdminDocumentLibrary = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Versão</Label>
+                <Label>{t('docslib_label_version')}</Label>
                 <Input
                   value={formData.version}
                   onChange={(e) => setFormData({ ...formData, version: e.target.value })}
@@ -605,21 +606,21 @@ const AdminDocumentLibrary = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Visibilidade</Label>
+                <Label>{t('docslib_label_visibility')}</Label>
                 <Select value={formData.visibility} onValueChange={(v) => setFormData({ ...formData, visibility: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {VISIBILITIES.map(vis => (
-                      <SelectItem key={vis.value} value={vis.value}>{vis.label}</SelectItem>
+                      <SelectItem key={vis.value} value={vis.value}>{vis.value === "public" ? t('docslib_visibility_public') : t('docslib_visibility_restricted')}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Data de Publicação</Label>
+              <Label>{t('docslib_label_published_at')}</Label>
               <Input
                 type="date"
                 value={formData.published_at}
@@ -627,7 +628,7 @@ const AdminDocumentLibrary = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label>Ficheiro *</Label>
+              <Label>{t('docslib_label_file')}</Label>
               <Input
                 ref={fileInputRef}
                 type="file"
@@ -643,10 +644,10 @@ const AdminDocumentLibrary = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
-              Cancelar
+              {t('docslib_btn_cancel')}
             </Button>
             <Button onClick={handleUpload} disabled={uploading}>
-              {uploading ? "Carregando..." : "Carregar"}
+              {uploading ? t('docslib_btn_uploading') : t('docslib_btn_upload')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -658,37 +659,37 @@ const AdminDocumentLibrary = () => {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Pencil className="h-5 w-5 text-primary" />
-              Editar Documento
+              {t('docslib_edit_title')}
             </DialogTitle>
             <DialogDescription>
-              Atualize as informações do documento
+              {t('docslib_edit_description')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Título *</Label>
+              <Label>{t('docslib_label_title')}</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                placeholder="Nome do documento"
+                placeholder={t('docslib_placeholder_title')}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Categoria</Label>
+                <Label>{t('docslib_label_category')}</Label>
                 <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                      <SelectItem key={cat.value} value={cat.value}>{CATEGORY_LABELS[cat.value] || cat.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Idioma</Label>
+                <Label>{t('docslib_label_language')}</Label>
                 <Select value={formData.language} onValueChange={(v) => setFormData({ ...formData, language: v })}>
                   <SelectTrigger>
                     <SelectValue />
@@ -703,7 +704,7 @@ const AdminDocumentLibrary = () => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Versão</Label>
+                <Label>{t('docslib_label_version')}</Label>
                 <Input
                   value={formData.version}
                   onChange={(e) => setFormData({ ...formData, version: e.target.value })}
@@ -711,21 +712,21 @@ const AdminDocumentLibrary = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Visibilidade</Label>
+                <Label>{t('docslib_label_visibility')}</Label>
                 <Select value={formData.visibility} onValueChange={(v) => setFormData({ ...formData, visibility: v })}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {VISIBILITIES.map(vis => (
-                      <SelectItem key={vis.value} value={vis.value}>{vis.label}</SelectItem>
+                      <SelectItem key={vis.value} value={vis.value}>{vis.value === "public" ? t('docslib_visibility_public') : t('docslib_visibility_restricted')}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Data de Publicação</Label>
+              <Label>{t('docslib_label_published_at')}</Label>
               <Input
                 type="date"
                 value={formData.published_at}
@@ -735,10 +736,10 @@ const AdminDocumentLibrary = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancelar
+              {t('docslib_btn_cancel')}
             </Button>
             <Button onClick={handleEdit}>
-              Guardar
+              {t('docslib_btn_save')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -748,15 +749,15 @@ const AdminDocumentLibrary = () => {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar Documento</AlertDialogTitle>
+            <AlertDialogTitle>{t('docslib_delete_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem a certeza que deseja eliminar "{selectedDocument?.title}"? Esta ação não pode ser desfeita.
+              {t('docslib_delete_confirm_prefix')}"{selectedDocument?.title}"{t('docslib_delete_confirm_suffix')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{t('docslib_btn_cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Eliminar
+              {t('docslib_btn_delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -776,17 +777,17 @@ const AdminDocumentLibrary = () => {
               <iframe
                 src={previewUrl}
                 className="w-full h-[70vh] border rounded-lg"
-                title="Document Preview"
+                title={t('docslib_preview_iframe_title')}
               />
             )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsPreviewDialogOpen(false)}>
-              Fechar
+              {t('docslib_btn_close')}
             </Button>
             <Button onClick={() => selectedDocument && handleDownload(selectedDocument)}>
               <Download className="h-4 w-4 mr-2" />
-              Descarregar
+              {t('docslib_btn_download')}
             </Button>
           </DialogFooter>
         </DialogContent>

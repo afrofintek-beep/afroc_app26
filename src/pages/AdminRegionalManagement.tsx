@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { MapPin, Users, Loader2, Plus, Building2, Globe, MapPinned, Home, LayoutGrid } from "lucide-react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Profile {
   user_id: string;
@@ -46,6 +47,7 @@ const AUTHORIZATION_LEVELS = [
 ];
 
 export default function AdminRegionalManagement() {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -291,7 +293,7 @@ export default function AdminRegionalManagement() {
       }
     },
     onSuccess: () => {
-      toast.success("Nível de autorização e papel regional atribuídos com sucesso");
+      toast.success(t('regionmgmt_toast_assign_success'));
       queryClient.invalidateQueries({ queryKey: ['regional-admins'] });
       queryClient.invalidateQueries({ queryKey: ['all-users-for-levels'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -299,7 +301,7 @@ export default function AdminRegionalManagement() {
       resetForm();
     },
     onError: (error) => {
-      toast.error("Erro ao atribuir nível de autorização");
+      toast.error(t('regionmgmt_toast_assign_error'));
       console.error(error);
     }
   });
@@ -316,11 +318,11 @@ export default function AdminRegionalManagement() {
 
   const validateForm = () => {
     if (!selectedUser) {
-      toast.error("Selecione um usuário");
+      toast.error(t('regionmgmt_validate_select_user'));
       return false;
     }
     if (!selectedCountry) {
-      toast.error("Selecione um país");
+      toast.error(t('regionmgmt_validate_select_country'));
       return false;
     }
     // Level 5 (Nacional) doesn't need subdivisions
@@ -328,18 +330,18 @@ export default function AdminRegionalManagement() {
     
     // Level 4 (Provincial) needs province
     if (selectedLevel === 4 && !selectedProvince) {
-      toast.error("Selecione uma província");
+      toast.error(t('regionmgmt_validate_select_province'));
       return false;
     }
     
     // Level 3 (Municipal) needs province + municipality
     if (selectedLevel === 3) {
       if (!selectedProvince) {
-        toast.error("Selecione uma província");
+        toast.error(t('regionmgmt_validate_select_province'));
         return false;
       }
       if (!selectedMunicipality) {
-        toast.error("Selecione um município");
+        toast.error(t('regionmgmt_validate_select_municipality'));
         return false;
       }
     }
@@ -347,11 +349,11 @@ export default function AdminRegionalManagement() {
     // Level 2 (Comunal) needs province + municipality + commune (if communes exist)
     if (selectedLevel === 2) {
       if (!selectedProvince) {
-        toast.error("Selecione uma província");
+        toast.error(t('regionmgmt_validate_select_province'));
         return false;
       }
       if (!selectedMunicipality) {
-        toast.error("Selecione um município");
+        toast.error(t('regionmgmt_validate_select_municipality'));
         return false;
       }
       // Commune is optional if none exist in DB
@@ -360,11 +362,11 @@ export default function AdminRegionalManagement() {
     // Level 1 (Local) needs all levels
     if (selectedLevel === 1) {
       if (!selectedProvince) {
-        toast.error("Selecione uma província");
+        toast.error(t('regionmgmt_validate_select_province'));
         return false;
       }
       if (!selectedMunicipality) {
-        toast.error("Selecione um município");
+        toast.error(t('regionmgmt_validate_select_municipality'));
         return false;
       }
       // Commune and neighborhood are optional if none exist in DB
@@ -398,7 +400,25 @@ export default function AdminRegionalManagement() {
   };
 
   const getLevelName = (level: number) => {
-    return AUTHORIZATION_LEVELS.find(l => l.level === level)?.name || 'Desconhecido';
+    const slugMap: Record<number, string> = {
+      5: 'regionmgmt_level_national',
+      4: 'regionmgmt_level_provincial',
+      3: 'regionmgmt_level_municipal',
+      2: 'regionmgmt_level_communal',
+      1: 'regionmgmt_level_local',
+    };
+    return slugMap[level] ? t(slugMap[level]) : t('regionmgmt_level_unknown');
+  };
+
+  const getLevelDescription = (level: number) => {
+    const slugMap: Record<number, string> = {
+      5: 'regionmgmt_leveldesc_national',
+      4: 'regionmgmt_leveldesc_provincial',
+      3: 'regionmgmt_leveldesc_municipal',
+      2: 'regionmgmt_leveldesc_communal',
+      1: 'regionmgmt_leveldesc_local',
+    };
+    return slugMap[level] ? t(slugMap[level]) : '';
   };
 
   const getLevelIcon = (level: number) => {
@@ -410,21 +430,21 @@ export default function AdminRegionalManagement() {
   const getDivisionLabel = (divLevel: number) => {
     if (!currentCountryConfig) {
       const defaults: Record<number, string> = {
-        1: "Província",
-        2: "Município", 
-        3: "Comuna",
-        4: "Bairro"
+        1: t('regionmgmt_div_province'),
+        2: t('regionmgmt_div_municipality'),
+        3: t('regionmgmt_div_commune'),
+        4: t('regionmgmt_div_neighborhood')
       };
-      return defaults[divLevel] || `Nível ${divLevel}`;
+      return defaults[divLevel] || `${t('regionmgmt_div_level')} ${divLevel}`;
     }
-    
+
     const labels: Record<number, string | null> = {
       1: currentCountryConfig.level1_label,
       2: currentCountryConfig.level2_label,
       3: currentCountryConfig.level3_label,
       4: currentCountryConfig.level4_label,
     };
-    return labels[divLevel] || `Nível ${divLevel}`;
+    return labels[divLevel] || `${t('regionmgmt_div_level')} ${divLevel}`;
   };
 
   return (
@@ -436,9 +456,9 @@ export default function AdminRegionalManagement() {
               <MapPin className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Gestão Regional</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t('regionmgmt_title')}</h1>
               <p className="text-sm text-muted-foreground">
-                Atribua níveis de autorização e jurisdições geográficas
+                {t('regionmgmt_subtitle')}
               </p>
             </div>
           </div>
@@ -447,32 +467,32 @@ export default function AdminRegionalManagement() {
             <DialogTrigger asChild>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />
-                Atribuir Nível
+                {t('regionmgmt_assign_level_btn')}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Atribuir Nível de Autorização</DialogTitle>
+                <DialogTitle>{t('regionmgmt_dialog_title')}</DialogTitle>
                 <DialogDescription>
-                  Configure o nível hierárquico e a jurisdição geográfica do funcionário
+                  {t('regionmgmt_dialog_description')}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-5 pt-2">
                 {/* User Selection */}
                 <div className="space-y-2">
-                  <Label>Usuário</Label>
+                  <Label>{t('regionmgmt_label_user')}</Label>
                   <Select value={selectedUser} onValueChange={setSelectedUser}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um usuário" />
+                      <SelectValue placeholder={t('regionmgmt_placeholder_user')} />
                     </SelectTrigger>
                     <SelectContent>
                       {allUsers?.map((user) => (
                         <SelectItem key={user.user_id} value={user.user_id}>
                           <div className="flex items-center gap-2">
-                            <span>{user.full_name || 'Sem nome'}</span>
+                            <span>{user.full_name || t('regionmgmt_no_name')}</span>
                             {user.hasLevel && (
-                              <Badge variant="secondary" className="text-xs">Já tem nível</Badge>
+                              <Badge variant="secondary" className="text-xs">{t('regionmgmt_badge_has_level')}</Badge>
                             )}
                           </div>
                         </SelectItem>
@@ -481,14 +501,14 @@ export default function AdminRegionalManagement() {
                   </Select>
                   {allUsers?.find(u => u.user_id === selectedUser)?.hasLevel && (
                     <p className="text-xs text-amber-600 dark:text-amber-400">
-                      Este usuário já possui um nível. A atribuição irá atualizar o nível existente.
+                      {t('regionmgmt_user_has_level_warning')}
                     </p>
                   )}
                 </div>
 
                 {/* Authorization Level Selection */}
                 <div className="space-y-2">
-                  <Label>Nível de Autorização</Label>
+                  <Label>{t('regionmgmt_label_auth_level')}</Label>
                   <Select value={selectedLevel.toString()} onValueChange={(v) => setSelectedLevel(parseInt(v))}>
                     <SelectTrigger>
                       <SelectValue />
@@ -500,7 +520,7 @@ export default function AdminRegionalManagement() {
                           <SelectItem key={level.level} value={level.level.toString()}>
                             <div className="flex items-center gap-2">
                               <Icon className="h-4 w-4" />
-                              <span>N{level.level} - {level.name}</span>
+                              <span>N{level.level} - {getLevelName(level.level)}</span>
                             </div>
                           </SelectItem>
                         );
@@ -508,16 +528,16 @@ export default function AdminRegionalManagement() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">
-                    {AUTHORIZATION_LEVELS.find(l => l.level === selectedLevel)?.description}
+                    {getLevelDescription(selectedLevel)}
                   </p>
                 </div>
 
                 {/* Country Selection */}
                 <div className="space-y-2">
-                  <Label>País</Label>
+                  <Label>{t('regionmgmt_label_country')}</Label>
                   <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um país" />
+                      <SelectValue placeholder={t('regionmgmt_placeholder_country')} />
                     </SelectTrigger>
                     <SelectContent>
                       {countries?.map((country) => (
@@ -532,7 +552,7 @@ export default function AdminRegionalManagement() {
                 {/* Jurisdiction Selection - Cascading based on level */}
                 {selectedCountry && selectedLevel < 5 && (
                   <div className="space-y-4 p-4 bg-muted/50 rounded-lg border">
-                    <Label className="text-base font-semibold">Jurisdição Geográfica</Label>
+                    <Label className="text-base font-semibold">{t('regionmgmt_geo_jurisdiction')}</Label>
                     
                     {/* Province (for levels 4, 3, 2, 1) */}
                     {selectedLevel <= 4 && provinces && provinces.length > 0 && (
@@ -540,7 +560,7 @@ export default function AdminRegionalManagement() {
                         <Label className="text-sm">{getDivisionLabel(1)}</Label>
                         <Select value={selectedProvince} onValueChange={setSelectedProvince}>
                           <SelectTrigger>
-                            <SelectValue placeholder={`Selecione ${getDivisionLabel(1).toLowerCase()}`} />
+                            <SelectValue placeholder={`${t('regionmgmt_select_prefix')} ${getDivisionLabel(1).toLowerCase()}`} />
                           </SelectTrigger>
                           <SelectContent>
                             {provinces.map((div) => (
@@ -551,7 +571,7 @@ export default function AdminRegionalManagement() {
                           </SelectContent>
                         </Select>
                         <p className="text-xs text-muted-foreground">
-                          {provinces.length} {getDivisionLabel(1).toLowerCase()}s disponíveis
+                          {provinces.length} {getDivisionLabel(1).toLowerCase()}s {t('regionmgmt_available')}
                         </p>
                       </div>
                     )}
@@ -564,7 +584,7 @@ export default function AdminRegionalManagement() {
                           <>
                             <Select value={selectedMunicipality} onValueChange={setSelectedMunicipality}>
                               <SelectTrigger>
-                                <SelectValue placeholder={`Selecione ${getDivisionLabel(2).toLowerCase()}`} />
+                                <SelectValue placeholder={`${t('regionmgmt_select_prefix')} ${getDivisionLabel(2).toLowerCase()}`} />
                               </SelectTrigger>
                               <SelectContent>
                                 {municipalities.map((div) => (
@@ -575,12 +595,12 @@ export default function AdminRegionalManagement() {
                               </SelectContent>
                             </Select>
                             <p className="text-xs text-muted-foreground">
-                              {municipalities.length} {getDivisionLabel(2).toLowerCase()}s na {getDivisionLabel(1).toLowerCase()} selecionada
+                              {municipalities.length} {getDivisionLabel(2).toLowerCase()}s {t('regionmgmt_in_f')} {getDivisionLabel(1).toLowerCase()} {t('regionmgmt_selected_f')}
                             </p>
                           </>
                         ) : (
                           <p className="text-sm text-muted-foreground italic">
-                            Nenhum {getDivisionLabel(2).toLowerCase()} disponível para esta {getDivisionLabel(1).toLowerCase()}
+                            {t('regionmgmt_none_m')} {getDivisionLabel(2).toLowerCase()} {t('regionmgmt_available_for_f')} {getDivisionLabel(1).toLowerCase()}
                           </p>
                         )}
                       </div>
@@ -594,7 +614,7 @@ export default function AdminRegionalManagement() {
                           <>
                             <Select value={selectedCommune} onValueChange={setSelectedCommune}>
                               <SelectTrigger>
-                                <SelectValue placeholder={`Selecione ${getDivisionLabel(3).toLowerCase()}`} />
+                                <SelectValue placeholder={`${t('regionmgmt_select_prefix')} ${getDivisionLabel(3).toLowerCase()}`} />
                               </SelectTrigger>
                               <SelectContent>
                                 {communes.map((div) => (
@@ -605,12 +625,12 @@ export default function AdminRegionalManagement() {
                               </SelectContent>
                             </Select>
                             <p className="text-xs text-muted-foreground">
-                              {communes.length} {getDivisionLabel(3).toLowerCase()}s no {getDivisionLabel(2).toLowerCase()} selecionado
+                              {communes.length} {getDivisionLabel(3).toLowerCase()}s {t('regionmgmt_in_m')} {getDivisionLabel(2).toLowerCase()} {t('regionmgmt_selected_m')}
                             </p>
                           </>
                         ) : (
                           <p className="text-sm text-muted-foreground italic">
-                            Nenhuma {getDivisionLabel(3).toLowerCase()} cadastrada para este {getDivisionLabel(2).toLowerCase()}
+                            {t('regionmgmt_none_f')} {getDivisionLabel(3).toLowerCase()} {t('regionmgmt_registered_for_m')} {getDivisionLabel(2).toLowerCase()}
                           </p>
                         )}
                       </div>
@@ -624,7 +644,7 @@ export default function AdminRegionalManagement() {
                           <>
                             <Select value={selectedNeighborhood} onValueChange={setSelectedNeighborhood}>
                               <SelectTrigger>
-                                <SelectValue placeholder={`Selecione ${getDivisionLabel(4).toLowerCase()}`} />
+                                <SelectValue placeholder={`${t('regionmgmt_select_prefix')} ${getDivisionLabel(4).toLowerCase()}`} />
                               </SelectTrigger>
                               <SelectContent>
                                 {neighborhoods.map((div) => (
@@ -635,12 +655,12 @@ export default function AdminRegionalManagement() {
                               </SelectContent>
                             </Select>
                             <p className="text-xs text-muted-foreground">
-                              {neighborhoods.length} {getDivisionLabel(4).toLowerCase()}s na {getDivisionLabel(3).toLowerCase()} selecionada
+                              {neighborhoods.length} {getDivisionLabel(4).toLowerCase()}s {t('regionmgmt_in_f')} {getDivisionLabel(3).toLowerCase()} {t('regionmgmt_selected_f')}
                             </p>
                           </>
                         ) : (
                           <p className="text-sm text-muted-foreground italic">
-                            Nenhum {getDivisionLabel(4).toLowerCase()} cadastrado para esta {getDivisionLabel(3).toLowerCase()}
+                            {t('regionmgmt_none_m')} {getDivisionLabel(4).toLowerCase()} {t('regionmgmt_registered_for_f')} {getDivisionLabel(3).toLowerCase()}
                           </p>
                         )}
                       </div>
@@ -651,11 +671,11 @@ export default function AdminRegionalManagement() {
                 {/* Summary Preview */}
                 {selectedUser && selectedCountry && (
                   <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-                    <p className="text-sm font-medium mb-1">Resumo da Atribuição:</p>
+                    <p className="text-sm font-medium mb-1">{t('regionmgmt_summary_title')}</p>
                     <p className="text-sm text-muted-foreground">
-                      <strong>Nível:</strong> {getLevelName(selectedLevel)} (N{selectedLevel})
+                      <strong>{t('regionmgmt_summary_level')}</strong> {getLevelName(selectedLevel)} (N{selectedLevel})
                       <br />
-                      <strong>País:</strong> {countries?.find(c => c.country_code === selectedCountry)?.country_name}
+                      <strong>{t('regionmgmt_summary_country')}</strong> {countries?.find(c => c.country_code === selectedCountry)?.country_name}
                       {selectedProvince && (
                         <>
                           <br />
@@ -688,10 +708,10 @@ export default function AdminRegionalManagement() {
                   {assignLevelMutation.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Atribuindo...
+                      {t('regionmgmt_assigning')}
                     </>
                   ) : (
-                    'Atribuir Nível'
+                    t('regionmgmt_assign_level_btn')
                   )}
                 </Button>
               </div>
@@ -709,7 +729,7 @@ export default function AdminRegionalManagement() {
                 <CardContent className="pt-4 pb-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-muted-foreground">{level.name}</p>
+                      <p className="text-xs text-muted-foreground">{getLevelName(level.level)}</p>
                       <p className="text-2xl font-bold">{count}</p>
                     </div>
                     <div className={`p-2 rounded-lg ${getLevelBadgeColor(level.level)}`}>
@@ -726,10 +746,10 @@ export default function AdminRegionalManagement() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Administradores Regionais
+              {t('regionmgmt_table_card_title')}
             </CardTitle>
             <CardDescription>
-              Usuários com níveis de autorização e jurisdições atribuídas
+              {t('regionmgmt_table_card_description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -740,19 +760,19 @@ export default function AdminRegionalManagement() {
             ) : regionalAdmins?.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>Nenhum administrador regional atribuído</p>
-                <p className="text-sm">Clique em "Atribuir Nível" para começar</p>
+                <p>{t('regionmgmt_empty_title')}</p>
+                <p className="text-sm">{t('regionmgmt_empty_hint')}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Nível</TableHead>
-                      <TableHead>País</TableHead>
-                      <TableHead>Jurisdição</TableHead>
-                      <TableHead>Atribuído em</TableHead>
+                      <TableHead>{t('regionmgmt_th_name')}</TableHead>
+                      <TableHead>{t('regionmgmt_th_level')}</TableHead>
+                      <TableHead>{t('regionmgmt_th_country')}</TableHead>
+                      <TableHead>{t('regionmgmt_th_jurisdiction')}</TableHead>
+                      <TableHead>{t('regionmgmt_th_assigned_at')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -770,7 +790,7 @@ export default function AdminRegionalManagement() {
                           <TableCell>{admin.jurisdiction_country}</TableCell>
                           <TableCell className="text-sm max-w-xs">
                             {admin.current_level === 5 ? (
-                              <span className="text-muted-foreground italic">Todo o país</span>
+                              <span className="text-muted-foreground italic">{t('regionmgmt_whole_country')}</span>
                             ) : (
                               <div className="space-y-0.5">
                                 {admin.jurisdiction_level1_name && (
