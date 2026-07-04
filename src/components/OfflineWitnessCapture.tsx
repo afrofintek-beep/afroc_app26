@@ -11,6 +11,7 @@ import { useCamera } from "@/hooks/useCamera";
 import { useExifExtractor, ExifData } from "@/hooks/useExifExtractor";
 import { CompressionResult } from "@/utils/imageCompression";
 import { ImageCompressionPreview } from "@/components/ImageCompressionPreview";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface OfflineWitness {
   witness_afro_id: string;
@@ -30,6 +31,7 @@ interface Props {
 
 export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { loading: cameraLoading, takePicture, selectFromGallery } = useCamera();
   const { extractExifData, extracting: exifExtracting } = useExifExtractor();
   
@@ -47,8 +49,8 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
   const handleAddWitness = () => {
     if (!afroId.trim()) {
       toast({
-        title: "Required Field",
-        description: "Witness AFROLOC is required",
+        title: t('offwitness_required_field'),
+        description: t('offwitness_afroloc_required'),
         variant: "destructive",
       });
       return;
@@ -56,8 +58,8 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
 
     if (validationMethod === 'otp' && !phone) {
       toast({
-        title: "Required Field",
-        description: "Phone number required for OTP method",
+        title: t('offwitness_required_field'),
+        description: t('offwitness_phone_required_otp'),
         variant: "destructive",
       });
       return;
@@ -65,8 +67,8 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
 
     if (validationMethod === 'photo' && !photo) {
       toast({
-        title: "Required Field",
-        description: "ID photo required for photo validation",
+        title: t('offwitness_required_field'),
+        description: t('offwitness_photo_required'),
         variant: "destructive",
       });
       return;
@@ -96,7 +98,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
     setPhotoExif(null);
 
     toast({
-      title: "Witness Added",
+      title: t('offwitness_witness_added'),
       description: `${witnessCount + 1} witness${witnessCount + 1 !== 1 ? 'es' : ''} captured offline`,
     });
   };
@@ -135,7 +137,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
       : '';
     
     toast({
-      title: 'Photo Optimized',
+      title: t('offwitness_photo_optimized'),
       description: `${(stats.compressedSize / 1024).toFixed(0)}KB (${savings}% saved)`,
     });
   };
@@ -150,8 +152,8 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
     setOriginalPhoto("");
     setPhotoStats(null);
     toast({
-      title: "Photo Removed",
-      description: "ID photo has been removed",
+      title: t('offwitness_photo_removed'),
+      description: t('offwitness_photo_removed_desc'),
     });
   };
 
@@ -160,37 +162,37 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <User className="h-5 w-5" />
-          Add Witness (Offline Mode)
+          {t('offwitness_title')}
         </CardTitle>
         <CardDescription>
-          Capture witness information. OTP validation will be processed when back online.
+          {t('offwitness_description')}
         </CardDescription>
       </CardHeader>
       
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="witness-afroid">Witness AFROLOC *</Label>
+          <Label htmlFor="witness-afroid">{t('offwitness_label_afroloc')} AFROLOC *</Label>
           <Input
             id="witness-afroid"
             value={afroId}
             onChange={(e) => setAfroId(e.target.value.toUpperCase())}
-            placeholder="e.g., CD-KINSHASA-123456"
+            placeholder={t('offwitness_placeholder_afroloc')}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="witness-name">Witness Name (Optional)</Label>
+          <Label htmlFor="witness-name">{t('offwitness_label_name')}</Label>
           <Input
             id="witness-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Full name"
+            placeholder={t('offwitness_placeholder_name')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="validation-method">Validation Method</Label>
+          <Label htmlFor="validation-method">{t('offwitness_label_validation_method')}</Label>
           <Select value={validationMethod} onValueChange={(v: any) => setValidationMethod(v)}>
             <SelectTrigger>
               <SelectValue />
@@ -199,25 +201,25 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
               <SelectItem value="signature">
                 <div className="flex items-center gap-2">
                   <FileSignature className="h-4 w-4" />
-                  Signature (Offline)
+                  {t('offwitness_method_signature')}
                 </div>
               </SelectItem>
               <SelectItem value="photo">
                 <div className="flex items-center gap-2">
                   <Camera className="h-4 w-4" />
-                  Photo ID (Offline)
+                  {t('offwitness_method_photo')}
                 </div>
               </SelectItem>
               <SelectItem value="in_person">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4" />
-                  In-Person Verification
+                  {t('offwitness_method_in_person')}
                 </div>
               </SelectItem>
               <SelectItem value="otp">
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
-                  SMS OTP (When Online)
+                  {t('offwitness_method_sms_otp')}
                 </div>
               </SelectItem>
             </SelectContent>
@@ -226,7 +228,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
 
         {validationMethod === 'otp' && (
           <div className="space-y-2">
-            <Label htmlFor="witness-phone">Witness Phone Number *</Label>
+            <Label htmlFor="witness-phone">{t('offwitness_label_phone')}</Label>
             <Input
               id="witness-phone"
               value={phone}
@@ -235,21 +237,21 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
               type="tel"
             />
             <p className="text-xs text-muted-foreground">
-              OTP will be sent when you sync this record online
+              {t('offwitness_otp_sync_note')}
             </p>
           </div>
         )}
 
         {validationMethod === 'signature' && (
           <div className="space-y-2">
-            <Label>Witness Signature</Label>
+            <Label>{t('offwitness_label_signature')}</Label>
             <div className="border-2 border-dashed rounded-md p-4 text-center">
               <FileSignature className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground mb-2">
-                Signature capture placeholder
+                {t('offwitness_signature_placeholder')}
               </p>
               <p className="text-xs text-muted-foreground">
-                In production, integrate signature pad library
+                {t('offwitness_signature_prod_note')}
               </p>
             </div>
           </div>
@@ -257,14 +259,14 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
 
         {validationMethod === 'photo' && (
           <div className="space-y-2">
-            <Label>Witness ID Photo</Label>
+            <Label>{t('offwitness_label_id_photo')}</Label>
             
             {photo ? (
               <div className="space-y-2">
                 <div className="relative border-2 border-border rounded-md overflow-hidden">
                   <img 
-                    src={photo} 
-                    alt="Witness ID" 
+                    src={photo}
+                    alt={t('offwitness_alt_id_photo')}
                     className="w-full h-auto max-h-64 object-contain bg-muted"
                   />
                   <Button
@@ -280,7 +282,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
                 {photoStats && (
                   <div className="rounded-lg border bg-muted/30 p-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">File Size:</span>
+                      <span className="text-muted-foreground">{t('offwitness_file_size')}</span>
                       <Badge variant="secondary">
                         {(photoStats.compressedSize / 1024).toFixed(0)}KB
                         <span className="ml-1 text-xs text-muted-foreground">
@@ -289,7 +291,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
                       </Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm mt-2">
-                      <span className="text-muted-foreground">Dimensions:</span>
+                      <span className="text-muted-foreground">{t('offwitness_dimensions')}</span>
                       <span className="font-mono text-xs">
                         {photoStats.width}×{photoStats.height}
                       </span>
@@ -298,14 +300,14 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
                 )}
                 
                 <p className="text-xs text-muted-foreground text-center">
-                  Photo optimized for storage. Tap trash icon to retake.
+                  {t('offwitness_photo_optimized_hint')}
                 </p>
               </div>
             ) : (
               <div className="space-y-2">
                 <div className="border-2 border-dashed rounded-md p-6 text-center">
                   <Camera className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                  <p className="text-sm font-medium mb-4">Capture Witness ID Document</p>
+                  <p className="text-sm font-medium mb-4">{t('offwitness_capture_document')}</p>
                   
                   <div className="flex gap-2">
                     <Button
@@ -315,7 +317,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
                       className="flex-1"
                     >
                       <Camera className={`h-4 w-4 mr-2 ${cameraLoading ? 'animate-pulse' : ''}`} />
-                      {cameraLoading ? 'Opening...' : 'Take Photo'}
+                      {cameraLoading ? t('offwitness_opening') : t('offwitness_take_photo')}
                     </Button>
                     
                     <Button
@@ -325,20 +327,20 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
                       className="flex-1"
                     >
                       <ImageIcon className={`h-4 w-4 mr-2 ${cameraLoading ? 'animate-pulse' : ''}`} />
-                      {cameraLoading ? 'Opening...' : 'Choose from Gallery'}
+                      {cameraLoading ? t('offwitness_opening') : t('offwitness_choose_gallery')}
                     </Button>
                   </div>
                 </div>
                 
                 <div className="bg-muted/50 border border-border rounded-md p-3">
                   <p className="text-xs text-muted-foreground">
-                    📸 <strong>Tips for best results:</strong>
+                    📸 <strong>{t('offwitness_tips_title')}</strong>
                   </p>
                   <ul className="text-xs text-muted-foreground mt-1 space-y-1 ml-4">
-                    <li>• Ensure good lighting</li>
-                    <li>• Keep ID document flat and in focus</li>
-                    <li>• Capture all corners of the document</li>
-                    <li>• Avoid glare and shadows</li>
+                    <li>• {t('offwitness_tip_lighting')}</li>
+                    <li>• {t('offwitness_tip_flat')}</li>
+                    <li>• {t('offwitness_tip_corners')}</li>
+                    <li>• {t('offwitness_tip_glare')}</li>
                   </ul>
                 </div>
               </div>
@@ -350,7 +352,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
           <div className="bg-muted/50 border border-border rounded-md p-3">
             <p className="text-sm text-muted-foreground">
               <CheckCircle className="h-4 w-4 inline mr-1" />
-              Witness physically present. Manual verification by field officer.
+              {t('offwitness_in_person_note')}
             </p>
           </div>
         )}
@@ -362,7 +364,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
             disabled={!afroId || (validationMethod === 'otp' && !phone) || (validationMethod === 'photo' && !photo)}
           >
             <User className="h-4 w-4 mr-2" />
-            Add Witness
+            {t('offwitness_add_witness_btn')}
           </Button>
         </div>
 
@@ -370,8 +372,7 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
           <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 rounded-md p-3">
             <p className="text-xs text-amber-800 dark:text-amber-200">
               <Phone className="h-3 w-3 inline mr-1" />
-              OTP validation will be queued and processed when internet is available. 
-              The witness will receive the OTP code during sync.
+              {t('offwitness_otp_queue_note')}
             </p>
           </div>
         )}

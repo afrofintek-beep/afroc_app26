@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { MessageSquare, CheckCircle, XCircle, Clock, TrendingUp, Search, ArrowLeft } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ValidationMetrics {
   total: number;
@@ -36,6 +37,7 @@ interface WitnessValidation {
 }
 
 const ValidationsDashboard = () => {
+  const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [metrics, setMetrics] = useState<ValidationMetrics>({
     total: 0,
@@ -193,11 +195,11 @@ const ValidationsDashboard = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return <Badge className="bg-green-500 hover:bg-green-600">Confirmada</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">{t('valdash_status_confirmed')}</Badge>;
       case 'rejected':
-        return <Badge className="bg-red-500 hover:bg-red-600">Rejeitada</Badge>;
+        return <Badge className="bg-red-500 hover:bg-red-600">{t('valdash_status_rejected')}</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Pendente</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">{t('valdash_status_pending')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -206,7 +208,7 @@ const ValidationsDashboard = () => {
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">
-        <p className="text-muted-foreground">Carregando...</p>
+        <p className="text-muted-foreground">{t('valdash_loading')}</p>
       </div>
     );
   }
@@ -226,49 +228,49 @@ const ValidationsDashboard = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Dashboard de Validações SMS</h1>
-              <p className="text-muted-foreground">Monitoramento em tempo real das validações por SMS</p>
+              <h1 className="text-3xl font-bold tracking-tight">{t('valdash_title')}</h1>
+              <p className="text-muted-foreground">{t('valdash_subtitle')}</p>
             </div>
           </div>
 
           {/* Metrics Cards */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 mb-6">
             <StatCard
-              title="Total"
+              title={t('valdash_stat_total')}
               value={metrics.total.toString()}
-              change="Validações totais"
+              change={t('valdash_stat_total_change')}
               icon={MessageSquare}
             />
             <StatCard
-              title="Pendentes"
+              title={t('valdash_stat_pending')}
               value={metrics.pending.toString()}
-              change="Aguardando resposta"
+              change={t('valdash_stat_pending_change')}
               icon={Clock}
             />
             <StatCard
-              title="Confirmadas"
+              title={t('valdash_stat_confirmed')}
               value={metrics.confirmed.toString()}
-              change={`${((metrics.confirmed / metrics.total) * 100 || 0).toFixed(1)}% do total`}
+              change={`${((metrics.confirmed / metrics.total) * 100 || 0).toFixed(1)}${t('valdash_pct_of_total')}`}
               icon={CheckCircle}
               trend="up"
             />
             <StatCard
-              title="Rejeitadas"
+              title={t('valdash_stat_rejected')}
               value={metrics.rejected.toString()}
-              change={`${((metrics.rejected / metrics.total) * 100 || 0).toFixed(1)}% do total`}
+              change={`${((metrics.rejected / metrics.total) * 100 || 0).toFixed(1)}${t('valdash_pct_of_total')}`}
               icon={XCircle}
               trend="down"
             />
             <StatCard
-              title="Tempo Médio"
+              title={t('valdash_stat_avg_time')}
               value={`${metrics.avgResponseTime}min`}
-              change="Tempo de resposta"
+              change={t('valdash_stat_avg_time_change')}
               icon={TrendingUp}
             />
             <StatCard
-              title="Taxa de Resposta"
+              title={t('valdash_stat_response_rate')}
               value={`${metrics.responseRate}%`}
-              change="Respondidas"
+              change={t('valdash_stat_response_rate_change')}
               icon={TrendingUp}
               trend="up"
             />
@@ -279,8 +281,8 @@ const ValidationsDashboard = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Validações Recentes</CardTitle>
-                  <CardDescription>Atualização em tempo real</CardDescription>
+                  <CardTitle>{t('valdash_recent_title')}</CardTitle>
+                  <CardDescription>{t('valdash_recent_desc')}</CardDescription>
                 </div>
                 
                 {/* Filters */}
@@ -288,7 +290,7 @@ const ValidationsDashboard = () => {
                   <div className="relative">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Buscar..."
+                      placeholder={t('valdash_search_placeholder')}
                       className="pl-8 w-[200px]"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -297,13 +299,13 @@ const ValidationsDashboard = () => {
                   
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Status" />
+                      <SelectValue placeholder={t('valdash_filter_status')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Todos</SelectItem>
-                      <SelectItem value="pending">Pendentes</SelectItem>
-                      <SelectItem value="confirmed">Confirmadas</SelectItem>
-                      <SelectItem value="rejected">Rejeitadas</SelectItem>
+                      <SelectItem value="all">{t('valdash_filter_all')}</SelectItem>
+                      <SelectItem value="pending">{t('valdash_stat_pending')}</SelectItem>
+                      <SelectItem value="confirmed">{t('valdash_stat_confirmed')}</SelectItem>
+                      <SelectItem value="rejected">{t('valdash_stat_rejected')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -313,7 +315,7 @@ const ValidationsDashboard = () => {
               <div className="space-y-3">
                 {currentValidations.length === 0 ? (
                   <p className="text-center text-muted-foreground py-8">
-                    Nenhuma validação encontrada
+                    {t('valdash_empty')}
                   </p>
                 ) : (
                   currentValidations.map((validation) => {
@@ -336,12 +338,12 @@ const ValidationsDashboard = () => {
                             {address}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Testemunha: {validation.witness_afro_id}
+                            {t('valdash_witness')}: {validation.witness_afro_id}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {validation.otp_sent_at 
-                              ? `Enviado ${formatDistanceToNow(new Date(validation.otp_sent_at), { addSuffix: true })}`
-                              : 'SMS não enviado'}
+                            {validation.otp_sent_at
+                              ? `${t('valdash_sent')} ${formatDistanceToNow(new Date(validation.otp_sent_at), { addSuffix: true })}`
+                              : t('valdash_sms_not_sent')}
                           </p>
                         </div>
                         <div className="flex flex-col items-end gap-2">
@@ -362,7 +364,7 @@ const ValidationsDashboard = () => {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6 pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
-                    Mostrando {startIndex + 1}-{Math.min(endIndex, filteredValidations.length)} de {filteredValidations.length}
+                    {t('valdash_showing')} {startIndex + 1}-{Math.min(endIndex, filteredValidations.length)} {t('valdash_of')} {filteredValidations.length}
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -371,7 +373,7 @@ const ValidationsDashboard = () => {
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                     >
-                      Anterior
+                      {t('valdash_previous')}
                     </Button>
                     <div className="flex items-center gap-1">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -396,7 +398,7 @@ const ValidationsDashboard = () => {
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
                     >
-                      Próxima
+                      {t('valdash_next')}
                     </Button>
                   </div>
                 </div>

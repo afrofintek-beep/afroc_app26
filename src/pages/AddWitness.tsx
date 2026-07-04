@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, UserPlus, CheckCircle2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // AFROLOC formats supported:
 // New format: AO-TAL-TAL-VID-G10-2ZP1-N1FTR (using hyphens)
@@ -31,6 +32,7 @@ export default function AddWitness() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkAuth();
@@ -91,8 +93,8 @@ export default function AddWitness() {
 
       if (!witnessRecord) {
         toast({
-          title: "Testemunha Inválida",
-          description: "Este AFROLOC não existe. A testemunha deve ter um AFROLOC verificado para participar.",
+          title: t('addwitness_toast_invalid_witness_title'),
+          description: t('addwitness_toast_invalid_witness_desc'),
           variant: "destructive",
         });
         setLoading(false);
@@ -101,8 +103,8 @@ export default function AddWitness() {
 
       if (witnessRecord.status !== "verified" && witnessRecord.status !== "certified") {
         toast({
-          title: "AFROLOC Não Ativo",
-          description: "Este AFROLOC não está ativo. A testemunha deve ter um AFROLOC verificado ou certificado.",
+          title: t('addwitness_toast_not_active_title'),
+          description: t('addwitness_toast_not_active_desc'),
           variant: "destructive",
         });
         setLoading(false);
@@ -123,8 +125,8 @@ export default function AddWitness() {
 
       if (!witnessValidations || witnessValidations.length === 0) {
         toast({
-          title: "Morada Não Validada",
-          description: "Esta testemunha não possui morada validada. É necessário ter validação de autoridade ou de testemunhas aprovada.",
+          title: t('addwitness_toast_address_not_validated_title'),
+          description: t('addwitness_toast_address_not_validated_desc'),
           variant: "destructive",
         });
         setLoading(false);
@@ -134,8 +136,8 @@ export default function AddWitness() {
       // Check if user is trying to add themselves as witness
       if (witnessRecord.user_id === user.id) {
         toast({
-          title: "Erro de Validação",
-          description: "Você não pode adicionar-se como testemunha.",
+          title: t('addwitness_toast_validation_error_title'),
+          description: t('addwitness_toast_cannot_add_self_desc'),
           variant: "destructive",
         });
         setLoading(false);
@@ -152,8 +154,8 @@ export default function AddWitness() {
 
       if (existing) {
         toast({
-          title: "Testemunha Duplicada",
-          description: "Esta testemunha já foi adicionada anteriormente",
+          title: t('addwitness_toast_duplicate_title'),
+          description: t('addwitness_toast_duplicate_desc'),
           variant: "destructive",
         });
         setLoading(false);
@@ -197,21 +199,21 @@ export default function AddWitness() {
       if (otpError) {
         console.error("Error sending OTP:", otpError);
         toast({
-          title: "Aviso",
-          description: "Testemunha adicionada mas a notificação não pôde ser enviada.",
+          title: t('addwitness_toast_warning_title'),
+          description: t('addwitness_toast_notification_failed_desc'),
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Sucesso",
-          description: "Testemunha adicionada com sucesso. Receberá uma solicitação de confirmação via SMS.",
+          title: t('addwitness_toast_success_title'),
+          description: t('addwitness_toast_success_desc'),
         });
       }
       
       navigate(`/identity/${id}`);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('addwitness_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -228,33 +230,33 @@ export default function AddWitness() {
             <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">Adicionar Testemunha</h1>
-            <p className="text-muted-foreground text-sm sm:text-base break-words">Convide um vizinho para confirmar sua morada</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">{t('addwitness_title')}</h1>
+            <p className="text-muted-foreground text-sm sm:text-base break-words">{t('addwitness_subtitle')}</p>
           </div>
         </div>
 
         <Alert className="border-primary/50 bg-primary/5">
           <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-primary flex-shrink-0" />
           <AlertDescription className="text-xs sm:text-sm break-words">
-            <strong>Processo de Validação por Testemunhas:</strong> O validador regional enviará um SMS para a testemunha com as opções: 
-            <span className="font-mono mx-1">1) SIM</span> ou <span className="font-mono mx-1">2) NÃO</span>. 
-            A testemunha deve responder confirmando ou negando que você reside nesta morada.
+            <strong>{t('addwitness_process_label')}</strong> {t('addwitness_process_intro')}
+            <span className="font-mono mx-1">1) SIM</span> {t('addwitness_process_or')} <span className="font-mono mx-1">2) NÃO</span>.
+            {t('addwitness_process_outro')}
           </AlertDescription>
         </Alert>
 
         <Card>
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-lg sm:text-xl">Informação da Testemunha</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">{t('addwitness_card_title')}</CardTitle>
             <CardDescription className="text-xs sm:text-sm break-words">
-              Insira o AFROLOC de um vizinho que possa confirmar sua residência. 
-              <strong className="text-foreground"> A testemunha deve ter AFROLOC ativo e morada validada.</strong>
+              {t('addwitness_card_desc')}
+              <strong className="text-foreground"> {t('addwitness_card_desc_emphasis')}</strong>
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="witness_afro_id" className="text-sm sm:text-base">
-                  AFROLOC da Testemunha <span className="text-destructive">*</span>
+                  {t('addwitness_field_label')} <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="witness_afro_id"
@@ -263,7 +265,7 @@ export default function AddWitness() {
                     setWitnessAfroId(e.target.value.toUpperCase());
                     setErrors({});
                   }}
-                  placeholder="ex: AO-TAL-TAL-VID-G10-2ZP1-N1FTR"
+                  placeholder={t('addwitness_field_placeholder')}
                   className={`text-sm sm:text-base ${errors.witness_afro_id ? "border-destructive" : ""}`}
                   maxLength={100}
                 />
@@ -271,38 +273,38 @@ export default function AddWitness() {
                   <p className="text-xs sm:text-sm text-destructive break-words">{errors.witness_afro_id}</p>
                 )}
                 <p className="text-xs sm:text-sm text-muted-foreground break-words">
-                  Formato: AO-PROV-MUN-COM-G10-XXXX-NXXXX
+                  {t('addwitness_field_format_hint')}
                 </p>
               </div>
 
               <Alert className="border-amber-500/50 bg-amber-500/5">
                 <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 flex-shrink-0" />
                 <AlertDescription>
-                  <h3 className="font-semibold mb-2 text-foreground text-sm sm:text-base">Requisitos Obrigatórios para Testemunhas:</h3>
+                  <h3 className="font-semibold mb-2 text-foreground text-sm sm:text-base">{t('addwitness_requirements_heading')}</h3>
                   <ul className="space-y-2 text-xs sm:text-sm">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>AFROLOC Ativo:</strong> Deve ter AFROLOC verificado ou certificado</span>
+                      <span className="break-words"><strong>{t('addwitness_req_active_label')}</strong> {t('addwitness_req_active_text')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>Morada Validada:</strong> A testemunha deve ter sua própria morada validada por autoridade ou outras testemunhas</span>
+                      <span className="break-words"><strong>{t('addwitness_req_validated_label')}</strong> {t('addwitness_req_validated_text')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>Proximidade:</strong> Deve residir dentro de 100 metros da sua localização</span>
+                      <span className="break-words"><strong>{t('addwitness_req_proximity_label')}</strong> {t('addwitness_req_proximity_text')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>SMS de Confirmação:</strong> Receberá SMS do validador regional com opções SIM/NÃO</span>
+                      <span className="break-words"><strong>{t('addwitness_req_sms_label')}</strong> {t('addwitness_req_sms_text')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>Mínimo de Testemunhas:</strong> Você precisa de 3 testemunhas confirmadas para validação</span>
+                      <span className="break-words"><strong>{t('addwitness_req_minimum_label')}</strong> {t('addwitness_req_minimum_text')}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>Restrição:</strong> Você não pode adicionar-se como testemunha</span>
+                      <span className="break-words"><strong>{t('addwitness_req_restriction_label')}</strong> {t('addwitness_req_restriction_text')}</span>
                     </li>
                   </ul>
                 </AlertDescription>
@@ -315,11 +317,11 @@ export default function AddWitness() {
                   onClick={() => navigate(`/identity/${id}`)}
                   className="flex-1 text-sm sm:text-base"
                 >
-                  Cancelar
+                  {t('addwitness_btn_cancel')}
                 </Button>
                 <Button type="submit" disabled={loading} className="flex-1 text-sm sm:text-base">
                   <UserPlus className="mr-2 h-4 w-4" />
-                  {loading ? "Adicionando..." : "Adicionar Testemunha"}
+                  {loading ? t('addwitness_btn_submitting') : t('addwitness_btn_submit')}
                 </Button>
               </div>
             </form>

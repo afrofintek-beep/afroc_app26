@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, FileText, Upload, CheckCircle2, Clock, Eye, Trash2 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -39,33 +40,34 @@ export default function DocumentVerification() {
   
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const documentTypes: DocumentType[] = [
     {
       id: "national_id",
-      title: "National ID Card",
-      description: "Government-issued identification document",
+      title: t("docverif_doc_national_id_title"),
+      description: t("docverif_doc_national_id_desc"),
       required: true,
       acceptedFormats: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
     },
     {
       id: "utility_bill",
-      title: "Utility Bill",
-      description: "Recent electricity, water, or gas bill showing your address",
+      title: t("docverif_doc_utility_bill_title"),
+      description: t("docverif_doc_utility_bill_desc"),
       required: true,
       acceptedFormats: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
     },
     {
       id: "residence_certificate",
-      title: "Residence Certificate",
-      description: "Official certificate from local authorities",
+      title: t("docverif_doc_residence_cert_title"),
+      description: t("docverif_doc_residence_cert_desc"),
       required: false,
       acceptedFormats: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
     },
     {
       id: "property_deed",
-      title: "Property Deed or Lease",
-      description: "Proof of property ownership or rental agreement",
+      title: t("docverif_doc_property_deed_title"),
+      description: t("docverif_doc_property_deed_desc"),
       required: false,
       acceptedFormats: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
     },
@@ -104,7 +106,7 @@ export default function DocumentVerification() {
       setUploadedDocuments(docsData || []);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t("docverif_toast_error_title"),
         description: error.message,
         variant: "destructive",
       });
@@ -156,7 +158,7 @@ export default function DocumentVerification() {
     } catch (error) {
       if (error instanceof z.ZodError) {
         toast({
-          title: "Invalid File",
+          title: t("docverif_toast_invalid_file_title"),
           description: error.issues[0].message,
           variant: "destructive",
         });
@@ -169,7 +171,7 @@ export default function DocumentVerification() {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) throw new Error(t("docverif_error_not_authenticated"));
 
       // Generate unique file path
       const fileExt = file.name.split(".").pop();
@@ -202,8 +204,8 @@ export default function DocumentVerification() {
       if (dbError) throw dbError;
 
       toast({
-        title: "Success",
-        description: "Document uploaded successfully. You can continue uploading other documents.",
+        title: t("docverif_toast_success_title"),
+        description: t("docverif_toast_upload_success_desc"),
       });
 
       // Reload only documents without blocking UI
@@ -211,7 +213,7 @@ export default function DocumentVerification() {
     } catch (error: any) {
       console.error("Upload error:", error);
       toast({
-        title: "Upload Failed",
+        title: t("docverif_toast_upload_failed_title"),
         description: error.message,
         variant: "destructive",
       });
@@ -239,14 +241,14 @@ export default function DocumentVerification() {
       if (dbError) throw dbError;
 
       toast({
-        title: "Success",
-        description: "Document deleted successfully",
+        title: t("docverif_toast_success_title"),
+        description: t("docverif_toast_delete_success_desc"),
       });
 
       await loadData();
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t("docverif_toast_error_title"),
         description: error.message,
         variant: "destructive",
       });
@@ -271,7 +273,7 @@ export default function DocumentVerification() {
       }
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t("docverif_toast_error_title"),
         description: error.message,
         variant: "destructive",
       });
@@ -299,11 +301,11 @@ export default function DocumentVerification() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":
-        return <Badge variant="default" className="bg-green-600">Verified</Badge>;
+        return <Badge variant="default" className="bg-green-600">{t("docverif_badge_verified")}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending Review</Badge>;
+        return <Badge variant="secondary">{t("docverif_badge_pending_review")}</Badge>;
       case "rejected":
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive">{t("docverif_badge_rejected")}</Badge>;
       default:
         return null;
     }
@@ -313,7 +315,7 @@ export default function DocumentVerification() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t("docverif_loading")}</p>
         </div>
       </DashboardLayout>
     );
@@ -327,8 +329,8 @@ export default function DocumentVerification() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Document Verification</h1>
-            <p className="text-muted-foreground">Upload supporting documents for {record.code}</p>
+            <h1 className="text-3xl font-bold text-foreground">{t("docverif_page_title")}</h1>
+            <p className="text-muted-foreground">{t("docverif_page_subtitle")} {record.code}</p>
           </div>
         </header>
 
@@ -338,10 +340,13 @@ export default function DocumentVerification() {
               <div className="flex gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-green-900 dark:text-green-100">Documents Uploaded</p>
+                  <p className="font-semibold text-green-900 dark:text-green-100">{t("docverif_uploaded_card_title")}</p>
                   <p className="text-sm text-green-700 dark:text-green-300">
-                    You have uploaded {uploadedDocuments.length} document
-                    {uploadedDocuments.length !== 1 ? "s" : ""}. They will be reviewed by an administrator.
+                    {t("docverif_uploaded_card_count_prefix")} {uploadedDocuments.length}{" "}
+                    {uploadedDocuments.length !== 1
+                      ? t("docverif_uploaded_card_documents_plural")
+                      : t("docverif_uploaded_card_document_singular")}
+                    . {t("docverif_uploaded_card_review_note")}
                   </p>
                 </div>
               </div>
@@ -365,7 +370,7 @@ export default function DocumentVerification() {
                           {doc.title}
                           {doc.required && (
                             <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full font-normal">
-                              Required
+                              {t("docverif_required_badge")}
                             </span>
                           )}
                         </CardTitle>
@@ -418,16 +423,16 @@ export default function DocumentVerification() {
                       >
                         <Upload className="mr-2 h-4 w-4" />
                         {uploadingDoc === doc.id
-                          ? "Uploading..."
+                          ? t("docverif_btn_uploading")
                           : status === "uploaded"
-                            ? "Replace"
-                            : "Upload"}
+                            ? t("docverif_btn_replace")
+                            : t("docverif_btn_upload")}
                         <input
                           type="file"
                           accept={doc.acceptedFormats.join(",")}
                           onChange={(e) => handleFileChange(doc.id, e)}
                           disabled={uploadingDoc === doc.id}
-                          aria-label={`Upload ${doc.title}`}
+                          aria-label={`${t("docverif_btn_upload")} ${doc.title}`}
                           className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
                         />
                       </Button>
@@ -441,26 +446,26 @@ export default function DocumentVerification() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Document Guidelines</CardTitle>
-            <CardDescription>Please ensure your documents meet these requirements</CardDescription>
+            <CardTitle>{t("docverif_guidelines_title")}</CardTitle>
+            <CardDescription>{t("docverif_guidelines_desc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-2">
-              <h4 className="font-medium">Accepted Formats:</h4>
+              <h4 className="font-medium">{t("docverif_guidelines_formats_heading")}</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                <li>PDF files (.pdf)</li>
-                <li>Images (JPG, PNG, max 5MB)</li>
-                <li>Scanned documents with clear, readable text</li>
+                <li>{t("docverif_guidelines_format_pdf")}</li>
+                <li>{t("docverif_guidelines_format_images")}</li>
+                <li>{t("docverif_guidelines_format_scanned")}</li>
               </ul>
             </div>
 
             <div className="space-y-2">
-              <h4 className="font-medium">Document Requirements:</h4>
+              <h4 className="font-medium">{t("docverif_guidelines_requirements_heading")}</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                <li>All documents must be valid and not expired</li>
-                <li>Documents must clearly show your name and address</li>
-                <li>Utility bills must be dated within the last 3 months</li>
-                <li>All text must be legible and in focus</li>
+                <li>{t("docverif_guidelines_req_valid")}</li>
+                <li>{t("docverif_guidelines_req_name_address")}</li>
+                <li>{t("docverif_guidelines_req_utility_recent")}</li>
+                <li>{t("docverif_guidelines_req_legible")}</li>
               </ul>
             </div>
           </CardContent>

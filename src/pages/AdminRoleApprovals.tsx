@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Clock, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface RoleChangeRequest {
   id: string;
@@ -31,6 +32,7 @@ export default function AdminRoleApprovals() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [selectedRequest, setSelectedRequest] = useState<RoleChangeRequest | null>(null);
   const [actionType, setActionType] = useState<'approve' | 'reject' | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -143,9 +145,9 @@ export default function AdminRoleApprovals() {
     },
     onSuccess: (_, variables) => {
       toast.success(
-        variables.action === 'approve' 
-          ? 'Solicitação aprovada com sucesso' 
-          : 'Solicitação rejeitada'
+        variables.action === 'approve'
+          ? t('roleapprovals_toast_approved')
+          : t('roleapprovals_toast_rejected')
       );
       queryClient.invalidateQueries({ queryKey: ['role-change-requests'] });
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
@@ -154,7 +156,7 @@ export default function AdminRoleApprovals() {
       setSelectedRequest(null);
     },
     onError: (error) => {
-      toast.error("Erro ao processar solicitação");
+      toast.error(t('roleapprovals_toast_error'));
       console.error(error);
     }
   });
@@ -176,9 +178,9 @@ export default function AdminRoleApprovals() {
   };
 
   const getRoleLabel = (role: string) => {
-    if (role === 'admin') return 'Administrador';
-    if (role === 'moderator') return 'Funcionário';
-    return 'Usuário';
+    if (role === 'admin') return t('roleapprovals_role_admin');
+    if (role === 'moderator') return t('roleapprovals_role_moderator');
+    return t('roleapprovals_role_citizen');
   };
 
   const getRoleBadgeVariant = (role: string) => {
@@ -194,8 +196,8 @@ export default function AdminRoleApprovals() {
           <div className="flex items-center gap-2">
             <Clock className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold">Aprovações Pendentes</h1>
-              <p className="text-muted-foreground">Gerencie solicitações de mudança de papel</p>
+              <h1 className="text-3xl font-bold">{t('roleapprovals_title')}</h1>
+              <p className="text-muted-foreground">{t('roleapprovals_subtitle')}</p>
             </div>
           </div>
           <Button
@@ -204,15 +206,15 @@ export default function AdminRoleApprovals() {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar
+            {t('roleapprovals_back')}
           </Button>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Solicitações de Promoção</CardTitle>
+            <CardTitle>{t('roleapprovals_card_title')}</CardTitle>
             <CardDescription>
-              Revise e aprove mudanças de papel dentro da sua jurisdição
+              {t('roleapprovals_card_description')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -224,13 +226,13 @@ export default function AdminRoleApprovals() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Usuário</TableHead>
-                    <TableHead>Papel Atual</TableHead>
-                    <TableHead>Papel Solicitado</TableHead>
-                    <TableHead>Solicitado por</TableHead>
-                    <TableHead>Justificativa</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Ações</TableHead>
+                    <TableHead>{t('roleapprovals_th_user')}</TableHead>
+                    <TableHead>{t('roleapprovals_th_current_role')}</TableHead>
+                    <TableHead>{t('roleapprovals_th_requested_role')}</TableHead>
+                    <TableHead>{t('roleapprovals_th_requested_by')}</TableHead>
+                    <TableHead>{t('roleapprovals_th_justification')}</TableHead>
+                    <TableHead>{t('roleapprovals_th_date')}</TableHead>
+                    <TableHead>{t('roleapprovals_th_actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -265,7 +267,7 @@ export default function AdminRoleApprovals() {
                             disabled={processRequestMutation.isPending}
                           >
                             <CheckCircle className="h-4 w-4 mr-1" />
-                            Aprovar
+                            {t('roleapprovals_approve')}
                           </Button>
                           <Button
                             size="sm"
@@ -274,7 +276,7 @@ export default function AdminRoleApprovals() {
                             disabled={processRequestMutation.isPending}
                           >
                             <XCircle className="h-4 w-4 mr-1" />
-                            Rejeitar
+                            {t('roleapprovals_reject')}
                           </Button>
                         </div>
                       </TableCell>
@@ -284,7 +286,7 @@ export default function AdminRoleApprovals() {
               </Table>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                Nenhuma solicitação pendente
+                {t('roleapprovals_empty')}
               </div>
             )}
           </CardContent>
@@ -295,13 +297,15 @@ export default function AdminRoleApprovals() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-warning" />
-                {actionType === 'approve' ? 'Aprovar Promoção' : 'Rejeitar Promoção'}
+                {actionType === 'approve' ? t('roleapprovals_dialog_approve_title') : t('roleapprovals_dialog_reject_title')}
               </DialogTitle>
               <DialogDescription>
                 {selectedRequest && (
                   <>
-                    Você está prestes a {actionType === 'approve' ? 'aprovar' : 'rejeitar'} a
-                    promoção de <span className="font-semibold">{selectedRequest.user_name}</span> para{" "}
+                    {t('roleapprovals_dialog_confirm_prefix')}{" "}
+                    {actionType === 'approve' ? t('roleapprovals_dialog_confirm_approve_verb') : t('roleapprovals_dialog_confirm_reject_verb')}{" "}
+                    {t('roleapprovals_dialog_confirm_middle')}{" "}
+                    <span className="font-semibold">{selectedRequest.user_name}</span> {t('roleapprovals_dialog_confirm_to')}{" "}
                     <span className="font-semibold">{getRoleLabel(selectedRequest.requested_role)}</span>.
                   </>
                 )}
@@ -311,10 +315,10 @@ export default function AdminRoleApprovals() {
             {actionType === 'reject' && (
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="rejection-reason">Motivo da Rejeição *</Label>
+                  <Label htmlFor="rejection-reason">{t('roleapprovals_reject_reason_label')}</Label>
                   <Textarea
                     id="rejection-reason"
-                    placeholder="Explique o motivo da rejeição..."
+                    placeholder={t('roleapprovals_reject_reason_placeholder')}
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
                     rows={4}
@@ -326,7 +330,7 @@ export default function AdminRoleApprovals() {
 
             {actionType === 'approve' && selectedRequest && (
               <div className="rounded-md bg-muted/50 p-3 text-sm">
-                <p className="font-medium mb-1">Justificativa original:</p>
+                <p className="font-medium mb-1">{t('roleapprovals_original_justification')}</p>
                 <p className="text-muted-foreground">{selectedRequest.justification}</p>
               </div>
             )}
@@ -339,7 +343,7 @@ export default function AdminRoleApprovals() {
                   setRejectionReason("");
                 }}
               >
-                Cancelar
+                {t('roleapprovals_cancel')}
               </Button>
               <Button
                 variant={actionType === 'approve' ? 'default' : 'destructive'}
@@ -350,7 +354,7 @@ export default function AdminRoleApprovals() {
                 }
               >
                 {processRequestMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {actionType === 'approve' ? 'Aprovar' : 'Rejeitar'}
+                {actionType === 'approve' ? t('roleapprovals_approve') : t('roleapprovals_reject')}
               </Button>
             </DialogFooter>
           </DialogContent>

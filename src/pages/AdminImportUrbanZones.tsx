@@ -62,29 +62,29 @@ const AdminImportUrbanZones = () => {
       
       // Validate GeoJSON structure
       if (!parsed.type) {
-        throw new Error("Invalid GeoJSON: missing 'type' property");
+        throw new Error(t('importzones_error_invalid_geojson'));
       }
-      
+
       if (parsed.type === "FeatureCollection" && !parsed.features) {
-        throw new Error("Invalid FeatureCollection: missing 'features' array");
+        throw new Error(t('importzones_error_invalid_featurecollection'));
       }
-      
+
       if (parsed.type === "Feature" && !parsed.geometry) {
-        throw new Error("Invalid Feature: missing 'geometry' property");
+        throw new Error(t('importzones_error_invalid_feature'));
       }
       
       setGeojsonData(parsed);
       
       toast({
-        title: "Ficheiro carregado",
-        description: `${getFeatureCount(parsed)} zonas urbanas encontradas`,
+        title: t('importzones_toast_file_loaded'),
+        description: `${getFeatureCount(parsed)} ${t('importzones_toast_zones_found')}`,
       });
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao analisar ficheiro";
+      const message = err instanceof Error ? err.message : t('importzones_error_parse_file');
       setError(message);
       setGeojsonData(null);
       toast({
-        title: "Erro",
+        title: t('importzones_error'),
         description: message,
         variant: "destructive",
       });
@@ -111,7 +111,7 @@ const AdminImportUrbanZones = () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        throw new Error("Sessão expirada. Por favor, faça login novamente.");
+        throw new Error(t('importzones_error_session_expired'));
       }
 
       const response = await supabase.functions.invoke("import-urban-zones", {
@@ -122,25 +122,25 @@ const AdminImportUrbanZones = () => {
       });
 
       if (response.error) {
-        throw new Error(response.error.message || "Erro ao importar zonas urbanas");
+        throw new Error(response.error.message || t('importzones_error_import_zones'));
       }
 
       const data = response.data;
-      
+
       if (data.success) {
         setResults(data.zones || []);
         toast({
-          title: "Importação concluída",
-          description: `${data.imported} zonas urbanas importadas com sucesso`,
+          title: t('importzones_toast_import_complete'),
+          description: `${data.imported} ${t('importzones_toast_zones_imported')}`,
         });
       } else {
-        throw new Error(data.error || "Erro desconhecido");
+        throw new Error(data.error || t('importzones_error_unknown'));
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Erro ao importar";
+      const message = err instanceof Error ? err.message : t('importzones_error_importing');
       setError(message);
       toast({
-        title: "Erro na importação",
+        title: t('importzones_toast_import_error'),
         description: message,
         variant: "destructive",
       });
@@ -161,13 +161,13 @@ const AdminImportUrbanZones = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Importar Zonas Urbanas</h1>
+            <h1 className="text-2xl font-bold">{t('importzones_page_title')}</h1>
             <p className="text-muted-foreground">
-              Carregue ficheiros GeoJSON para importar polígonos de zonas urbanas
+              {t('importzones_page_subtitle')}
             </p>
           </div>
           <Button variant="outline" onClick={() => navigate("/admin")}>
-            Voltar
+            {t('importzones_back')}
           </Button>
         </div>
 
@@ -177,15 +177,15 @@ const AdminImportUrbanZones = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />
-                Carregar GeoJSON
+                {t('importzones_upload_title')}
               </CardTitle>
               <CardDescription>
-                Suporta Feature, FeatureCollection, Polygon ou MultiPolygon
+                {t('importzones_upload_description')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="geojson-file">Ficheiro GeoJSON</Label>
+                <Label htmlFor="geojson-file">{t('importzones_label_file')}</Label>
                 <Input
                   id="geojson-file"
                   type="file"
@@ -196,12 +196,12 @@ const AdminImportUrbanZones = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="source">Fonte dos dados</Label>
+                <Label htmlFor="source">{t('importzones_label_source')}</Label>
                 <Input
                   id="source"
                   value={source}
                   onChange={(e) => setSource(e.target.value)}
-                  placeholder="ex: openstreetmap, government, manual"
+                  placeholder={t('importzones_placeholder_source')}
                   disabled={isLoading}
                 />
               </div>
@@ -213,8 +213,8 @@ const AdminImportUrbanZones = () => {
                     <span className="font-medium">{file?.name}</span>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p>Tipo: <Badge variant="secondary">{geojsonData.type}</Badge></p>
-                    <p>Zonas: <Badge>{getFeatureCount(geojsonData)}</Badge></p>
+                    <p>{t('importzones_field_type')}: <Badge variant="secondary">{geojsonData.type}</Badge></p>
+                    <p>{t('importzones_field_zones')}: <Badge>{getFeatureCount(geojsonData)}</Badge></p>
                   </div>
                 </div>
               )}
@@ -223,7 +223,7 @@ const AdminImportUrbanZones = () => {
                 <div className="rounded-lg border border-destructive p-4 bg-destructive/10">
                   <div className="flex items-center gap-2 text-destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <span className="font-medium">Erro</span>
+                    <span className="font-medium">{t('importzones_error')}</span>
                   </div>
                   <p className="text-sm mt-1">{error}</p>
                 </div>
@@ -238,17 +238,17 @@ const AdminImportUrbanZones = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Importando...
+                      {t('importzones_btn_importing')}
                     </>
                   ) : (
                     <>
                       <Upload className="mr-2 h-4 w-4" />
-                      Importar
+                      {t('importzones_btn_import')}
                     </>
                   )}
                 </Button>
                 <Button variant="outline" onClick={resetForm} disabled={isLoading}>
-                  Limpar
+                  {t('importzones_btn_clear')}
                 </Button>
               </div>
             </CardContent>
@@ -259,12 +259,12 @@ const AdminImportUrbanZones = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
-                Resultados da Importação
+                {t('importzones_results_title')}
               </CardTitle>
               <CardDescription>
-                {results.length > 0 
-                  ? `${results.length} zonas importadas com sucesso`
-                  : "Os resultados aparecerão aqui após a importação"
+                {results.length > 0
+                  ? `${results.length} ${t('importzones_results_count_suffix')}`
+                  : t('importzones_results_empty_hint')
                 }
               </CardDescription>
             </CardHeader>
@@ -289,8 +289,8 @@ const AdminImportUrbanZones = () => {
               ) : (
                 <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
                   <FileJson className="h-12 w-12 mb-4 opacity-50" />
-                  <p>Nenhuma zona importada ainda</p>
-                  <p className="text-sm">Carregue um ficheiro GeoJSON para começar</p>
+                  <p>{t('importzones_empty_title')}</p>
+                  <p className="text-sm">{t('importzones_empty_hint')}</p>
                 </div>
               )}
             </CardContent>
@@ -300,7 +300,7 @@ const AdminImportUrbanZones = () => {
         {/* Instructions */}
         <Card>
           <CardHeader>
-            <CardTitle>Formato esperado</CardTitle>
+            <CardTitle>{t('importzones_format_title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <pre className="text-xs bg-muted p-4 rounded-lg overflow-x-auto">
@@ -322,7 +322,7 @@ const AdminImportUrbanZones = () => {
 }`}
             </pre>
             <p className="text-sm text-muted-foreground mt-4">
-              Propriedades suportadas: <code>name</code> ou <code>NAME</code>, <code>admin_path</code> ou <code>ADM_PATH</code>
+              {t('importzones_supported_props')}: <code>name</code> {t('importzones_or')} <code>NAME</code>, <code>admin_path</code> {t('importzones_or')} <code>ADM_PATH</code>
             </p>
           </CardContent>
         </Card>

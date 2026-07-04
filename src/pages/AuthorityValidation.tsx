@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Shield, Send } from "lucide-react";
 import { LevelGate } from "@/components/LevelGate";
+import { useLanguage } from "@/contexts/LanguageContext";
 import type { Database } from "@/integrations/supabase/types";
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
@@ -49,6 +50,7 @@ export default function AuthorityValidation() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadRecord();
@@ -72,7 +74,7 @@ export default function AuthorityValidation() {
       setRecord(data);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('authval_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -143,14 +145,14 @@ export default function AuthorityValidation() {
       if (updateError) throw updateError;
 
       toast({
-        title: "Success",
-        description: "Authority validation completed successfully",
+        title: t('authval_toast_success_title'),
+        description: t('authval_toast_success_desc'),
       });
 
       navigate(`/identity/${id}`);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('authval_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -163,7 +165,7 @@ export default function AuthorityValidation() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t('authval_loading')}</p>
         </div>
       </DashboardLayout>
     );
@@ -178,8 +180,8 @@ export default function AuthorityValidation() {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Authority Validation</h1>
-                <p className="text-muted-foreground">Official validation for {record.code}</p>
+                <h1 className="text-3xl font-bold text-foreground">{t('authval_title')}</h1>
+                <p className="text-muted-foreground">{t('authval_subtitle')} {record.code}</p>
               </div>
             </div>
 
@@ -188,26 +190,26 @@ export default function AuthorityValidation() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Shield className="h-5 w-5" />
-                    Validation Details
+                    {t('authval_card_title')}
                   </CardTitle>
                   <CardDescription>
-                    Provide official validation details to verify this identity
+                    {t('authval_card_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="validation_method">
-                        Validation Method <span className="text-destructive">*</span>
+                        {t('authval_label_method')} <span className="text-destructive">*</span>
                       </Label>
                       <Select value={validationMethod} onValueChange={setValidationMethod}>
                         <SelectTrigger className={errors.validation_method ? "border-destructive" : ""}>
-                          <SelectValue placeholder="Select validation method" />
+                          <SelectValue placeholder={t('authval_placeholder_method')} />
                         </SelectTrigger>
                         <SelectContent>
                           {VALIDATION_METHODS.map((method) => (
                             <SelectItem key={method.value} value={method.value}>
-                              {method.label}
+                              {t(`authval_method_${method.value}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -219,16 +221,16 @@ export default function AuthorityValidation() {
 
                     <div className="space-y-2">
                       <Label htmlFor="authority_role">
-                        Your Authority Role <span className="text-destructive">*</span>
+                        {t('authval_label_role')} <span className="text-destructive">*</span>
                       </Label>
                       <Select value={authorityRole} onValueChange={setAuthorityRole}>
                         <SelectTrigger className={errors.authority_role ? "border-destructive" : ""}>
-                          <SelectValue placeholder="Select your role" />
+                          <SelectValue placeholder={t('authval_placeholder_role')} />
                         </SelectTrigger>
                         <SelectContent>
                           {AUTHORITY_ROLES.map((role) => (
                             <SelectItem key={role.value} value={role.value}>
-                              {role.label}
+                              {t(`authval_role_${role.value}`)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -240,7 +242,7 @@ export default function AuthorityValidation() {
 
                     <div className="space-y-2">
                       <Label htmlFor="authority_signature">
-                        Digital Signature <span className="text-destructive">*</span>
+                        {t('authval_label_signature')} <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         id="authority_signature"
@@ -249,19 +251,19 @@ export default function AuthorityValidation() {
                           setAuthoritySignature(e.target.value);
                           setErrors({});
                         }}
-                        placeholder="Enter your official signature or ID"
+                        placeholder={t('authval_placeholder_signature')}
                         className={errors.authority_signature ? "border-destructive" : ""}
                       />
                       {errors.authority_signature && (
                         <p className="text-sm text-destructive">{errors.authority_signature}</p>
                       )}
                       <p className="text-sm text-muted-foreground">
-                        This will be recorded as the official validator signature
+                        {t('authval_signature_hint')}
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="notes">Notes (Optional)</Label>
+                      <Label htmlFor="notes">{t('authval_label_notes')}</Label>
                       <Textarea
                         id="notes"
                         value={notes}
@@ -269,7 +271,7 @@ export default function AuthorityValidation() {
                           setNotes(e.target.value);
                           setErrors({});
                         }}
-                        placeholder="Additional validation notes or observations"
+                        placeholder={t('authval_placeholder_notes')}
                         rows={4}
                         className={errors.notes ? "border-destructive" : ""}
                         maxLength={500}
@@ -278,17 +280,17 @@ export default function AuthorityValidation() {
                         <p className="text-sm text-destructive">{errors.notes}</p>
                       )}
                       <p className="text-sm text-muted-foreground">
-                        {notes.length}/500 characters
+                        {notes.length}/500 {t('authval_characters')}
                       </p>
                     </div>
 
                     <div className="rounded-lg border border-border bg-muted/50 p-4">
-                      <h3 className="font-semibold mb-2">Validation Requirements:</h3>
+                      <h3 className="font-semibold mb-2">{t('authval_requirements_title')}</h3>
                       <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                        <li>You must be a verified authority (Level 2+)</li>
-                        <li>The identity must have completed community verification</li>
-                        <li>Your signature will be permanently recorded</li>
-                        <li>This action will change the identity status to "verified"</li>
+                        <li>{t('authval_requirement_1')}</li>
+                        <li>{t('authval_requirement_2')}</li>
+                        <li>{t('authval_requirement_3')}</li>
+                        <li>{t('authval_requirement_4')}</li>
                       </ul>
                     </div>
 
@@ -299,11 +301,11 @@ export default function AuthorityValidation() {
                         onClick={() => navigate(`/identity/${id}/verify`)}
                         className="flex-1"
                       >
-                        Cancel
+                        {t('authval_cancel')}
                       </Button>
                       <Button type="submit" disabled={loading} className="flex-1">
                         <Send className="mr-2 h-4 w-4" />
-                        {loading ? "Validating..." : "Submit Validation"}
+                        {loading ? t('authval_submitting') : t('authval_submit')}
                       </Button>
                     </div>
                   </form>

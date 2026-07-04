@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { CheckCircle, XCircle, Clock, MapPin, User, Hash, Bell, BellOff, Users, ArrowLeft } from "lucide-react";
 import { requestNotificationPermission, showBrowserNotification, playNotificationSound } from "@/utils/notifications";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -59,6 +60,7 @@ const RegionalValidation = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [onlineValidators, setOnlineValidators] = useState<ValidatorPresence[]>([]);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   // Request notification permission on mount
   useEffect(() => {
@@ -68,13 +70,13 @@ const RegionalValidation = () => {
       
       if (permission === "granted") {
         toast({
-          title: "Notifications Enabled",
-          description: "You'll receive alerts for new validation requests",
+          title: t('regionval_notifications_enabled'),
+          description: t('regionval_notifications_enabled_desc'),
         });
       } else if (permission === "denied") {
         toast({
-          title: "Notifications Blocked",
-          description: "Please enable notifications in your browser settings",
+          title: t('regionval_notifications_blocked'),
+          description: t('regionval_notifications_blocked_desc'),
           variant: "destructive",
         });
       }
@@ -134,8 +136,8 @@ const RegionalValidation = () => {
           const newValidator = newPresences[0] as any;
           if (newValidator.user_id !== user.id) {
             toast({
-              title: "Validator Online",
-              description: `${newValidator.email} is now viewing the dashboard`,
+              title: t('regionval_validator_online'),
+              description: `${newValidator.email} ${t('regionval_validator_online_desc')}`,
               duration: 3000,
             });
           }
@@ -200,9 +202,9 @@ const RegionalValidation = () => {
           // Show browser notification
           if (notificationsEnabled) {
             showBrowserNotification(
-              "🔔 New Validation Request",
+              `🔔 ${t('regionval_new_request')}`,
               {
-                body: `New address validation for AFROLOC: ${afrolocCode}`,
+                body: `${t('regionval_new_request_notif_body')}: ${afrolocCode}`,
                 tag: `validation-${payload.new.id}`,
                 requireInteraction: false,
               }
@@ -211,8 +213,8 @@ const RegionalValidation = () => {
           
           // Show toast notification
           toast({
-            title: "New Validation Request",
-            description: `New address validation request for ${afrolocCode}`,
+            title: t('regionval_new_request'),
+            description: `${t('regionval_new_request_toast_desc')} ${afrolocCode}`,
             duration: 5000,
           });
 
@@ -256,8 +258,8 @@ const RegionalValidation = () => {
         } else if (status === 'CHANNEL_ERROR') {
           console.error('Error subscribing to validation requests realtime updates');
           toast({
-            title: "Connection Error",
-            description: "Failed to connect to real-time updates",
+            title: t('regionval_connection_error'),
+            description: t('regionval_connection_error_desc'),
             variant: "destructive",
           });
         }
@@ -296,8 +298,8 @@ const RegionalValidation = () => {
     } catch (error) {
       console.error("Error fetching validation requests:", error);
       toast({
-        title: "Error",
-        description: "Failed to load validation requests",
+        title: t('regionval_error'),
+        description: t('regionval_load_failed'),
         variant: "destructive",
       });
     } finally {
@@ -320,16 +322,16 @@ const RegionalValidation = () => {
       if (error) throw error;
 
       toast({
-        title: "Approved",
-        description: "Validation request has been approved",
+        title: t('regionval_approved'),
+        description: t('regionval_approved_desc'),
       });
 
       fetchValidationRequests();
     } catch (error) {
       console.error("Error approving request:", error);
       toast({
-        title: "Error",
-        description: "Failed to approve validation request",
+        title: t('regionval_error'),
+        description: t('regionval_approve_failed'),
         variant: "destructive",
       });
     }
@@ -338,8 +340,8 @@ const RegionalValidation = () => {
   const handleReject = async () => {
     if (!selectedRequest || !rejectionReason.trim()) {
       toast({
-        title: "Error",
-        description: "Please provide a rejection reason",
+        title: t('regionval_error'),
+        description: t('regionval_provide_reason'),
         variant: "destructive",
       });
       return;
@@ -359,8 +361,8 @@ const RegionalValidation = () => {
       if (error) throw error;
 
       toast({
-        title: "Rejected",
-        description: "Validation request has been rejected",
+        title: t('regionval_rejected'),
+        description: t('regionval_rejected_desc'),
       });
 
       setShowRejectDialog(false);
@@ -370,8 +372,8 @@ const RegionalValidation = () => {
     } catch (error) {
       console.error("Error rejecting request:", error);
       toast({
-        title: "Error",
-        description: "Failed to reject validation request",
+        title: t('regionval_error'),
+        description: t('regionval_reject_failed'),
         variant: "destructive",
       });
     }
@@ -403,9 +405,9 @@ const RegionalValidation = () => {
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
-                <h1 className="text-3xl font-bold text-foreground mb-2">Regional Validation Dashboard</h1>
+                <h1 className="text-3xl font-bold text-foreground mb-2">{t('regionval_title')}</h1>
                 <p className="text-muted-foreground">
-                  Review and validate address verification requests in your jurisdiction
+                  {t('regionval_subtitle')}
                 </p>
               </div>
             </div>
@@ -414,12 +416,12 @@ const RegionalValidation = () => {
                 {notificationsEnabled ? (
                   <Badge variant="outline" className="gap-2">
                     <Bell className="h-4 w-4" />
-                    Notifications Active
+                    {t('regionval_notifications_active')}
                   </Badge>
                 ) : (
                   <Badge variant="secondary" className="gap-2">
                     <BellOff className="h-4 w-4" />
-                    Notifications Disabled
+                    {t('regionval_notifications_disabled')}
                   </Badge>
                 )}
               </div>
@@ -430,7 +432,7 @@ const RegionalValidation = () => {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium flex items-center gap-2">
                       <Users className="h-4 w-4" />
-                      Online Validators ({onlineValidators.length})
+                      {t('regionval_online_validators')} ({onlineValidators.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -474,15 +476,14 @@ const RegionalValidation = () => {
                   <CardContent className="py-12 text-center">
                     <CheckCircle className="h-16 w-16 mx-auto mb-4 text-green-500" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">
-                      Nenhum AFROLOC pendente de verificação
+                      {t('regionval_empty_title')}
                     </h3>
                     <p className="text-muted-foreground max-w-md mx-auto">
-                      De momento não existem novos registos de AFROLOC aguardando a sua validação. 
-                      Quando novos pedidos forem submetidos, aparecerão automaticamente aqui.
+                      {t('regionval_empty_desc')}
                     </p>
                     <Badge variant="outline" className="mt-4 gap-2">
                       <Bell className="h-4 w-4" />
-                      As notificações irão alertá-lo para novos pedidos
+                      {t('regionval_empty_badge')}
                     </Badge>
                   </CardContent>
                 </Card>
@@ -512,7 +513,7 @@ const RegionalValidation = () => {
                             </CardDescription>
                           </div>
                           <Badge variant={isExpired(request.otp_expires_at) ? "destructive" : "default"}>
-                            {isExpired(request.otp_expires_at) ? "Expired" : "Active"}
+                            {isExpired(request.otp_expires_at) ? t('regionval_expired') : t('regionval_active')}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -520,19 +521,19 @@ const RegionalValidation = () => {
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <p className="text-sm text-muted-foreground mb-1">Witness AFROLOC</p>
+                              <p className="text-sm text-muted-foreground mb-1">{t('regionval_witness_afroloc')}</p>
                               <p className="font-mono">{request.witness_afro_id}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-muted-foreground mb-1">OTP Code</p>
+                              <p className="text-sm text-muted-foreground mb-1">{t('regionval_otp_code')}</p>
                               <p className="text-2xl font-bold text-primary">{request.otp_code}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-muted-foreground mb-1">Requested At</p>
+                              <p className="text-sm text-muted-foreground mb-1">{t('regionval_requested_at')}</p>
                               <p>{new Date(request.created_at).toLocaleString()}</p>
                             </div>
                             <div>
-                              <p className="text-sm text-muted-foreground mb-1">Expires At</p>
+                              <p className="text-sm text-muted-foreground mb-1">{t('regionval_expires_at')}</p>
                               <p>{new Date(request.otp_expires_at).toLocaleString()}</p>
                             </div>
                           </div>
@@ -544,7 +545,7 @@ const RegionalValidation = () => {
                               className="flex-1"
                             >
                               <CheckCircle className="h-4 w-4 mr-2" />
-                              Approve
+                              {t('regionval_approve')}
                             </Button>
                             <Button
                               onClick={() => openRejectDialog(request)}
@@ -552,7 +553,7 @@ const RegionalValidation = () => {
                               className="flex-1"
                             >
                               <XCircle className="h-4 w-4 mr-2" />
-                              Reject
+                              {t('regionval_reject')}
                             </Button>
                           </div>
                         </div>
@@ -573,14 +574,14 @@ const RegionalValidation = () => {
         <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Reject Validation Request</AlertDialogTitle>
+              <AlertDialogTitle>{t('regionval_reject_dialog_title')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Please provide a reason for rejecting this validation request.
+                {t('regionval_reject_dialog_desc')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="py-4">
               <Textarea
-                placeholder="Enter rejection reason..."
+                placeholder={t('regionval_reject_placeholder')}
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
                 rows={4}
@@ -591,13 +592,13 @@ const RegionalValidation = () => {
                 setRejectionReason("");
                 setSelectedRequest(null);
               }}>
-                Cancel
+                {t('regionval_cancel')}
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleReject}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
-                Reject
+                {t('regionval_reject')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

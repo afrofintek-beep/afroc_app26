@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Building2, 
   TreePine, 
@@ -38,6 +39,7 @@ interface ZoneLog {
 }
 
 export default function ZoneDetectionMonitor() {
+  const { t } = useLanguage();
   const [status, setStatus] = useState<UrbanZoneStatus | null>(null);
   const [recentLogs, setRecentLogs] = useState<ZoneLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +97,7 @@ export default function ZoneDetectionMonitor() {
     setRefreshing(true);
     await Promise.all([fetchStatus(), fetchRecentLogs()]);
     setRefreshing(false);
-    toast.success('Dados atualizados');
+    toast.success(t('zonedetect_data_updated'));
   };
 
   const polygonCoverage = status 
@@ -109,10 +111,10 @@ export default function ZoneDetectionMonitor() {
           <div>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Monitor de Deteção de Zona
+              {t('zonedetect_title')}
             </CardTitle>
             <CardDescription>
-              Classificação urbano/rural baseada em polígonos PostGIS
+              {t('zonedetect_description')}
             </CardDescription>
           </div>
           <Button 
@@ -122,7 +124,7 @@ export default function ZoneDetectionMonitor() {
             disabled={refreshing}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-            Atualizar
+            {t('zonedetect_refresh')}
           </Button>
         </div>
       </CardHeader>
@@ -138,22 +140,22 @@ export default function ZoneDetectionMonitor() {
               <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-950">
                 <div className="flex items-center gap-2 mb-2">
                   <Building2 className="h-5 w-5 text-blue-600" />
-                  <span className="font-medium">Zonas Urbanas</span>
+                  <span className="font-medium">{t('zonedetect_urban_zones')}</span>
                 </div>
                 <p className="text-3xl font-bold">{status?.zones || 0}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  polígonos registados
+                  {t('zonedetect_registered_polygons')}
                 </p>
               </div>
 
               <div className="p-4 rounded-lg border bg-green-50 dark:bg-green-950">
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="font-medium">Área Total</span>
+                  <span className="font-medium">{t('zonedetect_total_area')}</span>
                 </div>
                 <p className="text-3xl font-bold">{status?.totalAreaKm2?.toFixed(1) || 0} km²</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  cobertura urbana
+                  {t('zonedetect_urban_coverage')}
                 </p>
               </div>
 
@@ -166,21 +168,21 @@ export default function ZoneDetectionMonitor() {
                   <AlertCircle className={`h-5 w-5 ${
                     (status?.invalidGeometries || 0) > 0 ? 'text-amber-600' : 'text-muted-foreground'
                   }`} />
-                  <span className="font-medium">Geometrias Inválidas</span>
+                  <span className="font-medium">{t('zonedetect_invalid_geometries')}</span>
                 </div>
                 <p className="text-3xl font-bold">{status?.invalidGeometries || 0}</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  requer correção
+                  {t('zonedetect_requires_correction')}
                 </p>
               </div>
             </div>
 
             {/* Detection Method Distribution */}
             <div className="space-y-3">
-              <h4 className="font-medium text-sm">Método de Deteção</h4>
+              <h4 className="font-medium text-sm">{t('zonedetect_detection_method')}</h4>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="default" className="w-20 justify-center">Polígono</Badge>
+                  <Badge variant="default" className="w-20 justify-center">{t('zonedetect_method_polygon')}</Badge>
                   <Progress value={polygonCoverage} className="flex-1" />
                   <span className="text-sm text-muted-foreground w-12 text-right">{polygonCoverage}%</span>
                 </div>
@@ -199,7 +201,7 @@ export default function ZoneDetectionMonitor() {
 
             {/* Recent Detections */}
             <div>
-              <h4 className="font-medium text-sm mb-3">Deteções Recentes</h4>
+              <h4 className="font-medium text-sm mb-3">{t('zonedetect_recent_detections')}</h4>
               <ScrollArea className="h-[200px]">
                 {recentLogs.length > 0 ? (
                   <div className="space-y-2">
@@ -235,7 +237,7 @@ export default function ZoneDetectionMonitor() {
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                     <MapPin className="h-8 w-8 mb-2 opacity-50" />
-                    <p>Nenhuma deteção recente</p>
+                    <p>{t('zonedetect_no_recent_detections')}</p>
                   </div>
                 )}
               </ScrollArea>

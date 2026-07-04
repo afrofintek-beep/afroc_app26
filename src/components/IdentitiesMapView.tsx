@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
 import { MapPin, Home, Building2, Store, Mountain, Flame, Search, Filter, X, Award, CheckCircle2, Clock } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 
@@ -44,6 +45,7 @@ const getMarkerColor = (status: string) => {
 };
 
 export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
+  const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -368,7 +370,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
                 onclick="window.location.href='/identity/${properties.id}'" 
                 style="margin-top: 8px; padding: 4px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; width: 100%;"
               >
-                View Details
+                ${t('mapview_view_details')}
               </button>
             </div>
           `)
@@ -451,7 +453,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
   if (!mapboxToken) {
     return (
       <div className="w-full h-[600px] flex items-center justify-center bg-muted rounded-lg">
-        <p className="text-muted-foreground">Loading map...</p>
+        <p className="text-muted-foreground">{t('mapview_loading_map')}</p>
       </div>
     );
   }
@@ -465,7 +467,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
           <Card className="p-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total Identities</span>
+                <span className="text-sm text-muted-foreground">{t('mapview_total_identities')}</span>
                 <MapPin className="h-4 w-4 text-muted-foreground" />
               </div>
               <div className="text-2xl font-bold">{statistics.total}</div>
@@ -475,12 +477,12 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
           <Card className="p-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">GPS Coverage</span>
+                <span className="text-sm text-muted-foreground">{t('mapview_gps_coverage')}</span>
                 <MapPin className="h-4 w-4 text-primary" />
               </div>
               <div className="text-2xl font-bold">{statistics.gpsPercentage}%</div>
               <div className="text-xs text-muted-foreground">
-                {statistics.withGPS} with GPS coordinates
+                {statistics.withGPS} {t('mapview_with_gps_coordinates')}
               </div>
             </div>
           </Card>
@@ -488,7 +490,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
           <Card className="p-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Status</span>
+                <span className="text-sm text-muted-foreground">{t('mapview_status')}</span>
                 <Award className="h-4 w-4 text-green-500" />
               </div>
               <div className="space-y-1 text-xs">
@@ -505,7 +507,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
           <Card className="p-4">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Properties</span>
+                <span className="text-sm text-muted-foreground">{t('mapview_properties')}</span>
                 <Home className="h-4 w-4 text-blue-500" />
               </div>
               <div className="space-y-1 text-xs">
@@ -529,9 +531,9 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">Map Visualization Unavailable</h3>
+              <h3 className="text-lg font-semibold">{t('mapview_visualization_unavailable')}</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                The interactive map cannot be displayed in this environment. This may be due to WebGL not being supported or enabled in your browser.
+                {t('mapview_webgl_error_description')}
               </p>
             </div>
             <div className="pt-4">
@@ -541,7 +543,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
                 className="gap-2"
               >
                 <Clock className="h-4 w-4" />
-                Switch to Timeline View
+                {t('mapview_switch_timeline_view')}
               </Button>
             </div>
           </div>
@@ -551,7 +553,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
         <Card className="p-4">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Identities with GPS Coordinates ({statistics.withGPS})
+            {t('mapview_identities_with_gps')} ({statistics.withGPS})
           </h3>
           <div className="space-y-2 max-h-96 overflow-y-auto">
             {filteredRecords.filter(r => r.geo_lat && r.geo_lon).map(record => (
@@ -602,13 +604,13 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
         <Card className="p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Total Identities</span>
+              <span className="text-sm text-muted-foreground">{t('mapview_total_identities')}</span>
               <MapPin className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold">{statistics.total}</div>
             {hasActiveFilters && (
               <div className="text-xs text-muted-foreground">
-                of {records.length} total
+                {t('mapview_of')} {records.length} {t('mapview_total_lower')}
               </div>
             )}
           </div>
@@ -618,12 +620,12 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
         <Card className="p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">GPS Coverage</span>
+              <span className="text-sm text-muted-foreground">{t('mapview_gps_coverage')}</span>
               <MapPin className="h-4 w-4 text-primary" />
             </div>
             <div className="text-2xl font-bold">{statistics.gpsPercentage}%</div>
             <div className="text-xs text-muted-foreground">
-              {statistics.withGPS} with GPS coordinates
+              {statistics.withGPS} {t('mapview_with_gps_coordinates')}
             </div>
           </div>
         </Card>
@@ -632,7 +634,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
         <Card className="p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Property Types</span>
+              <span className="text-sm text-muted-foreground">{t('mapview_property_types')}</span>
               <Building2 className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="space-y-1">
@@ -652,7 +654,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
               })}
               {Object.keys(statistics.propertyTypes).length > 3 && (
                 <div className="text-xs text-muted-foreground">
-                  +{Object.keys(statistics.propertyTypes).length - 3} more
+                  +{Object.keys(statistics.propertyTypes).length - 3} {t('mapview_more')}
                 </div>
               )}
             </div>
@@ -663,7 +665,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
         <Card className="p-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Status</span>
+              <span className="text-sm text-muted-foreground">{t('mapview_status')}</span>
               <Award className="h-4 w-4 text-muted-foreground" />
             </div>
             <div className="space-y-1">
@@ -694,7 +696,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Filter & Search</span>
+              <span className="text-sm font-medium">{t('mapview_filter_search')}</span>
               {hasActiveFilters && (
                 <Badge variant="secondary" className="ml-2">
                   {filteredRecords.length} / {records.length}
@@ -704,7 +706,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-4 w-4 mr-1" />
-                Clear
+                {t('mapview_clear')}
               </Button>
             )}
           </div>
@@ -714,7 +716,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by code or location..."
+                placeholder={t('mapview_search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -724,28 +726,28 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
             {/* Status Filter */}
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="All Statuses" />
+                <SelectValue placeholder={t('mapview_all_statuses')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="verified">Verified</SelectItem>
-                <SelectItem value="certified">Certified</SelectItem>
+                <SelectItem value="all">{t('mapview_all_statuses')}</SelectItem>
+                <SelectItem value="draft">{t('mapview_status_draft')}</SelectItem>
+                <SelectItem value="verified">{t('mapview_status_verified')}</SelectItem>
+                <SelectItem value="certified">{t('mapview_status_certified')}</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Property Type Filter */}
             <Select value={filterPropertyType} onValueChange={setFilterPropertyType}>
               <SelectTrigger>
-                <SelectValue placeholder="All Property Types" />
+                <SelectValue placeholder={t('mapview_all_property_types')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Property Types</SelectItem>
-                <SelectItem value="house">House</SelectItem>
-                <SelectItem value="apartment">Apartment</SelectItem>
-                <SelectItem value="commercial">Commercial</SelectItem>
-                <SelectItem value="land">Land</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="all">{t('mapview_all_property_types')}</SelectItem>
+                <SelectItem value="house">{t('mapview_property_house')}</SelectItem>
+                <SelectItem value="apartment">{t('mapview_property_apartment')}</SelectItem>
+                <SelectItem value="commercial">{t('mapview_property_commercial')}</SelectItem>
+                <SelectItem value="land">{t('mapview_property_land')}</SelectItem>
+                <SelectItem value="other">{t('mapview_property_other')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -764,14 +766,14 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
             className="shadow-lg"
           >
             <Flame className="h-4 w-4 mr-2" />
-            {showHeatmap ? 'Show Markers' : 'Heat Map'}
+            {showHeatmap ? t('mapview_show_markers') : t('mapview_heat_map')}
           </Button>
         </div>
 
         {/* Results counter */}
         <div className="absolute bottom-4 left-4 z-10">
           <Badge className="shadow-lg">
-            {filteredRecords.filter(r => r.geo_lat && r.geo_lon).length} locations shown
+            {filteredRecords.filter(r => r.geo_lat && r.geo_lon).length} {t('mapview_locations_shown')}
           </Badge>
         </div>
       </div>
@@ -779,7 +781,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
       {recordsWithoutGPS.length > 0 && (
         <div className="bg-muted/50 rounded-lg p-4">
           <p className="text-sm text-muted-foreground mb-2">
-            {recordsWithoutGPS.length} {recordsWithoutGPS.length === 1 ? 'identity' : 'identities'} without GPS coordinates:
+            {recordsWithoutGPS.length} {recordsWithoutGPS.length === 1 ? t('mapview_identity_singular') : t('mapview_identity_plural')} {t('mapview_without_gps_coordinates')}
           </p>
           <div className="flex flex-wrap gap-2">
             {recordsWithoutGPS.map(record => (
@@ -798,15 +800,15 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
       <div className="flex gap-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#10b981' }}></div>
-          <span>Certified</span>
+          <span>{t('mapview_status_certified')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#3b82f6' }}></div>
-          <span>Verified</span>
+          <span>{t('mapview_status_verified')}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#f59e0b' }}></div>
-          <span>Draft</span>
+          <span>{t('mapview_status_draft')}</span>
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Layers, 
   Play, 
@@ -47,6 +48,7 @@ interface BatchOperationsPanelProps {
 }
 
 export default function BatchOperationsPanel({ countryCode }: BatchOperationsPanelProps) {
+  const { t } = useLanguage();
   const [jobs, setJobs] = useState<BatchJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
@@ -89,7 +91,7 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
       setJobs(mappedJobs);
     } catch (err) {
       console.error('Error fetching jobs:', err);
-      toast.error('Erro ao carregar histórico de operações');
+      toast.error(t('batchops_toast_load_error'));
     } finally {
       setLoading(false);
     }
@@ -109,14 +111,14 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
       if (error) throw error;
 
       toast.success(
-        dryRun 
-          ? `Simulação: ${data.processed} registos seriam processados` 
-          : `${data.successful} registos processados com sucesso`
+        dryRun
+          ? `${t('batchops_toast_simulation_prefix')}: ${data.processed} ${t('batchops_toast_would_be_processed')}`
+          : `${data.successful} ${t('batchops_toast_processed_success')}`
       );
       
       fetchJobs();
     } catch (err) {
-      toast.error('Erro ao executar lote');
+      toast.error(t('batchops_toast_run_error'));
       console.error(err);
     } finally {
       setRunning(false);
@@ -126,21 +128,21 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
   const getStatusBadge = (status: BatchJob['status']) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />Pendente</Badge>;
+        return <Badge variant="secondary"><Clock className="h-3 w-3 mr-1" />{t('batchops_status_pending')}</Badge>;
       case 'running':
-        return <Badge variant="default"><Loader2 className="h-3 w-3 mr-1 animate-spin" />A executar</Badge>;
+        return <Badge variant="default"><Loader2 className="h-3 w-3 mr-1 animate-spin" />{t('batchops_status_running')}</Badge>;
       case 'completed':
-        return <Badge variant="default" className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" />Concluído</Badge>;
+        return <Badge variant="default" className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" />{t('batchops_status_completed')}</Badge>;
       case 'failed':
-        return <Badge variant="destructive"><AlertCircle className="h-3 w-3 mr-1" />Falhou</Badge>;
+        return <Badge variant="destructive"><AlertCircle className="h-3 w-3 mr-1" />{t('batchops_status_failed')}</Badge>;
     }
   };
 
   const getTypeLabel = (type: BatchJob['type']) => {
     switch (type) {
-      case 'qgsq_assign': return 'Atribuição QG/SQ';
-      case 'zone_import': return 'Importação de Zonas';
-      case 'cell_generation': return 'Geração de Células';
+      case 'qgsq_assign': return t('batchops_type_qgsq_assign');
+      case 'zone_import': return t('batchops_type_zone_import');
+      case 'cell_generation': return t('batchops_type_cell_generation');
     }
   };
 
@@ -149,38 +151,38 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Layers className="h-5 w-5" />
-          Operações em Lote
+          {t('batchops_title')}
         </CardTitle>
         <CardDescription>
-          Processar grandes volumes de dados geoespaciais
+          {t('batchops_description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="new">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="new">Novo Lote</TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
+            <TabsTrigger value="new">{t('batchops_tab_new')}</TabsTrigger>
+            <TabsTrigger value="history">{t('batchops_tab_history')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="new" className="space-y-4 mt-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label>Tipo de Operação</Label>
+                <Label>{t('batchops_operation_type_label')}</Label>
                 <Select defaultValue="qgsq_assign">
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="qgsq_assign">Atribuir QG/SQ a Registos</SelectItem>
-                    <SelectItem value="zone_recalc">Recalcular Zonas</SelectItem>
-                    <SelectItem value="validate_codes">Validar Códigos AFROLOC</SelectItem>
+                    <SelectItem value="qgsq_assign">{t('batchops_option_assign_qgsq')}</SelectItem>
+                    <SelectItem value="zone_recalc">{t('batchops_option_recalc_zones')}</SelectItem>
+                    <SelectItem value="validate_codes">{t('batchops_option_validate_codes')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label>Limite de Registos</Label>
-                <Input 
+                <Label>{t('batchops_record_limit_label')}</Label>
+                <Input
                   type="number"
                   value={batchLimit}
                   onChange={(e) => setBatchLimit(e.target.value)}
@@ -197,7 +199,7 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
                   onChange={(e) => setDryRun(e.target.checked)}
                   className="rounded border-gray-300"
                 />
-                <span className="text-sm">Modo de teste (não altera dados)</span>
+                <span className="text-sm">{t('batchops_dry_run_label')}</span>
               </label>
             </div>
 
@@ -210,12 +212,12 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
                 {running ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    A processar...
+                    {t('batchops_processing')}
                   </>
                 ) : (
                   <>
                     <Play className="h-4 w-4 mr-2" />
-                    Iniciar Lote
+                    {t('batchops_start_batch')}
                   </>
                 )}
               </Button>
@@ -224,12 +226,12 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
             {running && (
               <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-950">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">A processar...</span>
+                  <span className="text-sm font-medium">{t('batchops_processing')}</span>
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
                 <Progress value={45} className="h-2" />
                 <p className="text-xs text-muted-foreground mt-2">
-                  45 de 100 registos processados
+                  45 {t('batchops_of')} 100 {t('batchops_records_processed')}
                 </p>
               </div>
             )}
@@ -260,15 +262,15 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <CheckCircle className="h-3 w-3 text-green-500" />
-                          {job.processedItems} processados
+                          {job.processedItems} {t('batchops_processed')}
                         </span>
                         {job.failedItems > 0 && (
                           <span className="flex items-center gap-1">
                             <AlertCircle className="h-3 w-3 text-red-500" />
-                            {job.failedItems} falhados
+                            {job.failedItems} {t('batchops_failed')}
                           </span>
                         )}
-                        <span>Total: {job.totalItems}</span>
+                        <span>{t('batchops_total')}: {job.totalItems}</span>
                       </div>
                     </div>
                   ))}
@@ -277,7 +279,7 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
             ) : (
               <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                 <Layers className="h-8 w-8 mb-2 opacity-50" />
-                <p>Nenhum trabalho em lote</p>
+                <p>{t('batchops_empty')}</p>
               </div>
             )}
           </TabsContent>
