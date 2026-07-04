@@ -84,18 +84,17 @@ export default function CreateIdentity() {
         if (resolved.level1 && !level1Code) {
           setLevel1Code(resolved.level1.code);
           setLevel1Name(resolved.level1.name);
-          
-          // Need to load municipalities for this province
+
+          // Need to load municipalities + communes for this province
           await loadMunicipalities(country, resolved.level1.code);
+          await loadCommunes(country, resolved.level1.code);
         }
         
         // Auto-fill municipality if found and not already selected  
         if (resolved.level2 && !level2Code) {
           setLevel2Code(resolved.level2.code);
           setLevel2Name(resolved.level2.name);
-          
-          // Need to load communes for this municipality
-          await loadCommunes(country, resolved.level2.code);
+          // Comunas já foram carregadas ao nível da província acima.
         }
         
         // Auto-fill commune if found and not already selected
@@ -133,14 +132,14 @@ export default function CreateIdentity() {
     }
   }, [country, level1Code]);
 
-  // Load communes when municipality changes
+  // Load communes when province changes (comunas 2024 têm parent = província)
   useEffect(() => {
-    if (country && level2Code) {
-      loadCommunes(country, level2Code);
+    if (country && level1Code) {
+      loadCommunes(country, level1Code);
     } else {
       setCommunes([]);
     }
-  }, [country, level2Code]);
+  }, [country, level1Code]);
 
   // Clear number when street name is removed (digital address)
   useEffect(() => {
@@ -179,13 +178,17 @@ export default function CreateIdentity() {
     setMunicipalities(data || []);
   };
 
-  const loadCommunes = async (countryCode: string, municipalityCode: string) => {
+  // NOTA: as comunas da reforma de 2024 (Lei 14/24) estão registadas com
+  // parent = PROVÍNCIA (o Anexo I da lei lista as comunas por província; o
+  // mapeamento comuna→município só existe nos mapas-imagem e será afinado
+  // depois via OCR). Por isso filtramos por província, não por município.
+  const loadCommunes = async (countryCode: string, provinceCode: string) => {
     const { data } = await supabase
       .from('administrative_divisions')
       .select('code, name')
       .eq('country_code', countryCode)
       .eq('level', 3)
-      .eq('parent_code', municipalityCode)
+      .eq('parent_code', provinceCode)
       .order('name');
     setCommunes(data || [])
   };
