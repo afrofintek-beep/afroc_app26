@@ -162,12 +162,12 @@ export default function Login() {
           setLoading(false);
           toast({
             title: t('error'),
-            description: 'Autenticação biométrica cancelada',
+            description: t('login_biometric_cancelled'),
             variant: "destructive",
           });
           return;
         }
-        
+
         // Log biometric login
         await logBiometricLogin();
       }
@@ -188,11 +188,11 @@ export default function Login() {
       if (!response.ok || !data.success) {
         // Token expired or invalid - clear trusted device
         setTrustedDevice(null);
-        throw new Error(data?.error || "Dispositivo não reconhecido. Use OTP para entrar.");
+        throw new Error(data?.error || t('login_device_not_recognized'));
       }
 
       if (!data.access_token || !data.refresh_token || !data.user) {
-        throw new Error("Dados de autenticação incompletos");
+        throw new Error(t('login_incomplete_auth_data'));
       }
 
       console.log('Setting session with server-verified tokens');
@@ -205,7 +205,7 @@ export default function Login() {
       
       if (sessionError) {
         console.error('Session error:', sessionError);
-        throw new Error(`Erro ao estabelecer sessão: ${sessionError.message}`);
+        throw new Error(`${t('login_session_error')}: ${sessionError.message}`);
       }
       
       console.log('Session established successfully');
@@ -246,7 +246,7 @@ export default function Login() {
     if (!phone) {
       toast({
         title: t('error'),
-        description: "Por favor, insira o número de telefone",
+        description: t('login_enter_phone_number'),
         variant: "destructive",
       });
       return;
@@ -269,7 +269,7 @@ export default function Login() {
       toast({
         title: t('otp_sent'),
         description: devOtp
-          ? `${t('otp_sent_desc')} (Código de teste: ${devOtp})`
+          ? `${t('otp_sent_desc')} (${t('login_test_code')}: ${devOtp})`
           : t('otp_sent_desc'),
       });
     } catch (error: any) {
@@ -290,7 +290,7 @@ export default function Login() {
       toast({
         title: t('error'),
         description: isRateLimit
-          ? (message || t('rate_limit_exceeded') || 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.')
+          ? (message || t('rate_limit_exceeded') || t('login_rate_limit_fallback'))
           : (message || t('invalid_phone_operator')),
         variant: "destructive",
       });
@@ -303,7 +303,7 @@ export default function Login() {
     if (!otp || otp.length !== 6) {
       toast({
         title: t('error'),
-        description: "Por favor, insira o código de 6 dígitos",
+        description: t('login_enter_6_digit_code'),
         variant: "destructive",
       });
       return;
@@ -324,8 +324,8 @@ export default function Login() {
         const errorMessage = typeof error === 'string' ? error : error.message;
         
         toast({
-          title: "❌ Código incorreto",
-          description: errorMessage || "Erro ao verificar código. Tente novamente.",
+          title: `❌ ${t('login_incorrect_code')}`,
+          description: errorMessage || t('login_verify_code_error'),
           variant: "destructive",
         });
         return;
@@ -338,8 +338,8 @@ export default function Login() {
         // Máximo de tentativas excedido
         if (remaining === 0 || data.error.includes('bloqueado') || data.error.includes('max_attempts')) {
           toast({
-            title: "🚫 Conta bloqueada",
-            description: "Máximo de tentativas excedido. Solicite um novo código.",
+            title: `🚫 ${t('login_account_blocked')}`,
+            description: t('login_max_attempts_exceeded'),
             variant: "destructive",
             duration: 6000,
           });
@@ -350,10 +350,10 @@ export default function Login() {
         }
         
         // Ainda há tentativas restantes
-        const attemptText = remaining === 1 ? "tentativa" : "tentativas";
+        const attemptText = remaining === 1 ? t('login_attempt_singular') : t('login_attempt_plural');
         toast({
-          title: "❌ Código incorreto",
-          description: `${data.error}\n\nVerifique o código recebido por SMS e tente novamente.`,
+          title: `❌ ${t('login_incorrect_code')}`,
+          description: `${data.error}\n\n${t('login_check_sms_retry')}`,
           variant: "destructive",
           duration: 5000,
         });
@@ -364,7 +364,7 @@ export default function Login() {
       }
 
       if (!data?.success) {
-        throw new Error(data?.error || "Falha na verificação do código");
+        throw new Error(data?.error || t('login_code_verification_failed'));
       }
 
       // Establish session using tokens from edge function
@@ -376,10 +376,10 @@ export default function Login() {
         
         if (sessionError) {
           console.error("Failed to establish session:", sessionError);
-          throw new Error("Erro ao estabelecer sessão");
+          throw new Error(t('login_session_error'));
         }
       } else {
-        throw new Error("Tokens de autenticação não retornados pelo servidor");
+        throw new Error(t('login_tokens_not_returned'));
       }
 
       // Verify session was established
@@ -387,7 +387,7 @@ export default function Login() {
       
       if (userError || !user) {
         console.error("Failed to get user after verification:", userError);
-        throw new Error("Erro ao obter dados do usuário");
+        throw new Error(t('login_get_user_error'));
       }
       
       // Verificar permissões baseado no tipo de usuário selecionado
@@ -413,7 +413,7 @@ export default function Login() {
         if (trustedDeviceRegistered) {
           toast({
             title: "✅ " + t('success'),
-            description: t('logged_in') + " • Dispositivo guardado para login rápido (30 dias)",
+            description: t('logged_in') + " • " + t('login_device_saved_30_days'),
             duration: 5000,
           });
         } else {
@@ -433,7 +433,7 @@ export default function Login() {
     } catch (error: any) {
       toast({
         title: t('error'),
-        description: error.message || "Erro ao verificar código OTP",
+        description: error.message || t('login_otp_verification_error'),
         variant: "destructive",
       });
     } finally {
@@ -592,7 +592,7 @@ export default function Login() {
       if (!credentials) {
         toast({
           title: t('error'),
-          description: 'Autenticação biométrica cancelada',
+          description: t('login_biometric_cancelled'),
           variant: "destructive",
         });
         return;
@@ -617,7 +617,7 @@ export default function Login() {
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data?.error || "Falha na autenticação biométrica");
+          throw new Error(data?.error || t('login_biometric_auth_failed'));
         }
 
         if (data.access_token && data.refresh_token) {
@@ -627,7 +627,7 @@ export default function Login() {
           });
           
           if (sessionError) {
-            throw new Error("Erro ao estabelecer sessão");
+            throw new Error(t('login_session_error'));
           }
         }
       } else {
@@ -681,7 +681,7 @@ export default function Login() {
     setLoading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Sessão não encontrada");
+      if (!session) throw new Error(t('login_session_not_found'));
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/register-biometric-device`, {
         method: "POST",
@@ -703,7 +703,7 @@ export default function Login() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data?.error || "Falha ao registrar dispositivo");
+        throw new Error(data?.error || t('login_device_register_failed'));
       }
 
       // Save phone and device token to biometric storage
@@ -711,7 +711,7 @@ export default function Login() {
 
       toast({
         title: t('success'),
-        description: `${getBiometricLabel()} ativada com sucesso!`,
+        description: `${getBiometricLabel()} ${t('login_activated_success')}`,
       });
       setShowBiometricPrompt(false);
       
@@ -725,7 +725,7 @@ export default function Login() {
       console.error("Save biometric error:", error);
       toast({
         title: t('error'),
-        description: error.message || "Erro ao ativar biometria",
+        description: error.message || t('login_biometric_activate_error'),
         variant: "destructive",
       });
     } finally {
@@ -755,7 +755,7 @@ export default function Login() {
     if (!phoneVerified) {
       toast({
         title: t('error'),
-        description: "Por favor, verifique seu telefone primeiro",
+        description: t('login_verify_phone_first'),
         variant: "destructive",
       });
     }
@@ -773,10 +773,10 @@ export default function Login() {
               <Fingerprint className="h-8 w-8 text-primary" />
             </div>
             <CardTitle className="text-2xl font-display">
-              Ativar {getBiometricLabel()}?
+              {t('login_activate')} {getBiometricLabel()}?
             </CardTitle>
             <CardDescription>
-              Faça login mais rápido usando {getBiometricLabel()} nas próximas vezes
+              {t('login_faster_login_prefix')} {getBiometricLabel()} {t('login_faster_login_suffix')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -786,7 +786,7 @@ export default function Login() {
               className="w-full bg-gradient-primary hover:scale-105 transition-all"
             >
               <Fingerprint className="mr-2 h-4 w-4" />
-              Ativar {getBiometricLabel()}
+              {t('login_activate')} {getBiometricLabel()}
             </Button>
             <Button
               onClick={handleSkipBiometric}
@@ -794,7 +794,7 @@ export default function Login() {
               variant="outline"
               className="w-full"
             >
-              Agora não
+              {t('login_not_now')}
             </Button>
           </CardContent>
         </Card>
@@ -818,7 +818,7 @@ export default function Login() {
             className="glass hover:shadow-glow transition-all gap-2"
           >
             <ArrowLeft className="h-5 w-5" />
-            <span className="text-sm font-medium">Recuar</span>
+            <span className="text-sm font-medium">{t('login_back')}</span>
           </Button>
         </div>
         <div className="absolute top-4 right-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -920,13 +920,13 @@ export default function Login() {
             </div>
           </div>
           <CardTitle className="text-3xl font-display">
-            {userType === 'admin' && 'Acesso Administrativo'}
-            {userType === 'employee' && 'Acesso de Funcionário'}
+            {userType === 'admin' && t('login_admin_access')}
+            {userType === 'employee' && t('login_employee_access')}
             {userType === 'citizen' && t('welcome_afroloc')}
           </CardTitle>
           <CardDescription className="text-base">
-            {userType === 'admin' && 'Área restrita - Administradores autorizados'}
-            {userType === 'employee' && 'Área restrita - Funcionários autorizados'}
+            {userType === 'admin' && t('login_admin_restricted_area')}
+            {userType === 'employee' && t('login_employee_restricted_area')}
             {userType === 'citizen' && t('login_description')}
           </CardDescription>
         </CardHeader>
@@ -943,7 +943,7 @@ export default function Login() {
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                       <span className="bg-background px-2 text-muted-foreground">
-                        Ou
+                        {t('login_or')}
                       </span>
                     </div>
                   </div>
@@ -955,7 +955,7 @@ export default function Login() {
                     disabled={biometricLoading || loading}
                   >
                     <Fingerprint className="mr-2 h-4 w-4" />
-                    Login com {getBiometricLabel()}
+                    {t('login_login_with')} {getBiometricLabel()}
                   </Button>
                 </div>
               )}
@@ -1031,7 +1031,7 @@ export default function Login() {
                     {t('remember_me')}
                     {rememberMe && (
                       <span className="block text-xs text-primary mt-1">
-                        ✓ O dispositivo será guardado para login rápido
+                        ✓ {t('login_device_will_be_saved')}
                       </span>
                     )}
                   </label>
@@ -1106,7 +1106,7 @@ export default function Login() {
                             ) : (
                               <Smartphone className="h-4 w-4 text-primary" />
                             )}
-                            <span className="font-medium text-primary">{t('trusted_device_detected') || 'Dispositivo reconhecido'}</span>
+                            <span className="font-medium text-primary">{t('trusted_device_detected') || t('login_trusted_device_detected')}</span>
                           </div>
                           {trustedDevice.deviceName && (
                             <p className="text-sm font-medium mt-1">
@@ -1115,8 +1115,8 @@ export default function Login() {
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
                             {biometricCapabilities.isAvailable && biometricCapabilities.hasCredentials
-                              ? (t('biometric_login_available') || `Login com ${getBiometricLabel()} disponível`)
-                              : (t('quick_login_available') || 'Login rápido disponível para este dispositivo')}
+                              ? (t('biometric_login_available') || `${t('login_login_with')} ${getBiometricLabel()} ${t('login_available')}`)
+                              : (t('quick_login_available') || t('login_quick_login_available'))}
                           </p>
                         </div>
                         <Button 
@@ -1133,8 +1133,8 @@ export default function Login() {
                           {loading 
                             ? t('signing_in') 
                             : biometricCapabilities.isAvailable && biometricCapabilities.hasCredentials
-                              ? (t('login_with_biometric') || `Entrar com ${getBiometricLabel()}`)
-                              : (t('quick_login') || 'Entrar Rápido')}
+                              ? (t('login_with_biometric') || `${t('login_enter_with')} ${getBiometricLabel()}`)
+                              : (t('quick_login') || t('login_quick_login'))}
                         </Button>
                         <div className="relative">
                           <div className="absolute inset-0 flex items-center">
@@ -1142,7 +1142,7 @@ export default function Login() {
                           </div>
                           <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-background px-2 text-muted-foreground">
-                              {t('or_use_otp') || 'Ou usar código OTP'}
+                              {t('or_use_otp') || t('login_or_use_otp')}
                             </span>
                           </div>
                         </div>
@@ -1152,7 +1152,7 @@ export default function Login() {
                     {checkingDevice && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                        <span>{t('checking_device') || 'Verificando dispositivo...'}</span>
+                        <span>{t('checking_device') || t('login_checking_device')}</span>
                       </div>
                     )}
                   </div>
@@ -1171,7 +1171,7 @@ export default function Login() {
                     {t('remember_me')}
                     {rememberMe && (
                       <span className="block text-xs text-primary mt-1">
-                        ✓ O dispositivo será guardado para login rápido
+                        ✓ {t('login_device_will_be_saved')}
                       </span>
                     )}
                   </label>
@@ -1210,9 +1210,9 @@ export default function Login() {
                         </Button>
                       </div>
                       <div className="space-y-1 text-xs text-muted-foreground">
-                        <p>💡 Digite o código de 6 dígitos recebido por SMS</p>
-                        <p>⏱️ Código expira em 10 minutos</p>
-                        <p>🔢 3 tentativas antes de solicitar novo código</p>
+                        <p>💡 {t('login_otp_hint_enter_code')}</p>
+                        <p>⏱️ {t('login_otp_hint_expires')}</p>
+                        <p>🔢 {t('login_otp_hint_attempts')}</p>
                       </div>
                       <Button 
                         type="button" 
@@ -1243,7 +1243,7 @@ export default function Login() {
           )}
           {(userType === 'admin' || userType === 'employee') && (
             <p className="text-sm text-center text-muted-foreground">
-              Apenas usuários autorizados podem acessar esta área.
+              {t('login_authorized_only')}
             </p>
           )}
         </CardFooter>

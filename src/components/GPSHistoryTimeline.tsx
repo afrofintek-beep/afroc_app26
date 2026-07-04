@@ -10,12 +10,14 @@ import { formatDistance, GPS_VALIDATION_THRESHOLDS } from '@/utils/gpsDistance';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 interface GPSHistoryTimelineProps {
   afrolocRecordId: string;
 }
 
 export function GPSHistoryTimeline({ afrolocRecordId }: GPSHistoryTimelineProps) {
   const { history, loading, fetchHistory } = useGPSHistory();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (afrolocRecordId) {
@@ -29,7 +31,7 @@ export function GPSHistoryTimeline({ afrolocRecordId }: GPSHistoryTimelineProps)
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Navigation className="h-5 w-5" />
-            Histórico GPS
+            {t('gpshistory_title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -49,12 +51,12 @@ export function GPSHistoryTimeline({ afrolocRecordId }: GPSHistoryTimelineProps)
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Navigation className="h-5 w-5" />
-            Histórico GPS
+            {t('gpshistory_title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground text-center py-4">
-            Nenhum histórico de atualização GPS disponível.
+            {t('gpshistory_empty')}
           </p>
         </CardContent>
       </Card>
@@ -66,7 +68,7 @@ export function GPSHistoryTimeline({ afrolocRecordId }: GPSHistoryTimelineProps)
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Navigation className="h-5 w-5" />
-          Histórico GPS
+          {t('gpshistory_title')}
           <Badge variant="secondary">{history.length}</Badge>
         </CardTitle>
       </CardHeader>
@@ -102,6 +104,7 @@ function GPSHistoryItem({
   isFirst: boolean;
   isLast: boolean;
 }) {
+  const { t } = useLanguage();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [showPhotoDialog, setShowPhotoDialog] = useState(false);
@@ -166,7 +169,7 @@ function GPSHistoryItem({
                   {format(new Date(entry.created_at), "dd MMM yyyy 'às' HH:mm", { locale: pt })}
                 </span>
                 {isFirst && (
-                  <Badge variant="default" className="text-xs">Atual</Badge>
+                  <Badge variant="default" className="text-xs">{t('gpshistory_current')}</Badge>
                 )}
               </div>
               
@@ -179,7 +182,7 @@ function GPSHistoryItem({
 
               {entry.accuracy_meters && (
                 <div className="mt-1 text-xs text-muted-foreground">
-                  Precisão: ±{Math.round(entry.accuracy_meters)}m
+                  {t('gpshistory_accuracy')}: ±{Math.round(entry.accuracy_meters)}m
                 </div>
               )}
 
@@ -203,7 +206,7 @@ function GPSHistoryItem({
                     >
                       <img 
                         src={photoUrl} 
-                        alt="Foto da propriedade" 
+                        alt={t('gpshistory_photo_alt')}
                         className="w-16 h-16 object-cover rounded border border-border hover:border-primary transition-colors"
                       />
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded flex items-center justify-center">
@@ -213,7 +216,7 @@ function GPSHistoryItem({
                   ) : (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Camera className="h-3 w-3" />
-                      <span>Foto indisponível</span>
+                      <span>{t('gpshistory_photo_unavailable')}</span>
                     </div>
                   )}
                 </div>
@@ -237,7 +240,7 @@ function GPSHistoryItem({
                   {formatDistance(distance)}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  da posição anterior
+                  {t('gpshistory_from_previous')}
                 </div>
               </div>
             )}
@@ -258,7 +261,7 @@ function GPSHistoryItem({
             <div className="relative">
               <img 
                 src={photoUrl} 
-                alt="Foto da propriedade" 
+                alt={t('gpshistory_photo_alt')}
                 className="w-full h-auto max-h-[80vh] object-contain"
               />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">

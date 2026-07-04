@@ -63,7 +63,7 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
       console.error("Error generating QR code:", error);
       toast({
         title: t("error"),
-        description: "Erro ao gerar código QR",
+        description: t("qrdialog_error_generate"),
         variant: "destructive",
       });
     }
@@ -106,8 +106,8 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
           URL.revokeObjectURL(url);
 
           toast({
-            title: "Sucesso",
-            description: "Código QR baixado com sucesso",
+            title: t("qrdialog_success"),
+            description: t("qrdialog_download_success"),
           });
         });
       };
@@ -116,7 +116,7 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
       console.error("Error downloading QR code:", error);
       toast({
         title: t("error"),
-        description: "Erro ao baixar código QR",
+        description: t("qrdialog_error_download"),
         variant: "destructive",
       });
     }
@@ -134,27 +134,27 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: `AFROLOC: ${record.code}`,
-          text: `Morada AFROLOC: ${record.code}`,
+          text: `${t("qrdialog_share_text_prefix")} ${record.code}`,
           files: [file],
         });
 
         toast({
-          title: "Sucesso",
-          description: "Código QR compartilhado com sucesso",
+          title: t("qrdialog_success"),
+          description: t("qrdialog_share_success"),
         });
       } else {
         // Fallback: copiar para clipboard
         await navigator.clipboard.writeText(qrCodeUrl);
         toast({
-          title: "Copiado",
-          description: "Imagem do QR code copiada para área de transferência",
+          title: t("qrdialog_copied"),
+          description: t("qrdialog_copy_success"),
         });
       }
     } catch (error) {
       console.error("Error sharing QR code:", error);
       toast({
         title: t("error"),
-        description: "Erro ao compartilhar código QR",
+        description: t("qrdialog_error_share"),
         variant: "destructive",
       });
     }
@@ -196,7 +196,7 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center">Código QR da Morada</DialogTitle>
+          <DialogTitle className="text-center">{t("qrdialog_title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           {/* QR Code Display */}
@@ -222,11 +222,11 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
           <div className="flex gap-2">
             <Button onClick={handleDownload} className="flex-1 gap-2" variant="outline">
               <Download className="h-4 w-4" />
-              Baixar
+              {t("qrdialog_download")}
             </Button>
             <Button onClick={handleShare} className="flex-1 gap-2">
               <Share2 className="h-4 w-4" />
-              Compartilhar
+              {t("qrdialog_share")}
             </Button>
           </div>
         </div>

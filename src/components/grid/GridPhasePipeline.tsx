@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Upload, 
   MapPin, 
@@ -36,6 +37,7 @@ interface GridPhasePipelineProps {
 }
 
 export default function GridPhasePipeline({ phases, loading, onPhaseClick }: GridPhasePipelineProps) {
+  const { t } = useLanguage();
   const statusColors = {
     healthy: 'bg-green-500',
     warning: 'bg-amber-500',
@@ -52,7 +54,7 @@ export default function GridPhasePipeline({ phases, loading, onPhaseClick }: Gri
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Pipeline de Fases</CardTitle>
+          <CardTitle>{t('phasepipeline_title_short')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 animate-pulse">
@@ -70,7 +72,7 @@ export default function GridPhasePipeline({ phases, loading, onPhaseClick }: Gri
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Grid3X3 className="h-5 w-5" />
-          Pipeline do Ciclo de Vida
+          {t('phasepipeline_title_lifecycle')}
         </CardTitle>
       </CardHeader>
       <CardContent className="overflow-hidden px-3 sm:px-6">
@@ -143,15 +145,15 @@ export default function GridPhasePipeline({ phases, loading, onPhaseClick }: Gri
         <div className="flex items-center gap-4 mt-4 pt-4 border-t text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <div className="h-2 w-2 rounded-full bg-green-500" />
-            <span>Saudável</span>
+            <span>{t('phasepipeline_status_healthy')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="h-2 w-2 rounded-full bg-amber-500" />
-            <span>Atenção</span>
+            <span>{t('phasepipeline_status_warning')}</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="h-2 w-2 rounded-full bg-red-500" />
-            <span>Crítico</span>
+            <span>{t('phasepipeline_status_critical')}</span>
           </div>
         </div>
       </CardContent>

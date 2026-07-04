@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -13,6 +14,7 @@ export function PWAInstallPrompt() {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -115,9 +117,9 @@ export function PWAInstallPrompt() {
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm">Instalar AFROLOC</p>
+          <p className="font-semibold text-sm">{t('pwainstall_title')} AFROLOC</p>
           <p className="text-xs text-primary-foreground/80 truncate">
-            Acesso rápido e funciona offline
+            {t('pwainstall_subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -127,12 +129,12 @@ export function PWAInstallPrompt() {
             onClick={handleInstallClick}
             className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
           >
-            Instalar
+            {t('pwainstall_install_button')}
           </Button>
           <button
             onClick={handleDismiss}
             className="p-1.5 rounded-full hover:bg-primary-foreground/20 transition-colors"
-            aria-label="Fechar"
+            aria-label={t('pwainstall_close_label')}
           >
             <X className="h-4 w-4" />
           </button>

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, ArrowLeft, AlertTriangle } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import afrolocSymbol from "@/assets/afroloc-symbol.png";
 
 export default function AdminTwoFactorBackup() {
@@ -16,6 +17,7 @@ export default function AdminTwoFactorBackup() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const userId = location.state?.userId;
 
@@ -32,25 +34,25 @@ export default function AdminTwoFactorBackup() {
 
       if (data.success) {
         toast({
-          title: "Backup Code Verified",
-          description: `Welcome back! You have ${data.remainingCodes} backup code${data.remainingCodes !== 1 ? 's' : ''} remaining.`,
+          title: t('twofabackup_toast_verified_title'),
+          description: `${t('twofabackup_toast_verified_desc_prefix')} ${data.remainingCodes} ${data.remainingCodes !== 1 ? t('twofabackup_toast_verified_desc_codes_plural') : t('twofabackup_toast_verified_desc_codes_singular')} ${t('twofabackup_toast_verified_desc_suffix')}`,
         });
-        
+
         if (data.remainingCodes <= 2) {
           toast({
-            title: "Low Backup Codes",
-            description: "Consider generating new backup codes soon.",
+            title: t('twofabackup_toast_low_title'),
+            description: t('twofabackup_toast_low_desc'),
             variant: "destructive",
           });
         }
-        
+
         navigate("/admin/import-divisions");
       } else {
-        throw new Error(data.error || "Verification failed");
+        throw new Error(data.error || t('twofabackup_error_verification_failed'));
       }
     } catch (error: any) {
       toast({
-        title: "Verification Failed",
+        title: t('twofabackup_toast_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -66,7 +68,7 @@ export default function AdminTwoFactorBackup() {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/admin/2fa", { state: location.state })}
-          title="Back to 2FA"
+          title={t('twofabackup_back_to_2fa')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -85,9 +87,9 @@ export default function AdminTwoFactorBackup() {
               </div>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Use Backup Code</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('twofabackup_title')}</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Enter one of your recovery backup codes
+            {t('twofabackup_description')}
           </CardDescription>
         </CardHeader>
 
@@ -97,14 +99,14 @@ export default function AdminTwoFactorBackup() {
               <div className="flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                 <div className="text-xs text-amber-800 dark:text-amber-200">
-                  <p className="font-semibold mb-1">One-Time Use</p>
-                  <p>Each backup code can only be used once. After using a code, consider generating new backup codes.</p>
+                  <p className="font-semibold mb-1">{t('twofabackup_onetime_title')}</p>
+                  <p>{t('twofabackup_onetime_desc')}</p>
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="backup-code">Backup Code</Label>
+              <Label htmlFor="backup-code">{t('twofabackup_label')}</Label>
               <Input
                 id="backup-code"
                 type="text"
@@ -118,7 +120,7 @@ export default function AdminTwoFactorBackup() {
                 autoFocus
               />
               <p className="text-xs text-muted-foreground text-center">
-                Format: XXXX-XXXX (8 characters)
+                {t('twofabackup_format_hint')}
               </p>
             </div>
 
@@ -129,7 +131,7 @@ export default function AdminTwoFactorBackup() {
                 onClick={() => navigate("/admin/2fa", { state: location.state })}
                 className="text-primary"
               >
-                Back to verification code
+                {t('twofabackup_back_to_verification')}
               </Button>
             </div>
           </CardContent>
@@ -140,7 +142,7 @@ export default function AdminTwoFactorBackup() {
               className="w-full" 
               disabled={loading || code.length < 8}
             >
-              {loading ? 'Verifying...' : 'Verify Backup Code'}
+              {loading ? t('twofabackup_btn_verifying') : t('twofabackup_btn_verify')}
             </Button>
           </CardFooter>
         </form>

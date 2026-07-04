@@ -89,7 +89,7 @@ export default function IdentityDetail() {
 
       toast({
         title: t('common.success'),
-        description: t('address_deleted_success') || "Endereço eliminado com sucesso",
+        description: t('address_deleted_success') || t('identitydetail_address_deleted_success'),
       });
       navigate("/my-addresses");
     } catch (error: any) {
@@ -468,7 +468,7 @@ export default function IdentityDetail() {
               onClick={() => navigate(`/identity/${id}/edit`)}
             >
               <MapPin className="h-4 w-4" />
-              Atualizar
+              {t('identitydetail_update')}
             </Badge>
             <ATSScoreBadge
               atsScore={record.ats_score}
@@ -693,17 +693,17 @@ export default function IdentityDetail() {
                       {(record as any).property_name && (
                         <div>
                           <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
-                            Nome da Propriedade
+                            {t('identitydetail_property_name')}
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger>
                                   <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-amber-400 text-amber-600 dark:text-amber-400">
                                     <AlertCircle className="h-3 w-3 mr-0.5" />
-                                    Não verificado
+                                    {t('identitydetail_not_verified')}
                                   </Badge>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p className="text-xs max-w-[200px]">Nome auto-atribuído pelo utilizador. Não faz parte da hierarquia administrativa oficial.</p>
+                                  <p className="text-xs max-w-[200px]">{t('identitydetail_property_name_tooltip')}</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -850,7 +850,10 @@ export default function IdentityDetail() {
                     <div className="flex items-start gap-2 p-2.5 sm:p-3 rounded-lg bg-muted/50 border border-border">
                       <AlertCircle className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-muted-foreground leading-relaxed break-words">
-                        Você precisa de {requiredWitnesses - confirmedWitnesses} testemunha{requiredWitnesses - confirmedWitnesses > 1 ? 's' : ''} confirmada{requiredWitnesses - confirmedWitnesses > 1 ? 's' : ''} para poder verificar este endereço AFROLOC.
+                        {(requiredWitnesses - confirmedWitnesses > 1
+                          ? t('identitydetail_witnesses_needed_plural')
+                          : t('identitydetail_witnesses_needed_singular')
+                        ).replace('{count}', String(requiredWitnesses - confirmedWitnesses))}
                       </p>
                     </div>
                   )}
@@ -858,7 +861,7 @@ export default function IdentityDetail() {
                     <div className="flex items-start gap-2 p-2.5 sm:p-3 rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30">
                       <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-green-700 dark:text-green-400 leading-relaxed font-medium break-words">
-                        Parabéns! Você tem todas as {requiredWitnesses} testemunhas confirmadas. Seu AFROLOC está pronto para verificação oficial.
+                        {t('identitydetail_all_witnesses_confirmed').replace('{count}', String(requiredWitnesses))}
                       </p>
                     </div>
                   )}

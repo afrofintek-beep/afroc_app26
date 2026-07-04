@@ -554,17 +554,17 @@ export default function Identities() {
                   <TabsTrigger value="list" className="data-[state=active]:bg-background data-[state=active]:shadow-md text-xs sm:text-sm">
                     <List className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     <span className="hidden xs:inline">{t("list_view")}</span>
-                    <span className="xs:hidden">Lista</span>
+                    <span className="xs:hidden">{t("identities_list_short")}</span>
                   </TabsTrigger>
                   <TabsTrigger value="map" className="data-[state=active]:bg-background data-[state=active]:shadow-md text-xs sm:text-sm">
                     <Map className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     <span className="hidden xs:inline">{t("map_view")}</span>
-                    <span className="xs:hidden">Mapa</span>
+                    <span className="xs:hidden">{t("identities_map_short")}</span>
                   </TabsTrigger>
                   <TabsTrigger value="timeline" className="data-[state=active]:bg-background data-[state=active]:shadow-md text-xs sm:text-sm">
                     <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                     <span className="hidden xs:inline">{t("timeline_view")}</span>
-                    <span className="xs:hidden">Timeline</span>
+                    <span className="xs:hidden">{t("identities_timeline_short")}</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
@@ -664,8 +664,8 @@ export default function Identities() {
                                           <Users className="h-4 w-4 text-primary" />
                                         </div>
                                         <div>
-                                          <p className="text-xs font-semibold text-foreground">Testemunhas</p>
-                                          <p className="text-xs text-muted-foreground">Confirmações necessárias</p>
+                                          <p className="text-xs font-semibold text-foreground">{t("identities_witnesses")}</p>
+                                          <p className="text-xs text-muted-foreground">{t("identities_confirmations_needed")}</p>
                                         </div>
                                       </div>
                                       <div className="text-right">
@@ -723,7 +723,7 @@ export default function Identities() {
                                         <div className="flex items-start gap-2 p-2 rounded-md bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30">
                                           <CheckCircle className="h-3 w-3 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
                                           <p className="text-xs text-green-700 dark:text-green-400 font-medium leading-relaxed">
-                                            Pronto para verificação!
+                                            {t("identities_ready_for_verification")}
                                           </p>
                                         </div>
                                       )}
@@ -737,7 +737,7 @@ export default function Identities() {
                                     trigger={
                                       <Button variant="outline" size="sm" className="w-full gap-2 hover:bg-primary/10 hover:text-primary hover:border-primary/30 transition-colors">
                                         <QrCode className="h-4 w-4" />
-                                        Ver QR Code
+                                        {t("identities_view_qr_code")}
                                       </Button>
                                     }
                                   />

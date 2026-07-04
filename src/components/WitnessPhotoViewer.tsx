@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, X } from "lucide-react";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Props {
   open: boolean;
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function WitnessPhotoViewer({ open, onClose, photo, witnessName, witnessAfroId }: Props) {
+  const { t } = useLanguage();
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = photo;
@@ -25,7 +27,7 @@ export function WitnessPhotoViewer({ open, onClose, photo, witnessName, witnessA
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Witness ID Photo</span>
+            <span>{t('witnessphoto_title')}</span>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
@@ -34,13 +36,13 @@ export function WitnessPhotoViewer({ open, onClose, photo, witnessName, witnessA
         
         <div className="space-y-4">
           <div className="space-y-1">
-            <p className="text-sm font-medium">Witness AFROLOC:</p>
+            <p className="text-sm font-medium">{t('witnessphoto_afroloc_label')}</p>
             <code className="text-sm font-mono">{witnessAfroId}</code>
           </div>
           
           {witnessName && (
             <div className="space-y-1">
-              <p className="text-sm font-medium">Name:</p>
+              <p className="text-sm font-medium">{t('witnessphoto_name_label')}</p>
               <p className="text-sm">{witnessName}</p>
             </div>
           )}
@@ -48,14 +50,14 @@ export function WitnessPhotoViewer({ open, onClose, photo, witnessName, witnessA
           <div className="border rounded-md overflow-hidden bg-muted">
             <img 
               src={photo} 
-              alt="Witness ID Document" 
+              alt={t('witnessphoto_img_alt')}
               className="w-full h-auto max-h-[500px] object-contain"
             />
           </div>
           
           <Button onClick={handleDownload} variant="outline" className="w-full">
             <Download className="h-4 w-4 mr-2" />
-            Download Photo
+            {t('witnessphoto_download')}
           </Button>
         </div>
       </DialogContent>

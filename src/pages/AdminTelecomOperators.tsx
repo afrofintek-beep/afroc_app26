@@ -260,7 +260,7 @@ export default function AdminTelecomOperators() {
                           id="operator_name"
                           value={formData.operator_name}
                           onChange={(e) => setFormData({...formData, operator_name: e.target.value})}
-                          placeholder="e.g., Unitel, Movicel"
+                          placeholder={t("telecom_operator_name_placeholder")}
                           required
                         />
                       </div>
@@ -271,7 +271,7 @@ export default function AdminTelecomOperators() {
                           id="operator_code"
                           value={formData.operator_code}
                           onChange={(e) => setFormData({...formData, operator_code: e.target.value})}
-                          placeholder="e.g., UNITEL, MOVICEL"
+                          placeholder={t("telecom_operator_code_placeholder")}
                           required
                         />
                       </div>
@@ -282,7 +282,7 @@ export default function AdminTelecomOperators() {
                           id="phone_prefixes"
                           value={formData.phone_prefixes}
                           onChange={(e) => setFormData({...formData, phone_prefixes: e.target.value})}
-                          placeholder="e.g., 923, 924, 925"
+                          placeholder={t("telecom_phone_prefixes_placeholder")}
                           required
                         />
                         <p className="text-xs text-muted-foreground mt-1">
@@ -301,7 +301,7 @@ export default function AdminTelecomOperators() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="twilio">Twilio</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
+                            <SelectItem value="other">{t("telecom_other")}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -374,7 +374,7 @@ export default function AdminTelecomOperators() {
                                   <h3 className="font-semibold">{operator.operator_name}</h3>
                                   <Badge variant="secondary">{operator.operator_code}</Badge>
                                   {!operator.is_active && (
-                                    <Badge variant="destructive">Inactive</Badge>
+                                    <Badge variant="destructive">{t("telecom_inactive")}</Badge>
                                   )}
                                 </div>
                                 <div className="text-sm text-muted-foreground">

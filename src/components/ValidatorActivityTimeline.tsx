@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ValidationActivity {
   id: string;
@@ -19,6 +20,7 @@ interface ValidationActivity {
 }
 
 export const ValidatorActivityTimeline = () => {
+  const { t } = useLanguage();
   const [activities, setActivities] = useState<ValidationActivity[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -133,7 +135,7 @@ export const ValidatorActivityTimeline = () => {
       <Card>
         <CardContent className="py-12 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="text-sm text-muted-foreground mt-4">Loading activity...</p>
+          <p className="text-sm text-muted-foreground mt-4">{t('validatoractivity_loading')}</p>
         </CardContent>
       </Card>
     );
@@ -144,16 +146,16 @@ export const ValidatorActivityTimeline = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          Recent Validator Activity
+          {t('validatoractivity_title')}
         </CardTitle>
         <CardDescription>
-          Real-time timeline of validation decisions (last 24 hours)
+          {t('validatoractivity_description')}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {activities.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            No recent validation activity
+            {t('validatoractivity_empty')}
           </div>
         ) : (
           <ScrollArea className="h-[400px] pr-4">
@@ -179,7 +181,7 @@ export const ValidatorActivityTimeline = () => {
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <div className="flex-1">
                         <p className="font-medium text-sm">
-                          {activity.status === "confirmed" ? "Approved" : "Rejected"} by{" "}
+                          {activity.status === "confirmed" ? t('validatoractivity_approved') : t('validatoractivity_rejected')} {t('validatoractivity_by')}{" "}
                           <span className="text-primary">{activity.validator_email}</span>
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -187,7 +189,7 @@ export const ValidatorActivityTimeline = () => {
                         </p>
                       </div>
                       <Badge variant={activity.status === "confirmed" ? "default" : "destructive"}>
-                        {activity.status === "confirmed" ? "Approved" : "Rejected"}
+                        {activity.status === "confirmed" ? t('validatoractivity_approved') : t('validatoractivity_rejected')}
                       </Badge>
                     </div>
                     
@@ -199,7 +201,7 @@ export const ValidatorActivityTimeline = () => {
                       
                       {activity.region && (
                         <p className="flex items-center gap-2">
-                          <span className="text-muted-foreground">Region:</span>
+                          <span className="text-muted-foreground">{t('validatoractivity_region')}</span>
                           <span className="text-xs">{activity.region}</span>
                         </p>
                       )}
@@ -207,7 +209,7 @@ export const ValidatorActivityTimeline = () => {
                       {activity.rejection_reason && (
                         <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
                           <p className="text-xs text-red-800">
-                            <strong>Reason:</strong> {activity.rejection_reason}
+                            <strong>{t('validatoractivity_reason')}</strong> {activity.rejection_reason}
                           </p>
                         </div>
                       )}

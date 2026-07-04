@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
 import { MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LocationMapProps {
   latitude?: number;
@@ -20,6 +21,7 @@ export default function LocationMap({
   initialCenter = [13.2344, -8.8383],
   initialZoom = 6 
 }: LocationMapProps) {
+  const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const marker = useRef<mapboxgl.Marker | null>(null);
@@ -63,7 +65,7 @@ export default function LocationMap({
 
     if (!checkWebGLSupport()) {
       setWebGLSupported(false);
-      setMapError('WebGL não está disponível no seu navegador. Por favor, use um navegador moderno ou habilite WebGL.');
+      setMapError(t('locationmap_webgl_unavailable'));
       return;
     }
 
@@ -128,12 +130,12 @@ export default function LocationMap({
       // Handle map load errors
       map.current.on('error', (e) => {
         console.error('Mapbox error:', e);
-        setMapError('Erro ao carregar o mapa. Por favor, recarregue a página.');
+        setMapError(t('locationmap_load_error_reload'));
       });
 
     } catch (error: any) {
       console.error('Error initializing map:', error);
-      setMapError(error.message || 'Erro ao inicializar o mapa');
+      setMapError(error.message || t('locationmap_init_error'));
       setWebGLSupported(false);
     }
 
@@ -182,7 +184,7 @@ export default function LocationMap({
   if (loading) {
     return (
       <div className="w-full h-[400px] bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">Carregando mapa...</p>
+        <p className="text-muted-foreground">{t('locationmap_loading')}</p>
       </div>
     );
   }
@@ -190,7 +192,7 @@ export default function LocationMap({
   if (!mapboxToken) {
     return (
       <div className="w-full h-[400px] bg-muted rounded-lg flex items-center justify-center">
-        <p className="text-muted-foreground">Erro ao carregar o mapa</p>
+        <p className="text-muted-foreground">{t('locationmap_load_error')}</p>
       </div>
     );
   }
@@ -199,18 +201,18 @@ export default function LocationMap({
     return (
       <div className="w-full h-[400px] bg-muted rounded-lg flex flex-col items-center justify-center p-6 space-y-4">
         <div className="text-destructive text-center">
-          <p className="font-medium mb-2">Mapa não disponível</p>
+          <p className="font-medium mb-2">{t('locationmap_map_unavailable')}</p>
           <p className="text-sm text-muted-foreground">{mapError}</p>
         </div>
         <div className="w-full max-w-md space-y-3">
-          <p className="text-sm text-center text-muted-foreground">Use sua localização atual:</p>
+          <p className="text-sm text-center text-muted-foreground">{t('locationmap_use_current_location_prompt')}</p>
           <Button 
             onClick={handleCurrentLocation} 
             className="w-full"
             variant="outline"
           >
             <MapPin className="mr-2 h-4 w-4" />
-            Usar Localização Atual
+            {t('locationmap_use_current_location_button')}
           </Button>
         </div>
       </div>
@@ -221,8 +223,8 @@ export default function LocationMap({
     <div className="relative w-full h-[400px] rounded-lg overflow-hidden border">
       <div ref={mapContainer} className="absolute inset-0" />
       <div className="absolute top-4 left-4 bg-background/95 p-2 rounded-lg shadow-lg text-sm">
-        <p className="font-medium">Clique no mapa ou arraste o marcador</p>
-        <p className="text-muted-foreground text-xs">para selecionar sua localização</p>
+        <p className="font-medium">{t('locationmap_instruction_title')}</p>
+        <p className="text-muted-foreground text-xs">{t('locationmap_instruction_subtitle')}</p>
       </div>
     </div>
   );

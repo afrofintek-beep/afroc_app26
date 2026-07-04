@@ -310,7 +310,7 @@ export default function SecurityMonitoring() {
 
                   <Select value={resolvedFilter} onValueChange={setResolvedFilter}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Status" />
+                      <SelectValue placeholder={t("secmon_status")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">{t("all")}</SelectItem>
@@ -365,22 +365,22 @@ export default function SecurityMonitoring() {
                             
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                               <div>
-                                <span className="text-muted-foreground">IP:</span>{" "}
+                                <span className="text-muted-foreground">{t("secmon_ip")}:</span>{" "}
                                 <span className="font-mono">{event.ip_address || "N/A"}</span>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Endpoint:</span>{" "}
+                                <span className="text-muted-foreground">{t("secmon_endpoint")}:</span>{" "}
                                 <span className="font-mono text-xs">{event.endpoint || "N/A"}</span>
                               </div>
                               <div className="col-span-2">
-                                <span className="text-muted-foreground">Data:</span>{" "}
+                                <span className="text-muted-foreground">{t("secmon_date")}:</span>{" "}
                                 {format(new Date(event.created_at), "dd/MM/yyyy HH:mm:ss")}
                               </div>
                             </div>
 
                             {event.details && Object.keys(event.details).length > 0 && (
                               <div className="text-sm">
-                                <span className="text-muted-foreground">Detalhes:</span>{" "}
+                                <span className="text-muted-foreground">{t("secmon_details")}:</span>{" "}
                                 <code className="bg-muted px-2 py-1 rounded text-xs">
                                   {JSON.stringify(event.details)}
                                 </code>
@@ -389,7 +389,7 @@ export default function SecurityMonitoring() {
 
                             {event.notes && (
                               <div className="text-sm bg-green-50 p-2 rounded">
-                                <span className="text-muted-foreground">Notas:</span> {event.notes}
+                                <span className="text-muted-foreground">{t("secmon_notes")}:</span> {event.notes}
                               </div>
                             )}
                           </div>

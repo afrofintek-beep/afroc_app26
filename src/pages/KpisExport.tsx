@@ -111,35 +111,35 @@ const KpisExport = () => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-mono hover:bg-primary/20 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" />
-                Export Summary CSV
+                {t('kpisexport_export_summary_csv')}
               </a>
               <a
                 href={csvUrl('kpis-timeseries-csv', { ...commonParams, period, days: parseInt(days) })}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-mono hover:bg-primary/20 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" />
-                Export Time Series CSV
+                {t('kpisexport_export_time_series_csv')}
               </a>
               <a
                 href={csvUrl('kpis-growth-csv', { ...commonParams, months: parseInt(months), country })}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-mono hover:bg-primary/20 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" />
-                Export Growth CSV
+                {t('kpisexport_export_growth_csv')}
               </a>
               <a
                 href={csvUrl('kpis-by-province-csv', { ...commonParams, country })}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-mono hover:bg-primary/20 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" />
-                Export By-Province CSV
+                {t('kpisexport_export_by_province_csv')}
               </a>
               <a
                 href={csvUrl('kpis-by-admin-csv', { ...commonParams, level: adminLevel, limit: parseInt(limit) })}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-mono hover:bg-primary/20 transition-colors"
               >
                 <Download className="h-3.5 w-3.5" />
-                Export By-Admin CSV
+                {t('kpisexport_export_by_admin_csv')}
               </a>
             </div>
           </CardContent>

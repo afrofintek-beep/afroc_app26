@@ -25,6 +25,7 @@ import {
 import { generatePatentClaimsPdf } from "@/utils/patentClaimsPdf";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const categoryIcon: Record<string, React.ReactNode> = {
   Method: <Cpu className="h-4 w-4" />,
@@ -39,6 +40,7 @@ const categoryColor: Record<string, string> = {
 };
 
 function ClaimCard({ claim }: { claim: PatentClaim }) {
+  const { t } = useLanguage();
   const lines = Array.isArray(claim.text) ? claim.text : [claim.text];
   return (
     <Card className="border-border/40 bg-card/60 backdrop-blur-sm hover:border-primary/30 transition-colors">
@@ -46,7 +48,7 @@ function ClaimCard({ claim }: { claim: PatentClaim }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-muted-foreground">
-              Claim {claim.number}
+              {t('patent_claim')} {claim.number}
             </span>
             <Badge
               variant="outline"
@@ -60,7 +62,7 @@ function ClaimCard({ claim }: { claim: PatentClaim }) {
           </div>
           {claim.dependsOn && (
             <span className="text-[10px] text-muted-foreground">
-              ← Claim {claim.dependsOn}
+              ← {t('patent_claim')} {claim.dependsOn}
             </span>
           )}
         </div>
@@ -78,6 +80,7 @@ function ClaimCard({ claim }: { claim: PatentClaim }) {
 
 export default function PatentClaims() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { claims } = afr001pepClaims;
 
   const independent = claims.filter((c) => c.type === "Independent");
@@ -86,10 +89,10 @@ export default function PatentClaims() {
   const media = claims.filter((c) => c.category === "Computer-readable medium");
 
   const highlights = [
-    { icon: <MapPin className="h-5 w-5" />, label: "Geospatial Grid Projection", desc: "Hierarchical adaptive subdivision with density-responsive cell sizing" },
-    { icon: <Lock className="h-5 w-5" />, label: "Trust Verification Framework", desc: "Multi-party witness attestation, GPS proximity, and ATS scoring" },
-    { icon: <Globe className="h-5 w-5" />, label: "Multi-Tenant Architecture", desc: "Country-specific parameters, administrative levels, and configurable rules" },
-    { icon: <Layers className="h-5 w-5" />, label: "Offline Reconciliation", desc: "Conflict-free merge semantics for disconnected operation" },
+    { icon: <MapPin className="h-5 w-5" />, label: t('patent_highlight_grid_label'), desc: t('patent_highlight_grid_desc') },
+    { icon: <Lock className="h-5 w-5" />, label: t('patent_highlight_trust_label'), desc: t('patent_highlight_trust_desc') },
+    { icon: <Globe className="h-5 w-5" />, label: t('patent_highlight_tenant_label'), desc: t('patent_highlight_tenant_desc') },
+    { icon: <Layers className="h-5 w-5" />, label: t('patent_highlight_offline_label'), desc: t('patent_highlight_offline_desc') },
   ];
 
   return (
@@ -104,7 +107,7 @@ export default function PatentClaims() {
             <div>
               <h1 className="text-lg font-semibold flex items-center gap-2">
                 <Scale className="h-5 w-5 text-primary" />
-                Patent Registration
+                {t('patent_title')}
               </h1>
               <p className="text-xs text-muted-foreground">
                 {afr001pepClaims.reference} — {afr001pepClaims.applicant}
@@ -113,7 +116,7 @@ export default function PatentClaims() {
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="font-mono text-xs">
-              {afr001pepClaims.ipcClasses.length} IPC Classes
+              {afr001pepClaims.ipcClasses.length} {t('patent_ipc_classes')}
             </Badge>
             <Button variant="outline" size="sm" onClick={generatePatentClaimsPdf}>
               <Download className="h-3.5 w-3.5 mr-1" />
@@ -130,7 +133,7 @@ export default function PatentClaims() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <FileText className="h-4 w-4 text-primary" />
-                Abstract
+                {t('patent_abstract')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -151,7 +154,7 @@ export default function PatentClaims() {
         {/* Innovation Highlights */}
         <section>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
-            Key Innovations
+            {t('patent_key_innovations')}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {highlights.map((h) => (
@@ -176,19 +179,19 @@ export default function PatentClaims() {
         <div className="flex flex-wrap gap-6 text-center">
           <div>
             <p className="text-2xl font-bold text-primary">{claims.length}</p>
-            <p className="text-xs text-muted-foreground">Total Claims</p>
+            <p className="text-xs text-muted-foreground">{t('patent_stat_total_claims')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">{independent.length}</p>
-            <p className="text-xs text-muted-foreground">Independent</p>
+            <p className="text-xs text-muted-foreground">{t('patent_stat_independent')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">{methods.length}</p>
-            <p className="text-xs text-muted-foreground">Method</p>
+            <p className="text-xs text-muted-foreground">{t('patent_stat_method')}</p>
           </div>
           <div>
             <p className="text-2xl font-bold">{systems.length}</p>
-            <p className="text-xs text-muted-foreground">System</p>
+            <p className="text-xs text-muted-foreground">{t('patent_stat_system')}</p>
           </div>
         </div>
 
@@ -197,10 +200,10 @@ export default function PatentClaims() {
         {/* Claims Tabs */}
         <Tabs defaultValue="all">
           <TabsList>
-            <TabsTrigger value="all">All ({claims.length})</TabsTrigger>
-            <TabsTrigger value="method">Method ({methods.length})</TabsTrigger>
-            <TabsTrigger value="system">System ({systems.length})</TabsTrigger>
-            <TabsTrigger value="medium">Medium ({media.length})</TabsTrigger>
+            <TabsTrigger value="all">{t('patent_tab_all')} ({claims.length})</TabsTrigger>
+            <TabsTrigger value="method">{t('patent_stat_method')} ({methods.length})</TabsTrigger>
+            <TabsTrigger value="system">{t('patent_stat_system')} ({systems.length})</TabsTrigger>
+            <TabsTrigger value="medium">{t('patent_tab_medium')} ({media.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="space-y-3 mt-4">
@@ -227,9 +230,9 @@ export default function PatentClaims() {
 
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground pt-8 pb-4">
-          <p>© 2025 AFROFINTEK GmbH — Confidential & Proprietary</p>
+          <p>© 2025 AFROFINTEK GmbH — {t('patent_confidential')}</p>
           <p className="mt-1">
-            This document is an abstract representation of European Patent Application{" "}
+            {t('patent_doc_representation')}{" "}
             <span className="font-mono">{afr001pepClaims.reference}</span>.
           </p>
         </div>

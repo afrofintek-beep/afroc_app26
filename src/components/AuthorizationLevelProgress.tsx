@@ -2,12 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { MapPin, ChevronRight, Building2 } from "lucide-react";
 import { AuthorizationLevel, LEVEL_REQUIREMENTS } from "@/hooks/useAuthorizationLevel";
 import { AuthorizationLevelBadge } from "./AuthorizationLevelBadge";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AuthorizationLevelProgressProps {
   authLevel: Partial<AuthorizationLevel>;
 }
 
 export const AuthorizationLevelProgress = ({ authLevel }: AuthorizationLevelProgressProps) => {
+  const { t } = useLanguage();
   const currentLevel = authLevel?.current_level || 1;
   const currentLevelInfo = LEVEL_REQUIREMENTS[currentLevel as keyof typeof LEVEL_REQUIREMENTS];
 
@@ -16,8 +18,8 @@ export const AuthorizationLevelProgress = ({ authLevel }: AuthorizationLevelProg
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-xl">Nível de Autorização</CardTitle>
-            <CardDescription>Cargo administrativo e jurisdição</CardDescription>
+            <CardTitle className="text-xl">{t('authlevel_title')}</CardTitle>
+            <CardDescription>{t('authlevel_subtitle')}</CardDescription>
           </div>
           <AuthorizationLevelBadge level={currentLevel} size="lg" />
         </div>
@@ -28,10 +30,10 @@ export const AuthorizationLevelProgress = ({ authLevel }: AuthorizationLevelProg
           <div className="bg-muted/50 p-4 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Building2 className="h-5 w-5 text-primary" />
-              <p className="text-sm text-muted-foreground">Cargo Administrativo</p>
+              <p className="text-sm text-muted-foreground">{t('authlevel_admin_role')}</p>
             </div>
             <p className="text-xl font-semibold">
-              {authLevel.administrative_role || "Não atribuído"}
+              {authLevel.administrative_role || t('authlevel_not_assigned')}
             </p>
           </div>
 
@@ -43,7 +45,7 @@ export const AuthorizationLevelProgress = ({ authLevel }: AuthorizationLevelProg
 
           {/* Responsibilities */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Responsabilidades</p>
+            <p className="text-sm font-medium text-muted-foreground">{t('authlevel_responsibilities')}</p>
             <ul className="space-y-2">
               {currentLevelInfo.requirements.map((req, idx) => (
                 <li key={idx} className="flex items-start gap-2 text-sm">
@@ -57,13 +59,13 @@ export const AuthorizationLevelProgress = ({ authLevel }: AuthorizationLevelProg
           {/* Jurisdiction Info */}
           {(authLevel.jurisdiction_country || authLevel.jurisdiction_level1_name) && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-muted-foreground">Jurisdição</p>
+              <p className="text-sm font-medium text-muted-foreground">{t('authlevel_jurisdiction')}</p>
               <div className="grid gap-2 p-4 bg-muted/30 rounded-lg">
                 {authLevel.jurisdiction_country && (
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm font-medium">
-                      País: <strong>{authLevel.jurisdiction_country}</strong>
+                      {t('authlevel_country')}: <strong>{authLevel.jurisdiction_country}</strong>
                     </span>
                   </div>
                 )}

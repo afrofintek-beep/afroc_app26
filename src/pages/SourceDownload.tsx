@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Copy, Check, Package, ShieldCheck, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Manifest {
   version: string;
@@ -31,6 +32,7 @@ const requestSignedUrl = async (kind: "zip" | "manifest") => {
 };
 
 const SourceDownload = () => {
+  const { t } = useLanguage();
   const [manifest, setManifest] = useState<Manifest | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -42,10 +44,10 @@ const SourceDownload = () => {
       try {
         const url = await requestSignedUrl("manifest");
         const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) throw new Error("Falha ao carregar manifesto");
+        if (!res.ok) throw new Error(t('sourcedl_error_load_manifest'));
         setManifest(await res.json());
       } catch (e: any) {
-        setError(e?.message ?? "Acesso negado");
+        setError(e?.message ?? t('sourcedl_error_access_denied'));
       } finally {
         setLoading(false);
       }
@@ -56,7 +58,7 @@ const SourceDownload = () => {
     if (!manifest) return;
     await navigator.clipboard.writeText(manifest.sha256);
     setCopied(true);
-    toast({ title: "Checksum copiado" });
+    toast({ title: t('sourcedl_toast_checksum_copied') });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -67,8 +69,8 @@ const SourceDownload = () => {
       window.location.href = url;
     } catch (e: any) {
       toast({
-        title: "Erro",
-        description: e?.message ?? "Não foi possível gerar o link.",
+        title: t('sourcedl_toast_error'),
+        description: e?.message ?? t('sourcedl_toast_link_failed'),
         variant: "destructive",
       });
     } finally {
@@ -82,63 +84,63 @@ const SourceDownload = () => {
         <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
             <Package className="h-7 w-7 text-primary" />
-            Código-fonte completo
+            {t('sourcedl_title')}
           </h1>
           <p className="text-muted-foreground flex items-center gap-2">
             <Lock className="h-4 w-4" />
-            Acesso restrito a administradores. Os links expiram em 60 segundos.
+            {t('sourcedl_subtitle')}
           </p>
         </div>
 
         {loading ? (
           <Card>
             <CardContent className="py-10 text-center text-muted-foreground">
-              A verificar permissões...
+              {t('sourcedl_checking_permissions')}
             </CardContent>
           </Card>
         ) : error || !manifest ? (
           <Card>
             <CardContent className="py-10 text-center text-destructive">
-              {error ?? "Acesso negado."}
+              {error ?? t('sourcedl_access_denied')}
             </CardContent>
           </Card>
         ) : (
           <Card>
             <CardHeader>
-              <CardTitle>Pacote {manifest.version}</CardTitle>
+              <CardTitle>{t('sourcedl_package')} {manifest.version}</CardTitle>
               <CardDescription>
-                Gerado em {new Date(manifest.generated_at).toLocaleString("pt-PT")}
+                {t('sourcedl_generated_at')} {new Date(manifest.generated_at).toLocaleString("pt-PT")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="text-muted-foreground">Ficheiro</div>
+                  <div className="text-muted-foreground">{t('sourcedl_file')}</div>
                   <div className="font-mono break-all">{manifest.filename}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">Tamanho</div>
+                  <div className="text-muted-foreground">{t('sourcedl_size')}</div>
                   <div className="font-mono">{formatBytes(manifest.size_bytes)}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">Versão</div>
+                  <div className="text-muted-foreground">{t('sourcedl_version')}</div>
                   <div className="font-mono">{manifest.version}</div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">Algoritmo</div>
+                  <div className="text-muted-foreground">{t('sourcedl_algorithm')}</div>
                   <div className="font-mono">SHA-256</div>
                 </div>
               </div>
 
               <div>
                 <div className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                  <ShieldCheck className="h-4 w-4" /> Checksum SHA-256
+                  <ShieldCheck className="h-4 w-4" /> {t('sourcedl_checksum_label')}
                 </div>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 p-2 bg-muted rounded text-xs break-all font-mono">
                     {manifest.sha256}
                   </code>
-                  <Button variant="outline" size="icon" onClick={copySha} aria-label="Copiar checksum">
+                  <Button variant="outline" size="icon" onClick={copySha} aria-label={t('sourcedl_copy_checksum_aria')}>
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
@@ -152,7 +154,7 @@ const SourceDownload = () => {
                   disabled={busy !== null}
                 >
                   <Download className="h-5 w-5 mr-2" />
-                  {busy === "zip" ? "A gerar link..." : "Descarregar ZIP"}
+                  {busy === "zip" ? t('sourcedl_generating_link') : t('sourcedl_download_zip')}
                 </Button>
                 <Button
                   variant="outline"
@@ -160,12 +162,12 @@ const SourceDownload = () => {
                   onClick={() => handleDownload("manifest")}
                   disabled={busy !== null}
                 >
-                  {busy === "manifest" ? "A gerar..." : "Manifesto JSON"}
+                  {busy === "manifest" ? t('sourcedl_generating') : t('sourcedl_manifest_json')}
                 </Button>
               </div>
 
               <div className="text-xs text-muted-foreground border-t pt-4 space-y-2">
-                <p className="font-semibold text-foreground">Como verificar a integridade:</p>
+                <p className="font-semibold text-foreground">{t('sourcedl_verify_integrity')}</p>
                 <pre className="bg-muted p-2 rounded overflow-x-auto">
 {`# Linux / macOS
 sha256sum ${manifest.filename}
@@ -173,7 +175,7 @@ sha256sum ${manifest.filename}
 # Windows (PowerShell)
 Get-FileHash ${manifest.filename} -Algorithm SHA256`}
                 </pre>
-                <p>O valor obtido deve coincidir exatamente com o checksum apresentado acima.</p>
+                <p>{t('sourcedl_verify_note')}</p>
               </div>
             </CardContent>
           </Card>

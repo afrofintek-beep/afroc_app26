@@ -16,6 +16,7 @@ import { SpoofingDetectionResult } from '@/utils/gpsSpoofingDetection';
 import { GPSDistanceValidation } from './GPSDistanceValidation';
 import { validateGPSUpdate, GPSValidationResult } from '@/utils/gpsDistance';
 import { useAuthorizationLevel } from '@/hooks/useAuthorizationLevel';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PropertyPhotoCaptureProps {
   onPhotoCapture: (photo: string, exif: ExifData | null, stats: CompressionResult, gps: { lat: number; lon: number } | null) => void;
@@ -47,6 +48,7 @@ export default function PropertyPhotoCapture({
   const { extractExifData, validateExifGPS, extracting: exifExtracting } = useExifExtractor();
   const { getCurrentPosition, loading: gpsLoading } = useGeolocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { data: authLevel } = useAuthorizationLevel();
   
   // Only show technical GPS details to high-level admins (level 4+) for auditing
@@ -107,17 +109,17 @@ export default function PropertyPhotoCapture({
         const isValid = validateExifGPS(extractedExif, capturedGPS);
 
         if (!isValid) {
-          setGpsWarning('⚠️ ALERTA: Discrepância entre GPS do dispositivo e metadados EXIF da foto.');
+          setGpsWarning(t('photocapture_gps_discrepancy_warning'));
           toast({
-            title: 'Validação GPS Falhou',
-            description: 'Coordenadas GPS do dispositivo não correspondem aos metadados EXIF.',
+            title: t('photocapture_gps_validation_failed_title'),
+            description: t('photocapture_gps_validation_failed_desc'),
             variant: 'destructive',
           });
         } else {
           setGpsWarning(null);
           toast({
-            title: 'Validação GPS Confirmada',
-            description: 'GPS do dispositivo corresponde aos metadados EXIF.',
+            title: t('photocapture_gps_validation_confirmed_title'),
+            description: t('photocapture_gps_validation_confirmed_desc'),
           });
         }
       }
@@ -146,8 +148,8 @@ export default function PropertyPhotoCapture({
       setPendingPhoto(null);
       setGpsValidation(null);
       toast({
-        title: 'Foto Salva',
-        description: 'A foto foi salva mesmo com distância elevada.',
+        title: t('photocapture_photo_saved_title'),
+        description: t('photocapture_photo_saved_desc'),
       });
     }
   };
@@ -157,8 +159,8 @@ export default function PropertyPhotoCapture({
     setGpsValidation(null);
     setCapturedGPS(null);
     toast({
-      title: 'Cancelado',
-      description: 'Capture uma nova foto no local correto.',
+      title: t('photocapture_cancelled_title'),
+      description: t('photocapture_cancelled_desc'),
     });
   };
 
@@ -184,10 +186,10 @@ export default function PropertyPhotoCapture({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Camera className="h-5 w-5" />
-            Fotografia da Porta do Domicílio
+            {t('photocapture_card_title')}
           </CardTitle>
           <CardDescription>
-            Capture a foto da entrada principal da propriedade. Os metadados EXIF serão extraídos automaticamente.
+            {t('photocapture_card_description')}
           </CardDescription>
         </CardHeader>
         
@@ -226,21 +228,21 @@ export default function PropertyPhotoCapture({
             <Alert variant="default">
               <Info className="h-4 w-4" />
               <AlertDescription className="text-xs space-y-1">
-                <div><strong>Metadados EXIF Extraídos:</strong></div>
+                <div><strong>{t('photocapture_exif_extracted_label')}</strong></div>
                 {photoExif.deviceMake && photoExif.deviceModel && (
-                  <div>📱 Dispositivo: {photoExif.deviceMake} {photoExif.deviceModel}</div>
+                  <div>📱 {t('photocapture_exif_device_label')} {photoExif.deviceMake} {photoExif.deviceModel}</div>
                 )}
                 {photoExif.latitude && photoExif.longitude && (
                   <div>📍 GPS EXIF: {photoExif.latitude.toFixed(6)}, {photoExif.longitude.toFixed(6)}</div>
                 )}
                 {capturedGPS && (
-                  <div>📍 GPS Dispositivo: {capturedGPS.lat.toFixed(6)}, {capturedGPS.lon.toFixed(6)}</div>
+                  <div>📍 {t('photocapture_exif_device_gps_label')} {capturedGPS.lat.toFixed(6)}, {capturedGPS.lon.toFixed(6)}</div>
                 )}
                 {photoExif.timestamp && (
-                  <div>🕒 Capturada em: {new Date(photoExif.timestamp).toLocaleString('pt-BR')}</div>
+                  <div>🕒 {t('photocapture_exif_captured_at_label')} {new Date(photoExif.timestamp).toLocaleString('pt-BR')}</div>
                 )}
                 {photoExif.imageWidth && photoExif.imageHeight && (
-                  <div>📐 Dimensões: {photoExif.imageWidth}×{photoExif.imageHeight}px</div>
+                  <div>📐 {t('photocapture_exif_dimensions_label')} {photoExif.imageWidth}×{photoExif.imageHeight}px</div>
                 )}
               </AlertDescription>
             </Alert>
@@ -267,16 +269,16 @@ export default function PropertyPhotoCapture({
               {photoStats && (
                 <div className="rounded-lg border bg-muted/30 p-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Tamanho do Arquivo:</span>
+                    <span className="text-muted-foreground">{t('photocapture_file_size_label')}</span>
                     <Badge variant="secondary">
                       {(photoStats.compressedSize / 1024).toFixed(0)}KB
                       <span className="ml-1 text-xs text-muted-foreground">
-                        ({photoStats.compressionRatio.toFixed(0)}% economizado)
+                        ({photoStats.compressionRatio.toFixed(0)}% {t('photocapture_saved_suffix')})
                       </span>
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between text-sm mt-2">
-                    <span className="text-muted-foreground">Dimensões:</span>
+                    <span className="text-muted-foreground">{t('photocapture_dimensions_label')}</span>
                     <span className="font-mono text-xs">
                       {photoStats.width}×{photoStats.height}
                     </span>
@@ -289,7 +291,7 @@ export default function PropertyPhotoCapture({
               <div className="border-2 border-dashed rounded-lg p-8 text-center">
                 <Camera className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
                 <p className="text-sm font-medium mb-4">
-                  Capture a foto da porta de entrada
+                  {t('photocapture_capture_door_prompt')}
                 </p>
                 
                 <div className="flex gap-3">
@@ -300,7 +302,7 @@ export default function PropertyPhotoCapture({
                     className="flex-1"
                   >
                     <Camera className={`h-4 w-4 mr-2 ${(cameraLoading || gpsLoading) ? 'animate-pulse' : ''}`} />
-                    {gpsLoading ? 'Capturando GPS...' : cameraLoading ? 'Abrindo...' : 'Tirar Foto'}
+                    {gpsLoading ? t('photocapture_capturing_gps') : cameraLoading ? t('photocapture_opening') : t('photocapture_take_photo')}
                   </Button>
                   
                   <Button
@@ -310,7 +312,7 @@ export default function PropertyPhotoCapture({
                     className="flex-1"
                   >
                     <ImageIcon className={`h-4 w-4 mr-2 ${(cameraLoading || gpsLoading) ? 'animate-pulse' : ''}`} />
-                    {gpsLoading ? 'Capturando GPS...' : cameraLoading ? 'Abrindo...' : 'Galeria'}
+                    {gpsLoading ? t('photocapture_capturing_gps') : cameraLoading ? t('photocapture_opening') : t('photocapture_gallery')}
                   </Button>
                 </div>
               </div>
@@ -318,13 +320,13 @@ export default function PropertyPhotoCapture({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription className="text-xs">
-                  <strong>Dicas para melhores resultados:</strong>
+                  <strong>{t('photocapture_tips_title')}</strong>
                   <ul className="mt-2 space-y-1 ml-4">
-                    <li>• Certifique-se de ter boa iluminação natural</li>
-                    <li>• Capture a porta completa e número visível</li>
-                    <li>• Mantenha a câmera estável e focada</li>
-                    <li>• Evite sombras e reflexos</li>
-                    <li>• Os metadados GPS e timestamp serão extraídos automaticamente</li>
+                    <li>• {t('photocapture_tip_lighting')}</li>
+                    <li>• {t('photocapture_tip_full_door')}</li>
+                    <li>• {t('photocapture_tip_steady')}</li>
+                    <li>• {t('photocapture_tip_shadows')}</li>
+                    <li>• {t('photocapture_tip_metadata')}</li>
                   </ul>
                 </AlertDescription>
               </Alert>

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Mail, Smartphone, RefreshCw, ArrowLeft } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { useLanguage } from "@/contexts/LanguageContext";
 import afrolocSymbol from "@/assets/afroloc-symbol.png";
 
 export default function AdminTwoFactor() {
@@ -18,6 +19,7 @@ export default function AdminTwoFactor() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const userId = location.state?.userId;
   const email = location.state?.email;
@@ -50,16 +52,16 @@ export default function AdminTwoFactor() {
 
       if (data.success) {
         toast({
-          title: "Verification Successful",
-          description: "Welcome to the admin dashboard",
+          title: t('twofa_verify_success_title'),
+          description: t('twofa_verify_success_desc'),
         });
         navigate("/admin/import-divisions");
       } else {
-        throw new Error(data.error || "Verification failed");
+        throw new Error(data.error || t('twofa_verify_failed_generic'));
       }
     } catch (error: any) {
       toast({
-        title: "Verification Failed",
+        title: t('twofa_verify_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -84,14 +86,14 @@ export default function AdminTwoFactor() {
       if (error) throw error;
 
       toast({
-        title: "Code Resent",
-        description: `A new verification code has been sent to your ${method}`,
+        title: t('twofa_resent_title'),
+        description: `${t('twofa_resent_desc')} ${method}`,
       });
-      
+
       setCountdown(60); // 60 second cooldown
     } catch (error: any) {
       toast({
-        title: "Failed to Resend",
+        title: t('twofa_resend_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -107,7 +109,7 @@ export default function AdminTwoFactor() {
           variant="ghost"
           size="icon"
           onClick={() => navigate("/admin/login")}
-          title="Back to login"
+          title={t('twofa_back_to_login')}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
@@ -126,9 +128,9 @@ export default function AdminTwoFactor() {
               </div>
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">Two-Factor Authentication</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('twofa_title')}</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Enter the verification code sent to your {method === 'email' ? 'email' : 'phone'}
+            {t('twofa_description')} {method === 'email' ? t('twofa_channel_email') : t('twofa_channel_phone')}
           </CardDescription>
         </CardHeader>
 
@@ -149,11 +151,11 @@ export default function AdminTwoFactor() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="code">Verification Code</Label>
+              <Label htmlFor="code">{t('twofa_code_label')}</Label>
               <Input
                 id="code"
                 type="text"
-                placeholder="Enter 6-digit code"
+                placeholder={t('twofa_code_placeholder')}
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 required
@@ -173,24 +175,24 @@ export default function AdminTwoFactor() {
                 className="text-sm"
               >
                 <RefreshCw className={`h-3 w-3 mr-1 ${resending ? 'animate-spin' : ''}`} />
-                {countdown > 0 
-                  ? `Resend code in ${countdown}s` 
-                  : resending 
-                    ? 'Sending...' 
-                    : 'Resend verification code'
+                {countdown > 0
+                  ? `${t('twofa_resend_in')} ${countdown}s`
+                  : resending
+                    ? t('twofa_sending')
+                    : t('twofa_resend_code')
                 }
               </Button>
             </div>
 
             <div className="text-center text-sm text-muted-foreground">
-              <p className="mb-2">Lost access to your verification method?</p>
+              <p className="mb-2">{t('twofa_lost_access')}</p>
               <Button
                 type="button"
                 variant="link"
                 onClick={() => navigate('/admin/2fa-backup', { state: { userId, email, phone } })}
                 className="text-sm text-primary"
               >
-                Use a backup code instead
+                {t('twofa_use_backup')}
               </Button>
             </div>
 
@@ -198,7 +200,7 @@ export default function AdminTwoFactor() {
               <p className="flex items-start gap-2">
                 <Shield className="h-3 w-3 mt-0.5 flex-shrink-0" />
                 <span>
-                  This code will expire in 10 minutes. Keep this code confidential and do not share it with anyone.
+                  {t('twofa_expiry_notice')}
                 </span>
               </p>
             </div>
@@ -206,7 +208,7 @@ export default function AdminTwoFactor() {
 
           <CardFooter>
             <Button type="submit" className="w-full" disabled={loading || code.length !== 6}>
-              {loading ? 'Verifying...' : 'Verify & Continue'}
+              {loading ? t('twofa_verifying') : t('twofa_verify_continue')}
             </Button>
           </CardFooter>
         </form>
