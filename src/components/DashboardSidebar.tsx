@@ -62,7 +62,7 @@ const DashboardSidebar = () => {
       { to: "/admin/documents", icon: FileCheck, label: t("nav_document_review"), adminOnly: true },
       { to: "/admin/document-library", icon: Library, label: "Biblioteca de Docs", adminOnly: true },
       { to: "/admin/contract-downloads", icon: Download, label: t("nav_contract_downloads"), adminOnly: true },
-      { to: "/admin/user-management", icon: Users, label: "Gestão de Usuários", adminOnly: true },
+      { to: "/admin/user-management", icon: Users, label: "Gestão de Utilizadores", adminOnly: true },
       { to: "/admin/role-approvals", icon: Shield, label: "Aprovações", adminOnly: true },
       { to: "/kpis-export", icon: FileSpreadsheet, label: t("kpis_export") || "Export KPIs", adminOnly: true },
       { to: "/admin/reports", icon: BarChart3, label: t("nav_reports_analytics"), adminOnly: true },
