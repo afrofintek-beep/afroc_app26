@@ -6,6 +6,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface SamplePoint {
   id: string;
@@ -37,6 +38,7 @@ export default function SampleScatterMap({
   toleranceRuralM = 250,
   height = 360,
 }: Props) {
+  const { t } = useLanguage();
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -51,7 +53,7 @@ export default function SampleScatterMap({
         if (error) throw error;
         if (data?.token) setToken(data.token);
       } catch (e: any) {
-        setError(e?.message || 'Erro ao obter token Mapbox');
+        setError(e?.message || t('scattermap_error_token'));
       }
     })();
   }, []);
@@ -85,7 +87,7 @@ export default function SampleScatterMap({
       );
       map.current.on('error', (e) => console.error('Mapbox error', e));
     } catch (e: any) {
-      setError(e?.message || 'Erro ao inicializar mapa');
+      setError(e?.message || t('scattermap_error_init'));
     }
 
     return () => {
@@ -119,7 +121,7 @@ export default function SampleScatterMap({
           'width:18px;height:18px;border-radius:50%;background:hsl(220 90% 55%);border:3px solid #fff;box-shadow:0 0 0 2px hsl(220 90% 55% / .4);';
         const anchorMarker = new mapboxgl.Marker({ element: anchorEl })
           .setLngLat([address.lon, address.lat])
-          .setPopup(new mapboxgl.Popup({ offset: 14 }).setHTML('<strong>Endereço registado</strong>'))
+          .setPopup(new mapboxgl.Popup({ offset: 14 }).setHTML(`<strong>${t('scattermap_registered_address')}</strong>`))
           .addTo(m);
         markersRef.current.push(anchorMarker);
 
@@ -167,9 +169,9 @@ export default function SampleScatterMap({
         const popup = new mapboxgl.Popup({ offset: 8 }).setHTML(
           `<div style="font-size:12px;line-height:1.4">
             <div><strong>${new Date(s.captured_at).toLocaleString()}</strong></div>
-            <div>Dist.: ${s.distance_from_address_m != null ? Math.round(Number(s.distance_from_address_m)) + ' m' : '—'}</div>
-            <div>${s.is_within_radius ? '✅ Dentro do raio' : '❌ Fora do raio'}</div>
-            ${s.rejection_reason ? `<div>Motivo: <code>${s.rejection_reason}</code></div>` : ''}
+            <div>${t('scattermap_distance')}: ${s.distance_from_address_m != null ? Math.round(Number(s.distance_from_address_m)) + ' m' : '—'}</div>
+            <div>${s.is_within_radius ? '✅ ' + t('scattermap_within_radius') : '❌ ' + t('scattermap_outside_radius')}</div>
+            ${s.rejection_reason ? `<div>${t('scattermap_reason')}: <code>${s.rejection_reason}</code></div>` : ''}
           </div>`
         );
         const mk = new mapboxgl.Marker({ element: el })
@@ -202,7 +204,7 @@ export default function SampleScatterMap({
   if (!token) {
     return (
       <div style={{ height }} className="flex items-center justify-center rounded-md border bg-muted text-sm text-muted-foreground">
-        A carregar mapa…
+        {t('scattermap_loading')}
       </div>
     );
   }
@@ -276,9 +278,9 @@ export default function SampleScatterMap({
     setExporting(true);
     try {
       const c = await composeExportCanvas();
-      if (!c) throw new Error('Mapa indisponível');
+      if (!c) throw new Error(t('scattermap_error_map_unavailable'));
       const blob: Blob = await new Promise((res, rej) =>
-        c.toBlob((b) => (b ? res(b) : rej(new Error('toBlob falhou'))), 'image/png'),
+        c.toBlob((b) => (b ? res(b) : rej(new Error(t('scattermap_error_toblob')))), 'image/png'),
       );
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -288,9 +290,9 @@ export default function SampleScatterMap({
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      toast({ title: 'PNG exportado', description: 'Mapa com legenda guardado.' });
+      toast({ title: t('scattermap_toast_png_ok_title'), description: t('scattermap_toast_png_ok_desc') });
     } catch (e: any) {
-      toast({ title: 'Erro ao exportar PNG', description: e?.message ?? '—', variant: 'destructive' });
+      toast({ title: t('scattermap_toast_png_err_title'), description: e?.message ?? '—', variant: 'destructive' });
     } finally {
       setExporting(false);
     }
@@ -301,7 +303,7 @@ export default function SampleScatterMap({
     setExporting(true);
     try {
       const c = await composeExportCanvas();
-      if (!c) throw new Error('Mapa indisponível');
+      if (!c) throw new Error(t('scattermap_error_map_unavailable'));
       const dataUrl = c.toDataURL('image/png');
       const orientation: 'l' | 'p' = c.width >= c.height ? 'l' : 'p';
       const pdf = new jsPDF({ orientation, unit: 'pt', format: 'a4' });
@@ -309,9 +311,9 @@ export default function SampleScatterMap({
       const pageH = pdf.internal.pageSize.getHeight();
       const margin = 24;
       pdf.setFontSize(12);
-      pdf.text('AFROLOC · PoDP · Dispersão GPS', margin, margin);
+      pdf.text(`AFROLOC · PoDP · ${t('scattermap_pdf_title')}`, margin, margin);
       pdf.setFontSize(9);
-      pdf.text(`Gerado em ${new Date().toLocaleString()}`, margin, margin + 14);
+      pdf.text(`${t('scattermap_generated_at')} ${new Date().toLocaleString()}`, margin, margin + 14);
       const availW = pageW - margin * 2;
       const availH = pageH - margin * 2 - 30;
       const ratio = Math.min(availW / c.width, availH / c.height);
@@ -319,9 +321,9 @@ export default function SampleScatterMap({
       const h = c.height * ratio;
       pdf.addImage(dataUrl, 'PNG', margin + (availW - w) / 2, margin + 24, w, h);
       pdf.save(`podp-mapa-${Date.now()}.pdf`);
-      toast({ title: 'PDF exportado', description: 'Pronto para auditoria.' });
+      toast({ title: t('scattermap_toast_pdf_ok_title'), description: t('scattermap_toast_pdf_ok_desc') });
     } catch (e: any) {
-      toast({ title: 'Erro ao exportar PDF', description: e?.message ?? '—', variant: 'destructive' });
+      toast({ title: t('scattermap_toast_pdf_err_title'), description: e?.message ?? '—', variant: 'destructive' });
     } finally {
       setExporting(false);
     }
@@ -335,22 +337,22 @@ export default function SampleScatterMap({
         <button
           type="button"
           onClick={zoomIn}
-          aria-label="Aproximar"
-          title="Aproximar"
+          aria-label={t('scattermap_zoom_in')}
+          title={t('scattermap_zoom_in')}
           className="h-7 w-7 rounded text-sm font-bold text-foreground hover:bg-muted"
         >+</button>
         <button
           type="button"
           onClick={zoomOut}
-          aria-label="Afastar"
-          title="Afastar"
+          aria-label={t('scattermap_zoom_out')}
+          title={t('scattermap_zoom_out')}
           className="h-7 w-7 rounded text-sm font-bold text-foreground hover:bg-muted"
         >−</button>
         <button
           type="button"
           onClick={resetView}
-          aria-label="Repor vista"
-          title="Repor vista (ajustar a todas as amostras)"
+          aria-label={t('scattermap_reset_view')}
+          title={t('scattermap_reset_view_title')}
           className="h-7 w-7 rounded text-[10px] font-semibold text-foreground hover:bg-muted"
         >⟳</button>
       </div>
@@ -359,45 +361,45 @@ export default function SampleScatterMap({
           type="button"
           onClick={exportPng}
           disabled={exporting}
-          aria-label="Exportar PNG"
-          title="Exportar mapa com legenda (PNG)"
+          aria-label={t('scattermap_export_png')}
+          title={t('scattermap_export_png_title')}
           className="h-7 rounded px-2 text-[11px] font-semibold text-foreground hover:bg-muted disabled:opacity-50"
         >{exporting ? '…' : 'PNG'}</button>
         <button
           type="button"
           onClick={exportPdf}
           disabled={exporting}
-          aria-label="Exportar PDF"
-          title="Exportar mapa com legenda (PDF para auditoria)"
+          aria-label={t('scattermap_export_pdf')}
+          title={t('scattermap_export_pdf_title')}
           className="h-7 rounded px-2 text-[11px] font-semibold text-foreground hover:bg-muted disabled:opacity-50"
         >{exporting ? '…' : 'PDF'}</button>
       </div>
       <div ref={legendRef} className="pointer-events-none absolute bottom-2 left-2 max-w-[260px] rounded-md border bg-background/95 p-2 text-[11px] shadow-md backdrop-blur">
-        <div className="mb-1 font-semibold text-foreground">Legenda</div>
+        <div className="mb-1 font-semibold text-foreground">{t('scattermap_legend')}</div>
         <div className="grid gap-1">
           <div className="flex items-start gap-2">
             <span className="mt-[3px] inline-block h-3 w-3 shrink-0 rounded-full border-2 border-white shadow-[0_0_0_2px_hsl(220_90%_55%/.4)] bg-[hsl(220_90%_55%)]" />
-            <span className="text-muted-foreground"><strong className="text-foreground">Endereço registado</strong> — coordenadas oficiais do AFROLOC.</span>
+            <span className="text-muted-foreground"><strong className="text-foreground">{t('scattermap_registered_address')}</strong> {t('scattermap_legend_address_desc')}</span>
           </div>
           <div className="flex items-start gap-2">
             <span className="mt-[3px] inline-block h-2.5 w-2.5 shrink-0 rounded-full border border-white bg-[hsl(142_71%_45%)]" />
-            <span className="text-muted-foreground"><strong className="text-foreground">Amostra válida</strong> — GPS dentro do raio de tolerância.</span>
+            <span className="text-muted-foreground"><strong className="text-foreground">{t('scattermap_legend_valid')}</strong> {t('scattermap_legend_valid_desc')}</span>
           </div>
           <div className="flex items-start gap-2">
             <span className="mt-[3px] inline-block h-2.5 w-2.5 shrink-0 rounded-full border border-white bg-[hsl(0_84%_60%)]" />
-            <span className="text-muted-foreground"><strong className="text-foreground">Amostra rejeitada</strong> — fora do raio ou com motivo de reprovação.</span>
+            <span className="text-muted-foreground"><strong className="text-foreground">{t('scattermap_legend_rejected')}</strong> {t('scattermap_legend_rejected_desc')}</span>
           </div>
           <div className="flex items-start gap-2">
             <svg width="14" height="10" className="mt-[3px] shrink-0" aria-hidden>
               <line x1="0" y1="5" x2="14" y2="5" stroke="hsl(142 71% 45%)" strokeWidth="1.5" strokeDasharray="2 2" />
             </svg>
-            <span className="text-muted-foreground"><strong className="text-foreground">Tolerância urbana</strong> ({toleranceUrbanM} m) — limite mais restrito.</span>
+            <span className="text-muted-foreground"><strong className="text-foreground">{t('scattermap_legend_tol_urban')}</strong> ({toleranceUrbanM} m) {t('scattermap_legend_tol_urban_desc')}</span>
           </div>
           <div className="flex items-start gap-2">
             <svg width="14" height="10" className="mt-[3px] shrink-0" aria-hidden>
               <line x1="0" y1="5" x2="14" y2="5" stroke="hsl(38 92% 50%)" strokeWidth="1.5" strokeDasharray="4 4" />
             </svg>
-            <span className="text-muted-foreground"><strong className="text-foreground">Tolerância rural</strong> ({toleranceRuralM} m) — limite alargado.</span>
+            <span className="text-muted-foreground"><strong className="text-foreground">{t('scattermap_legend_tol_rural')}</strong> ({toleranceRuralM} m) {t('scattermap_legend_tol_rural_desc')}</span>
           </div>
         </div>
       </div>

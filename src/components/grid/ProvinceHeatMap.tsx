@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { 
   Map, 
@@ -76,6 +77,7 @@ const COUNTRY_CENTERS: Record<string, { center: [number, number]; zoom: number }
 };
 
 export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
+  const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -99,7 +101,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
         }
       } catch (error) {
         console.error('Error fetching Mapbox token:', error);
-        toast.error('Erro ao carregar o mapa');
+        toast.error(t('provheat_toast_map_load_error'));
       }
     };
     fetchToken();
@@ -278,19 +280,19 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
             <h3 style="margin: 0 0 8px; font-weight: 600; font-size: 14px;">${province.name}</h3>
             <div style="display: grid; gap: 4px; font-size: 12px;">
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #888;">Total células:</span>
+                <span style="color: #888;">${t('provheat_popup_total_cells')}</span>
                 <strong>${province.totalCells.toLocaleString()}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #888;">Aprovadas:</span>
+                <span style="color: #888;">${t('provheat_popup_approved')}</span>
                 <strong style="color: #22c55e;">${province.approvedCells.toLocaleString()}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #888;">Pendentes:</span>
+                <span style="color: #888;">${t('provheat_popup_pending')}</span>
                 <strong style="color: #f59e0b;">${province.pendingCells.toLocaleString()}</strong>
               </div>
               <div style="display: flex; justify-content: space-between;">
-                <span style="color: #888;">Taxa alocação:</span>
+                <span style="color: #888;">${t('provheat_popup_allocation_rate')}</span>
                 <strong>${province.allocationRate}%</strong>
               </div>
             </div>
@@ -355,9 +357,9 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
           <div className="flex items-center gap-2">
             <Map className="h-5 w-5 text-primary" />
             <div>
-              <CardTitle className="text-base">Mapa de Calor Provincial</CardTitle>
+              <CardTitle className="text-base">{t('provheat_title')}</CardTitle>
               <CardDescription className="text-xs">
-                Densidade e taxas de alocação por região
+                {t('provheat_description')}
               </CardDescription>
             </div>
           </div>
@@ -368,8 +370,8 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="density">Densidade</SelectItem>
-                <SelectItem value="allocation">Taxa Alocação</SelectItem>
+                <SelectItem value="density">{t('provheat_view_density')}</SelectItem>
+                <SelectItem value="allocation">{t('provheat_view_allocation')}</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => fetchProvinceData()}>
@@ -401,7 +403,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
                     <ZoomIn className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Ampliar</TooltipContent>
+                <TooltipContent side="right">{t('provheat_zoom_in')}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -409,7 +411,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
                     <ZoomOut className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Reduzir</TooltipContent>
+                <TooltipContent side="right">{t('provheat_zoom_out')}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -417,7 +419,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
                     <Maximize2 className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Vista geral</TooltipContent>
+                <TooltipContent side="right">{t('provheat_reset_view')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
@@ -426,7 +428,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
           <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm rounded-lg p-3 border shadow-lg">
             <div className="flex items-center gap-2 mb-2 text-xs font-medium">
               <Info className="h-3 w-3" />
-              {viewMode === 'density' ? 'Densidade de Células' : 'Taxa de Alocação'}
+              {viewMode === 'density' ? t('provheat_legend_density') : t('provheat_legend_allocation')}
             </div>
             <div className="flex items-center gap-1">
               {viewMode === 'density' ? (
@@ -435,7 +437,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
                   <div className="w-4 h-4 rounded-full" style={{ background: getHeatColor(0.35) }} />
                   <div className="w-4 h-4 rounded-full" style={{ background: getHeatColor(0.6) }} />
                   <div className="w-4 h-4 rounded-full" style={{ background: getHeatColor(0.85) }} />
-                  <span className="text-xs text-muted-foreground ml-1">Baixo → Alto</span>
+                  <span className="text-xs text-muted-foreground ml-1">{t('provheat_legend_low_high')}</span>
                 </>
               ) : (
                 <>
@@ -453,15 +455,15 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
           <div className="absolute top-3 right-12 bg-background/90 backdrop-blur-sm rounded-lg p-3 border shadow-lg">
             <div className="space-y-1 text-xs">
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Províncias:</span>
+                <span className="text-muted-foreground">{t('provheat_stat_provinces')}</span>
                 <Badge variant="secondary">{provinceData.length}</Badge>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Total células:</span>
+                <span className="text-muted-foreground">{t('provheat_stat_total_cells')}</span>
                 <Badge variant="outline">{totals.cells.toLocaleString()}</Badge>
               </div>
               <div className="flex items-center justify-between gap-4">
-                <span className="text-muted-foreground">Aprovadas:</span>
+                <span className="text-muted-foreground">{t('provheat_stat_approved')}</span>
                 <Badge className="bg-primary/20 text-primary">{totals.approved.toLocaleString()}</Badge>
               </div>
             </div>
@@ -470,7 +472,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
 
         {/* Province List */}
         <div className="p-4 border-t">
-          <h4 className="text-sm font-medium mb-3">Ranking Provincial</h4>
+          <h4 className="text-sm font-medium mb-3">{t('provheat_ranking_title')}</h4>
           <div className="grid gap-2 max-h-[200px] overflow-y-auto">
             {provinceData.slice(0, 10).map((province, index) => (
               <div 
@@ -495,7 +497,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="text-xs">
-                    {province.totalCells} células
+                    {province.totalCells} {t('provheat_cells_unit')}
                   </Badge>
                   <Badge 
                     variant="outline" 
@@ -514,7 +516,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
             ))}
             {provinceData.length === 0 && !loading && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                Nenhum dado disponível para este país
+                {t('provheat_no_data')}
               </p>
             )}
           </div>

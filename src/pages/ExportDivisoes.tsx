@@ -7,6 +7,7 @@ import { Download, FileSpreadsheet, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DivisionRow {
   provincia: string;
@@ -16,6 +17,7 @@ interface DivisionRow {
 }
 
 const ExportDivisoes = () => {
+  const { t } = useLanguage();
   const [isExporting, setIsExporting] = useState(false);
 
   const { data: divisions, isLoading } = useQuery({
@@ -125,10 +127,10 @@ const ExportDivisoes = () => {
       const fileName = `Angola_Divisoes_Administrativas_Lei14_24_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(wb, fileName);
       
-      toast.success("Ficheiro Excel exportado com sucesso!");
+      toast.success(t('exportdiv_toast_success'));
     } catch (error) {
       console.error("Export error:", error);
-      toast.error("Erro ao exportar ficheiro");
+      toast.error(t('exportdiv_toast_error'));
     } finally {
       setIsExporting(false);
     }
@@ -138,9 +140,9 @@ const ExportDivisoes = () => {
     <DashboardLayout>
       <div className="container mx-auto py-8 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Exportar Divisões Administrativas</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('exportdiv_page_title')}</h1>
           <p className="text-muted-foreground">
-            Angola - Lei 14/24 de 5 de Setembro de 2024
+            {t('exportdiv_page_subtitle')}
           </p>
         </div>
 
@@ -148,7 +150,7 @@ const ExportDivisoes = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Províncias
+                {t('exportdiv_stat_provinces')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -161,7 +163,7 @@ const ExportDivisoes = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Municípios
+                {t('exportdiv_stat_municipalities')}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -174,12 +176,12 @@ const ExportDivisoes = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Base Legal
+                {t('exportdiv_stat_legal_basis')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-lg font-semibold">Lei 14/24</div>
-              <div className="text-sm text-muted-foreground">5 Set 2024</div>
+              <div className="text-sm text-muted-foreground">{t('exportdiv_legal_date')}</div>
             </CardContent>
           </Card>
         </div>
@@ -188,16 +190,16 @@ const ExportDivisoes = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileSpreadsheet className="h-5 w-5" />
-              Exportar para Excel
+              {t('exportdiv_card_export_title')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              O ficheiro Excel incluirá duas folhas:
+              {t('exportdiv_sheets_intro')}
             </p>
             <ul className="list-disc list-inside text-sm text-muted-foreground mb-6 space-y-1">
-              <li>Divisões Administrativas - Lista completa de províncias e municípios</li>
-              <li>Resumo por Província - Contagem de municípios por província</li>
+              <li>{t('exportdiv_sheet1_desc')}</li>
+              <li>{t('exportdiv_sheet2_desc')}</li>
             </ul>
             
             <Button 
@@ -208,12 +210,12 @@ const ExportDivisoes = () => {
               {isExporting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  A exportar...
+                  {t('exportdiv_btn_exporting')}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Descarregar Excel
+                  {t('exportdiv_btn_download')}
                 </>
               )}
             </Button>

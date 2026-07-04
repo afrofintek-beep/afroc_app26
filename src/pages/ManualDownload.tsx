@@ -5,117 +5,119 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, BookOpen, Loader2, Share2, FolderTree, Shield, Camera, Languages, FileCode } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DocumentInfo {
   id: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   filename: string;
   path: string;
   icon: React.ReactNode;
-  sections: string[];
+  sectionKeys: string[];
 }
 
 const documents: DocumentInfo[] = [
   {
     id: "manual",
-    title: "Manual de Apoio",
-    description: "Documentação operacional completa do sistema",
+    titleKey: "manualdl_doc_manual_title",
+    descriptionKey: "manualdl_doc_manual_desc",
     filename: "MANUAL_DE_APOIO.md",
     path: "/MANUAL_DE_APOIO.md",
     icon: <BookOpen className="h-5 w-5" />,
-    sections: [
-      "Estrutura do Sistema",
-      "Gestão de Utilizadores",
-      "Processo de Registo",
-      "Ciclos de Verificação",
-      "Segurança e RLS",
-      "Troubleshooting"
+    sectionKeys: [
+      "manualdl_sec_estrutura_sistema",
+      "manualdl_sec_gestao_utilizadores",
+      "manualdl_sec_processo_registo",
+      "manualdl_sec_ciclos_verificacao",
+      "manualdl_sec_seguranca_rls",
+      "manualdl_sec_troubleshooting"
     ]
   },
   {
     id: "hierarchical",
-    title: "Arquitectura do Sistema",
-    description: "Sistema hierárquico de 5 níveis para gestão",
+    titleKey: "manualdl_doc_hierarchical_title",
+    descriptionKey: "manualdl_doc_hierarchical_desc",
     filename: "HIERARCHICAL_SYSTEM.md",
     path: "/HIERARCHICAL_SYSTEM.md",
     icon: <FolderTree className="h-5 w-5" />,
-    sections: [
-      "Modelo de 5 Níveis",
-      "Responsabilidades por Nível",
-      "Estrutura de Dados",
-      "Controle de Acesso (RLS)",
-      "Interface Administrativa",
-      "Expansão Continental"
+    sectionKeys: [
+      "manualdl_sec_modelo_5_niveis",
+      "manualdl_sec_responsabilidades_nivel",
+      "manualdl_sec_estrutura_dados",
+      "manualdl_sec_controle_acesso_rls",
+      "manualdl_sec_interface_admin",
+      "manualdl_sec_expansao_continental"
     ]
   },
   {
     id: "authorization",
-    title: "Sistema de Autorização",
-    description: "5 níveis de autorização baseados em confiança",
+    titleKey: "manualdl_doc_authorization_title",
+    descriptionKey: "manualdl_doc_authorization_desc",
     filename: "AUTHORIZATION_SYSTEM.md",
     path: "/AUTHORIZATION_SYSTEM.md",
     icon: <Shield className="h-5 w-5" />,
-    sections: [
-      "Authorization Levels (1-5)",
-      "Critérios de Progressão",
-      "Permissões por Nível",
-      "Database Schema",
-      "UI Components",
-      "Security Considerations"
+    sectionKeys: [
+      "manualdl_sec_authorization_levels",
+      "manualdl_sec_criterios_progressao",
+      "manualdl_sec_permissoes_nivel",
+      "manualdl_sec_database_schema",
+      "manualdl_sec_ui_components",
+      "manualdl_sec_security_considerations"
     ]
   },
   {
     id: "camera",
-    title: "Permissões de Câmera",
-    description: "Configuração para iOS e Android",
+    titleKey: "manualdl_doc_camera_title",
+    descriptionKey: "manualdl_doc_camera_desc",
     filename: "CAMERA_PERMISSIONS.md",
     path: "/CAMERA_PERMISSIONS.md",
     icon: <Camera className="h-5 w-5" />,
-    sections: [
-      "iOS Setup (Info.plist)",
-      "Android Setup (Manifest)",
-      "Permission Flow",
-      "Troubleshooting",
-      "Photo Quality Settings",
-      "Data Storage"
+    sectionKeys: [
+      "manualdl_sec_ios_setup",
+      "manualdl_sec_android_setup",
+      "manualdl_sec_permission_flow",
+      "manualdl_sec_troubleshooting",
+      "manualdl_sec_photo_quality",
+      "manualdl_sec_data_storage"
     ]
   },
   {
     id: "translation",
-    title: "Validação de Traduções",
-    description: "Ferramenta de validação para 13 idiomas",
+    titleKey: "manualdl_doc_translation_title",
+    descriptionKey: "manualdl_doc_translation_desc",
     filename: "TRANSLATION_VALIDATION.md",
     path: "/TRANSLATION_VALIDATION.md",
     icon: <Languages className="h-5 w-5" />,
-    sections: [
-      "13 Idiomas Suportados",
-      "Validation Report",
-      "API Reference",
-      "Best Practices",
-      "Adding New Languages",
-      "Console Logging"
+    sectionKeys: [
+      "manualdl_sec_13_idiomas",
+      "manualdl_sec_validation_report",
+      "manualdl_sec_api_reference",
+      "manualdl_sec_best_practices",
+      "manualdl_sec_adding_languages",
+      "manualdl_sec_console_logging"
     ]
   },
   {
     id: "complete",
-    title: "Documentação Completa",
-    description: "Documentação técnica A-Z do sistema AFROLOC",
+    titleKey: "manualdl_doc_complete_title",
+    descriptionKey: "manualdl_doc_complete_desc",
     filename: "AFROLOC_DOCUMENTACAO_COMPLETA.md",
     path: "/AFROLOC_DOCUMENTACAO_COMPLETA.md",
     icon: <FileCode className="h-5 w-5" />,
-    sections: [
-      "Tipos de Endereços",
-      "Sistema de Usuários",
-      "Fluxo de Registo",
-      "Score ATS",
-      "Edge Functions",
-      "Base de Dados"
+    sectionKeys: [
+      "manualdl_sec_tipos_enderecos",
+      "manualdl_sec_sistema_usuarios",
+      "manualdl_sec_fluxo_registo",
+      "manualdl_sec_score_ats",
+      "manualdl_sec_edge_functions",
+      "manualdl_sec_base_dados"
     ]
   }
 ];
 
 const ManualDownload = () => {
+  const { t } = useLanguage();
   const [generating, setGenerating] = useState<string | null>(null);
 
   const handleDownloadMarkdown = async (doc: DocumentInfo) => {
@@ -133,10 +135,10 @@ const ManualDownload = () => {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      toast.success(`Download de ${doc.title} iniciado`);
+      toast.success(`${t('manualdl_toast_download_started')} ${t(doc.titleKey)}`);
     } catch (error) {
       console.error("Erro ao fazer download:", error);
-      toast.error("Erro ao fazer download do documento");
+      toast.error(t('manualdl_toast_download_error'));
     }
   };
 
@@ -157,10 +159,10 @@ const ManualDownload = () => {
 
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(doc.title, 20, 20);
+      pdf.text(t(doc.titleKey), 20, 20);
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(doc.description, 20, 30);
+      pdf.text(t(doc.descriptionKey), 20, 30);
 
       pdf.setFontSize(10);
       
@@ -212,7 +214,7 @@ const ManualDownload = () => {
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
         pdf.text(
-          `AFROLOC - ${doc.title} - Página ${i} de ${totalPages}`,
+          `AFROLOC - ${t(doc.titleKey)} - ${t('manualdl_pdf_page')} ${i} ${t('manualdl_pdf_of')} ${totalPages}`,
           pdf.internal.pageSize.width / 2,
           pdf.internal.pageSize.height - 10,
           { align: 'center' }
@@ -220,10 +222,10 @@ const ManualDownload = () => {
       }
 
       pdf.save(doc.filename.replace('.md', '.pdf'));
-      toast.success("PDF gerado com sucesso");
+      toast.success(t('manualdl_toast_pdf_success'));
     } catch (error) {
       console.error("Erro ao gerar PDF:", error);
-      toast.error("Erro ao gerar PDF");
+      toast.error(t('manualdl_toast_pdf_error'));
     } finally {
       setGenerating(null);
     }
@@ -238,7 +240,7 @@ const ManualDownload = () => {
       await handleDownloadMarkdown(doc);
       await new Promise(resolve => setTimeout(resolve, 500));
     }
-    toast.success("Todos os documentos foram descarregados");
+    toast.success(t('manualdl_toast_all_downloaded'));
   };
 
   return (
@@ -248,24 +250,24 @@ const ManualDownload = () => {
           <div className="flex items-center gap-3">
             <BookOpen className="h-6 w-6 md:h-8 md:w-8 text-primary" />
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Documentação</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">{t('manualdl_page_title')}</h1>
               <p className="text-sm md:text-base text-muted-foreground">
-                Documentação completa do sistema AFROLOC
+                {t('manualdl_page_subtitle')}
               </p>
             </div>
           </div>
           <Button onClick={handleDownloadAll} variant="default" size="sm">
             <Download className="mr-2 h-4 w-4" />
-            Todos
+            {t('manualdl_btn_all')}
           </Button>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:w-auto lg:inline-flex">
-            <TabsTrigger value="all">Todos</TabsTrigger>
-            <TabsTrigger value="manual">Manual</TabsTrigger>
-            <TabsTrigger value="technical">Técnicos</TabsTrigger>
-            <TabsTrigger value="config">Configuração</TabsTrigger>
+            <TabsTrigger value="all">{t('manualdl_tab_all')}</TabsTrigger>
+            <TabsTrigger value="manual">{t('manualdl_tab_manual')}</TabsTrigger>
+            <TabsTrigger value="technical">{t('manualdl_tab_technical')}</TabsTrigger>
+            <TabsTrigger value="config">{t('manualdl_tab_config')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-4">
@@ -331,13 +333,13 @@ const ManualDownload = () => {
 
         <Card className="bg-muted/50">
           <CardHeader>
-            <CardTitle className="text-lg md:text-xl">Informações</CardTitle>
+            <CardTitle className="text-lg md:text-xl">{t('manualdl_info_title')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-xs md:text-sm">
-            <p>✅ Todos os documentos estão atualizados com as últimas funcionalidades</p>
-            <p>✅ Inclui documentação para Angola como país validador ativo</p>
-            <p>✅ Contém comandos SQL, exemplos práticos e diagramas</p>
-            <p>✅ Disponível em Markdown (editável) e PDF (impressão)</p>
+            <p>✅ {t('manualdl_info_line1')}</p>
+            <p>✅ {t('manualdl_info_line2')}</p>
+            <p>✅ {t('manualdl_info_line3')}</p>
+            <p>✅ {t('manualdl_info_line4')}</p>
           </CardContent>
         </Card>
       </div>
@@ -353,26 +355,28 @@ interface DocumentCardProps {
   onView: (doc: DocumentInfo) => void;
 }
 
-const DocumentCard = ({ doc, generating, onDownload, onGeneratePDF, onView }: DocumentCardProps) => (
+const DocumentCard = ({ doc, generating, onDownload, onGeneratePDF, onView }: DocumentCardProps) => {
+  const { t } = useLanguage();
+  return (
   <Card className="flex flex-col">
     <CardHeader className="pb-3">
       <div className="flex items-center gap-2">
         <div className="text-primary">{doc.icon}</div>
-        <CardTitle className="text-base md:text-lg">{doc.title}</CardTitle>
+        <CardTitle className="text-base md:text-lg">{t(doc.titleKey)}</CardTitle>
       </div>
       <CardDescription className="text-xs md:text-sm">
-        {doc.description}
+        {t(doc.descriptionKey)}
       </CardDescription>
     </CardHeader>
     <CardContent className="flex-1 space-y-3">
       <div className="space-y-1">
-        <p className="text-xs font-medium text-muted-foreground">Conteúdo:</p>
+        <p className="text-xs font-medium text-muted-foreground">{t('manualdl_content_label')}</p>
         <ul className="text-xs text-muted-foreground space-y-0.5">
-          {doc.sections.slice(0, 4).map((section, i) => (
-            <li key={i}>• {section}</li>
+          {doc.sectionKeys.slice(0, 4).map((sectionKey, i) => (
+            <li key={i}>• {t(sectionKey)}</li>
           ))}
-          {doc.sections.length > 4 && (
-            <li className="text-primary">+ {doc.sections.length - 4} mais...</li>
+          {doc.sectionKeys.length > 4 && (
+            <li className="text-primary">+ {doc.sectionKeys.length - 4} {t('manualdl_more_suffix')}</li>
           )}
         </ul>
       </div>
@@ -407,11 +411,12 @@ const DocumentCard = ({ doc, generating, onDownload, onGeneratePDF, onView }: Do
           className="flex-1"
         >
           <BookOpen className="mr-1 h-3 w-3" />
-          Ver
+          {t('manualdl_btn_view')}
         </Button>
       </div>
     </CardContent>
   </Card>
-);
+  );
+};
 
 export default ManualDownload;

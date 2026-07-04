@@ -9,6 +9,7 @@ import { Loader2, MapPin, Home, Building, TreePine, ArrowLeft, Info } from 'luci
 import { Link } from 'react-router-dom';
 import afrolocLogo from '@/assets/afroloc-symbol-gold.png';
 import { AddressTypeBadge } from '@/components/AddressTypeBadge';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface DemoAddress {
   id: string;
@@ -34,11 +35,11 @@ const propertyTypeIcons: Record<string, typeof Home> = {
   land: TreePine,
 };
 
-const propertyTypeLabels: Record<string, string> = {
-  house: 'Residência',
-  apartment: 'Apartamento',
-  commercial: 'Comercial',
-  land: 'Terreno',
+const propertyTypeLabelKeys: Record<string, string> = {
+  house: 'mapdemo_property_house',
+  apartment: 'mapdemo_property_apartment',
+  commercial: 'mapdemo_property_commercial',
+  land: 'mapdemo_property_land',
 };
 
 const statusColors: Record<string, string> = {
@@ -47,10 +48,10 @@ const statusColors: Record<string, string> = {
   certified: 'bg-green-500/20 text-green-600',
 };
 
-const statusLabels: Record<string, string> = {
-  draft: 'Rascunho',
-  verified: 'Verificado',
-  certified: 'Certificado',
+const statusLabelKeys: Record<string, string> = {
+  draft: 'mapdemo_status_draft',
+  verified: 'mapdemo_status_verified',
+  certified: 'mapdemo_status_certified',
 };
 
 // Marker colors by property type
@@ -62,6 +63,7 @@ const propertyTypeColors: Record<string, { gradient: string; hex: string }> = {
 };
 
 export default function MapDemo() {
+  const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
@@ -86,7 +88,7 @@ export default function MapDemo() {
         }
       } catch (err) {
         console.error('Error fetching Mapbox token:', err);
-        setError('Erro ao carregar o mapa');
+        setError(t('mapdemo_error_load_map'));
       }
     }
     
@@ -240,7 +242,7 @@ export default function MapDemo() {
     if (addr.level4_name) parts.push(addr.level4_name);
     if (addr.level3_name) parts.push(addr.level3_name);
     if (addr.level2_name) parts.push(addr.level2_name);
-    return parts.join(', ') || 'Endereço não especificado';
+    return parts.join(', ') || t('mapdemo_address_unspecified');
   };
 
   const PropertyIcon = selectedAddress?.property_type 
@@ -256,17 +258,17 @@ export default function MapDemo() {
             <Link to="/landing">
               <Button variant="ghost" size="sm" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
-                Voltar
+                {t('mapdemo_back')}
               </Button>
             </Link>
             <div className="flex items-center gap-2">
               <img src={afrolocLogo} alt="AFROLOC" className="h-8 w-8" />
               <span className="font-bold text-lg">AFROLOC</span>
-              <Badge variant="secondary">Demo</Badge>
+              <Badge variant="secondary">{t('mapdemo_demo')}</Badge>
             </div>
           </div>
           <Link to="/login">
-            <Button size="sm">Entrar</Button>
+            <Button size="sm">{t('mapdemo_login')}</Button>
           </Link>
         </div>
       </header>
@@ -277,10 +279,10 @@ export default function MapDemo() {
           <div className="p-4 border-b">
             <h2 className="font-semibold text-lg flex items-center gap-2">
               <MapPin className="h-5 w-5 text-primary" />
-              Endereços em Luanda
+              {t('mapdemo_addresses_in_luanda')}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {addresses.length} endereços AFROLOC registados
+              {addresses.length} {t('mapdemo_addresses_registered_suffix')}
             </p>
           </div>
 
@@ -318,10 +320,10 @@ export default function MapDemo() {
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
                           <Badge variant="outline" className="text-xs">
-                            {propertyTypeLabels[addr.property_type || ''] || 'Outro'}
+                            {propertyTypeLabelKeys[addr.property_type || ''] ? t(propertyTypeLabelKeys[addr.property_type || '']) : t('mapdemo_property_other')}
                           </Badge>
                           <Badge className={`text-xs ${statusColors[addr.status || 'draft']}`}>
-                            {statusLabels[addr.status || 'draft']}
+                            {t(statusLabelKeys[addr.status || 'draft'])}
                           </Badge>
                         </div>
                       </div>
@@ -334,7 +336,7 @@ export default function MapDemo() {
             {addresses.length === 0 && !loading && (
               <div className="p-8 text-center text-muted-foreground">
                 <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Nenhum endereço encontrado</p>
+                <p>{t('mapdemo_no_addresses_found')}</p>
               </div>
             )}
           </div>
@@ -384,24 +386,24 @@ export default function MapDemo() {
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Tipo</p>
+                    <p className="text-muted-foreground">{t('mapdemo_field_type')}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <PropertyIcon className="h-4 w-4 text-primary" />
-                      <span>{propertyTypeLabels[selectedAddress.property_type || ''] || 'Outro'}</span>
+                      <span>{propertyTypeLabelKeys[selectedAddress.property_type || ''] ? t(propertyTypeLabelKeys[selectedAddress.property_type || '']) : t('mapdemo_property_other')}</span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Estado</p>
+                    <p className="text-muted-foreground">{t('mapdemo_field_status')}</p>
                     <Badge className={`mt-0.5 ${statusColors[selectedAddress.status || 'draft']}`}>
-                      {statusLabels[selectedAddress.status || 'draft']}
+                      {t(statusLabelKeys[selectedAddress.status || 'draft'])}
                     </Badge>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Latitude</p>
+                    <p className="text-muted-foreground">{t('mapdemo_field_latitude')}</p>
                     <p className="font-mono text-xs">{selectedAddress.geo_lat?.toFixed(6)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Longitude</p>
+                    <p className="text-muted-foreground">{t('mapdemo_field_longitude')}</p>
                     <p className="font-mono text-xs">{selectedAddress.geo_lon?.toFixed(6)}</p>
                   </div>
                 </div>
@@ -419,35 +421,35 @@ export default function MapDemo() {
           {/* Legend */}
           <Card className="absolute top-4 left-4 z-20 hidden md:block">
             <CardContent className="p-3">
-              <h3 className="text-sm font-medium mb-2">Tipo de Propriedade</h3>
+              <h3 className="text-sm font-medium mb-2">{t('mapdemo_legend_property_type')}</h3>
               <div className="space-y-1.5 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 shadow-sm" />
                   <Home className="h-3 w-3" />
-                  <span>Residência</span>
+                  <span>{t('mapdemo_property_house')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 shadow-sm" />
                   <Building className="h-3 w-3" />
-                  <span>Apartamento</span>
+                  <span>{t('mapdemo_property_apartment')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-gradient-to-br from-green-400 to-green-500 shadow-sm" />
                   <Building className="h-3 w-3" />
-                  <span>Comercial</span>
+                  <span>{t('mapdemo_property_commercial')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-gradient-to-br from-purple-400 to-purple-500 shadow-sm" />
                   <TreePine className="h-3 w-3" />
-                  <span>Terreno</span>
+                  <span>{t('mapdemo_property_land')}</span>
                 </div>
               </div>
               <div className="border-t mt-2 pt-2">
-                <h3 className="text-sm font-medium mb-1.5">Estado</h3>
+                <h3 className="text-sm font-medium mb-1.5">{t('mapdemo_field_status')}</h3>
                 <div className="flex flex-wrap gap-1">
-                  <Badge className={`text-xs ${statusColors.draft}`}>{statusLabels.draft}</Badge>
-                  <Badge className={`text-xs ${statusColors.verified}`}>{statusLabels.verified}</Badge>
-                  <Badge className={`text-xs ${statusColors.certified}`}>{statusLabels.certified}</Badge>
+                  <Badge className={`text-xs ${statusColors.draft}`}>{t('mapdemo_status_draft')}</Badge>
+                  <Badge className={`text-xs ${statusColors.verified}`}>{t('mapdemo_status_verified')}</Badge>
+                  <Badge className={`text-xs ${statusColors.certified}`}>{t('mapdemo_status_certified')}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -456,7 +458,7 @@ export default function MapDemo() {
           {/* Mobile address count */}
           <div className="absolute top-4 right-4 z-20 md:hidden">
             <Badge variant="secondary" className="shadow-lg">
-              {addresses.length} endereços
+              {addresses.length} {t('mapdemo_addresses_word')}
             </Badge>
           </div>
         </div>

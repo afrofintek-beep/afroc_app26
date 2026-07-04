@@ -130,13 +130,13 @@ export default function Documents() {
         
         if (response.data.integrity_valid) {
           toast({
-            title: "Integridade Verificada",
-            description: "O documento não foi alterado.",
+            title: t("documents_integrity_verified"),
+            description: t("documents_document_not_altered"),
           });
         } else {
           toast({
-            title: "Integridade Comprometida",
-            description: "O hash SHA-256 não corresponde.",
+            title: t("documents_integrity_compromised"),
+            description: t("documents_hash_mismatch"),
             variant: "destructive",
           });
         }
@@ -147,11 +147,11 @@ export default function Documents() {
       console.error("Verification error:", error);
       setVerifications((prev) => ({
         ...prev,
-        [doc.id]: { loading: false, error: "Falha na verificação" },
+        [doc.id]: { loading: false, error: t("documents_verification_failed") },
       }));
       toast({
         title: t("error"),
-        description: "Falha na verificação de integridade",
+        description: t("documents_integrity_verification_failed"),
         variant: "destructive",
       });
     }
@@ -169,7 +169,7 @@ export default function Documents() {
           className="text-muted-foreground hover:text-foreground"
         >
           <ShieldQuestion className="h-4 w-4 mr-1" />
-          Verificar
+          {t("documents_verify")}
         </Button>
       );
     }
@@ -178,7 +178,7 @@ export default function Documents() {
       return (
         <Badge variant="secondary" className="gap-1">
           <Loader2 className="h-3 w-3 animate-spin" />
-          Verificando...
+          {t("documents_verifying")}
         </Badge>
       );
     }
@@ -189,7 +189,7 @@ export default function Documents() {
           <TooltipTrigger asChild>
             <Badge variant="destructive" className="gap-1 cursor-help">
               <ShieldX className="h-3 w-3" />
-              Erro
+              {t("documents_error")}
             </Badge>
           </TooltipTrigger>
           <TooltipContent>{state.error}</TooltipContent>
@@ -221,8 +221,8 @@ export default function Documents() {
               <p><strong>SHA-256:</strong></p>
               <p className="font-mono break-all">{state.result.stored_sha256}</p>
               <p className="mt-2">
-                <strong>Status:</strong>{" "}
-                {isValid ? "✓ Íntegro" : "✗ Hash não corresponde"}
+                <strong>{t("documents_status")}:</strong>{" "}
+                {isValid ? `✓ ${t("documents_intact")}` : `✗ ${t("documents_hash_no_match")}`}
               </p>
             </div>
           </TooltipContent>
@@ -239,7 +239,7 @@ export default function Documents() {
         <CardContent className="p-6">
           <h2 className="text-2xl font-bold">{t("official_documents")}</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Versões oficiais, auditáveis e sem dados pessoais
+            {t("documents_subtitle")}
           </p>
 
           <div className="flex gap-3 mt-4">
@@ -250,7 +250,7 @@ export default function Documents() {
               <SelectContent>
                 {CATEGORIES.map((cat) => (
                   <SelectItem key={cat.value} value={cat.value}>
-                    {cat.displayLabel}
+                    {t(`documents_cat_${cat.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -263,7 +263,7 @@ export default function Documents() {
               <SelectContent>
                 {LANGUAGES.map((lang) => (
                   <SelectItem key={lang.value} value={lang.value}>
-                    {lang.displayLabel}
+                    {t(`documents_lang_${lang.value}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -286,12 +286,12 @@ export default function Documents() {
               <Table className="mt-4">
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-left">Título</TableHead>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead>Idioma</TableHead>
-                    <TableHead>Versão</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Integridade</TableHead>
+                    <TableHead className="text-left">{t("documents_title")}</TableHead>
+                    <TableHead>{t("documents_category")}</TableHead>
+                    <TableHead>{t("documents_language")}</TableHead>
+                    <TableHead>{t("documents_version")}</TableHead>
+                    <TableHead>{t("documents_date")}</TableHead>
+                    <TableHead>{t("documents_integrity")}</TableHead>
                     <TableHead></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -321,7 +321,7 @@ export default function Documents() {
                             ) : (
                               <>
                                 <Download className="h-4 w-4 mr-1" />
-                                Download
+                                {t("documents_download")}
                               </>
                             )}
                           </Button>
@@ -334,7 +334,7 @@ export default function Documents() {
               {/* Pagination Controls */}
               <div className="flex items-center justify-between mt-4 pt-4 border-t">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>Mostrar</span>
+                  <span>{t("documents_show")}</span>
                   <Select
                     value={pageSize.toString()}
                     onValueChange={(val) => {
@@ -353,13 +353,13 @@ export default function Documents() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <span>por página</span>
+                  <span>{t("documents_per_page")}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">
                     {Math.min((currentPage - 1) * pageSize + 1, documents.length)}–
-                    {Math.min(currentPage * pageSize, documents.length)} de {documents.length}
+                    {Math.min(currentPage * pageSize, documents.length)} {t("documents_of")} {documents.length}
                   </span>
                   <div className="flex gap-1">
                     <Button

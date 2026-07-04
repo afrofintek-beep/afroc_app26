@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Languages, Download, CheckCircle, AlertCircle, Globe } from "lucide-react";
 
@@ -84,6 +85,7 @@ interface LanguageStatus {
 
 export default function AdminAutoTranslate() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [languageStatuses, setLanguageStatuses] = useState<LanguageStatus[]>(() => {
     const ptKeys = Object.keys(ptTranslations);
     const totalKeys = ptKeys.length;
@@ -135,15 +137,15 @@ export default function AdminAutoTranslate() {
       
       if (missingCount === 0) {
         toast({
-          title: "Já completo",
-          description: `${languageNames[lang]} já tem todas as traduções.`,
+          title: t('autotrans_toast_complete_title'),
+          description: `${languageNames[lang]} ${t('autotrans_toast_complete_desc')}`,
         });
         return;
       }
 
       toast({
-        title: "Traduzindo...",
-        description: `A traduzir ${missingCount} chaves para ${languageNames[lang]}`,
+        title: t('autotrans_toast_translating_title'),
+        description: `${t('autotrans_toast_translating_desc_prefix')} ${missingCount} ${t('autotrans_toast_translating_desc_suffix')} ${languageNames[lang]}`,
       });
 
       const { data, error } = await supabase.functions.invoke('translate-keys', {
@@ -171,15 +173,15 @@ export default function AdminAutoTranslate() {
         ));
 
         toast({
-          title: "Tradução concluída!",
-          description: `${Object.keys(data.translations).length} de ${missingCount} chaves traduzidas para ${languageNames[lang]}`,
+          title: t('autotrans_toast_done_title'),
+          description: `${Object.keys(data.translations).length} ${t('autotrans_toast_done_desc_of')} ${missingCount} ${t('autotrans_toast_done_desc_suffix')} ${languageNames[lang]}`,
         });
       }
     } catch (error) {
       console.error('Translation error:', error);
       toast({
-        title: "Erro na tradução",
-        description: error instanceof Error ? error.message : "Erro desconhecido",
+        title: t('autotrans_toast_error_title'),
+        description: error instanceof Error ? error.message : t('autotrans_toast_error_unknown'),
         variant: "destructive",
       });
     } finally {
@@ -209,19 +211,19 @@ export default function AdminAutoTranslate() {
     URL.revokeObjectURL(url);
 
     toast({
-      title: "Download iniciado",
-      description: `Ficheiro ${lang}.json transferido`,
+      title: t('autotrans_toast_download_title'),
+      description: `${t('autotrans_toast_download_desc_prefix')} ${lang}.json ${t('autotrans_toast_download_desc_suffix')}`,
     });
   };
 
   const getStatusBadge = (status: LanguageStatus) => {
     if (status.completionRate >= 95) {
-      return <Badge className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" /> Completo</Badge>;
+      return <Badge className="bg-green-500"><CheckCircle className="h-3 w-3 mr-1" /> {t('autotrans_badge_complete')}</Badge>;
     }
     if (status.completionRate >= 70) {
-      return <Badge className="bg-yellow-500"><AlertCircle className="h-3 w-3 mr-1" /> Parcial</Badge>;
+      return <Badge className="bg-yellow-500"><AlertCircle className="h-3 w-3 mr-1" /> {t('autotrans_badge_partial')}</Badge>;
     }
-    return <Badge className="bg-red-500"><AlertCircle className="h-3 w-3 mr-1" /> Incompleto</Badge>;
+    return <Badge className="bg-red-500"><AlertCircle className="h-3 w-3 mr-1" /> {t('autotrans_badge_incomplete')}</Badge>;
   };
 
   const totalLanguages = languageStatuses.length;
@@ -234,10 +236,10 @@ export default function AdminAutoTranslate() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Languages className="h-8 w-8" />
-            Tradução Automática
+            {t('autotrans_page_title')}
           </h1>
           <p className="text-muted-foreground mt-2">
-            Traduza automaticamente as chaves faltantes usando IA
+            {t('autotrans_page_subtitle')}
           </p>
         </div>
 
@@ -245,38 +247,38 @@ export default function AdminAutoTranslate() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Línguas</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('autotrans_card_languages')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalLanguages}</div>
-              <p className="text-xs text-muted-foreground">suportadas</p>
+              <p className="text-xs text-muted-foreground">{t('autotrans_card_languages_sub')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Completas</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('autotrans_card_complete')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{completeLanguages}</div>
-              <p className="text-xs text-muted-foreground">≥95% traduzidas</p>
+              <p className="text-xs text-muted-foreground">{t('autotrans_card_complete_sub')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Média</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('autotrans_card_average')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{avgCompletion}%</div>
-              <p className="text-xs text-muted-foreground">conclusão geral</p>
+              <p className="text-xs text-muted-foreground">{t('autotrans_card_average_sub')}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Baseline</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('autotrans_card_baseline')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{Object.keys(ptTranslations).length}</div>
-              <p className="text-xs text-muted-foreground">chaves em Português</p>
+              <p className="text-xs text-muted-foreground">{t('autotrans_card_baseline_sub')}</p>
             </CardContent>
           </Card>
         </div>
@@ -286,10 +288,10 @@ export default function AdminAutoTranslate() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Globe className="h-5 w-5" />
-              Estado das Traduções
+              {t('autotrans_list_title')}
             </CardTitle>
             <CardDescription>
-              Clique em "Traduzir" para usar IA para traduzir as chaves faltantes
+              {t('autotrans_list_desc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -313,7 +315,7 @@ export default function AdminAutoTranslate() {
                           <span className="text-sm font-medium w-12 text-right">{status.completionRate}%</span>
                         </div>
                         <p className="text-xs text-muted-foreground mt-1">
-                          {status.existingKeys} de {status.totalKeys} chaves • {status.missingKeys} em falta
+                          {status.existingKeys} {t('autotrans_row_of')} {status.totalKeys} {t('autotrans_row_keys')} • {status.missingKeys} {t('autotrans_row_missing')}
                         </p>
                       </div>
                     </div>
@@ -325,7 +327,7 @@ export default function AdminAutoTranslate() {
                           onClick={() => downloadTranslations(status.language)}
                         >
                           <Download className="h-4 w-4 mr-2" />
-                          Download
+                          {t('autotrans_btn_download')}
                         </Button>
                       )}
                       <Button
@@ -337,17 +339,17 @@ export default function AdminAutoTranslate() {
                         {status.isTranslating ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Traduzindo...
+                            {t('autotrans_btn_translating')}
                           </>
                         ) : status.missingKeys === 0 ? (
                           <>
                             <CheckCircle className="h-4 w-4 mr-2" />
-                            Completo
+                            {t('autotrans_btn_complete')}
                           </>
                         ) : (
                           <>
                             <Languages className="h-4 w-4 mr-2" />
-                            Traduzir ({status.missingKeys})
+                            {t('autotrans_btn_translate')} ({status.missingKeys})
                           </>
                         )}
                       </Button>
@@ -361,14 +363,14 @@ export default function AdminAutoTranslate() {
 
         <Card className="bg-muted/50">
           <CardHeader>
-            <CardTitle className="text-sm">Como funciona</CardTitle>
+            <CardTitle className="text-sm">{t('autotrans_how_title')}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>1. O sistema compara cada idioma com o Português (baseline com {Object.keys(ptTranslations).length} chaves)</p>
-            <p>2. Identifica chaves faltantes ou não traduzidas</p>
-            <p>3. Usa AI Gateway para traduzir as chaves faltantes para o idioma nativo</p>
-            <p>4. Após tradução, faça download do ficheiro JSON atualizado</p>
-            <p>5. Substitua o ficheiro em <code className="bg-background px-1 py-0.5 rounded">src/translations/[idioma].json</code></p>
+            <p>{t('autotrans_how_step1_prefix')} {Object.keys(ptTranslations).length} {t('autotrans_how_step1_suffix')}</p>
+            <p>{t('autotrans_how_step2')}</p>
+            <p>{t('autotrans_how_step3')}</p>
+            <p>{t('autotrans_how_step4')}</p>
+            <p>{t('autotrans_how_step5_prefix')} <code className="bg-background px-1 py-0.5 rounded">src/translations/[idioma].json</code></p>
           </CardContent>
         </Card>
       </div>

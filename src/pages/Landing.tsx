@@ -47,7 +47,7 @@ export default function Landing() {
   const handleInstallApp = async () => {
     // Se for iOS, sempre ir para página de instruções
     if (isIOS) {
-      toast.info('No iOS, use Safari e siga as instruções para adicionar à tela inicial');
+      toast.info(t('landing_ios_install_hint'));
       navigate("/install");
       return;
     }
@@ -64,16 +64,16 @@ export default function Landing() {
       const { outcome } = await deferredPrompt.userChoice;
       
       if (outcome === 'accepted') {
-        toast.success('Aplicativo instalado com sucesso!');
+        toast.success(t('landing_install_success'));
       } else {
-        toast.info('Instalação cancelada. Você pode instalar mais tarde.');
+        toast.info(t('landing_install_cancelled'));
       }
       
       setDeferredPrompt(null);
       setIsInstallable(false);
     } catch (error) {
       console.error('Erro ao instalar:', error);
-      toast.error('Erro ao instalar o aplicativo');
+      toast.error(t('landing_install_error'));
       navigate("/install");
     }
   };
@@ -101,17 +101,17 @@ export default function Landing() {
             <ThemeToggle />
             <div className="hidden md:flex items-center gap-0.5 ml-2">
               <Button variant="ghost" size="sm" className="hover:bg-primary/10 px-3" onClick={() => navigate("/about")}>
-                Sobre
+                {t('landing_nav_about')}
               </Button>
               <Button variant="ghost" size="sm" className="hover:bg-primary/10 px-3" onClick={() => navigate("/documents")}>
                 <FileText className="h-4 w-4 mr-1" />
-                Documentos
+                {t('landing_nav_documents')}
               </Button>
               <Button variant="ghost" size="sm" className="hover:bg-primary/10 px-3" onClick={() => navigate("/pricing")}>
-                Planos
+                {t('landing_nav_plans')}
               </Button>
               <Button variant="ghost" size="sm" className="hover:bg-primary/10 px-3" onClick={() => navigate("/faq")}>
-                FAQ
+                {t('landing_nav_faq')}
               </Button>
             </div>
             <Button variant="ghost" size="sm" className="hidden sm:flex hover:bg-primary/10 px-3" onClick={() => navigate("/install")}>
@@ -173,7 +173,7 @@ export default function Landing() {
                   className="w-full sm:w-auto px-8 py-6 text-lg glass-strong border-2 border-primary/50 hover:border-primary hover:bg-primary/10 hover:shadow-glow transition-all group"
                 >
                   <Smartphone className="mr-2 h-5 w-5 group-hover:animate-bounce" />
-                  {isInstallable ? 'Instalar App' : 'Baixar App'}
+                  {isInstallable ? t('landing_install_app_btn') : t('landing_download_app_btn')}
                   <ArrowUpRight className="ml-2 h-5 w-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </Button>
               </div>
@@ -678,26 +678,26 @@ export default function Landing() {
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-center gap-4 mb-6">
             <Button variant="ghost" size="sm" onClick={() => navigate("/about")} className="text-muted-foreground hover:text-foreground">
-              Sobre
+              {t('landing_nav_about')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/documents")} className="text-muted-foreground hover:text-foreground">
               <FileText className="h-4 w-4 mr-1" />
-              Documentos
+              {t('landing_nav_documents')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/pricing")} className="text-muted-foreground hover:text-foreground">
-              Planos
+              {t('landing_nav_plans')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/faq")} className="text-muted-foreground hover:text-foreground">
-              FAQ
+              {t('landing_nav_faq')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/contact")} className="text-muted-foreground hover:text-foreground">
-              Contacto
+              {t('landing_nav_contact')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/privacy")} className="text-muted-foreground hover:text-foreground">
-              Privacidade
+              {t('landing_nav_privacy')}
             </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate("/terms")} className="text-muted-foreground hover:text-foreground">
-              Termos
+              {t('landing_nav_terms')}
             </Button>
           </div>
           <div className="text-center text-sm text-muted-foreground">

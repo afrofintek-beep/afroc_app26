@@ -13,11 +13,11 @@ import { useToast } from "@/hooks/use-toast";
 import logo from "@/assets/afroloc-symbol.png";
 
 const CATEGORIES = [
-  { value: "all", label: "Todos", icon: FileText },
-  { value: "juridico", label: "Jurídico", icon: Scale },
-  { value: "governo", label: "Governo", icon: Building2 },
-  { value: "dfis", label: "DFIS", icon: FileCheck },
-  { value: "tecnico", label: "Técnico", icon: Cpu },
+  { value: "all", labelKey: "pubdocs_category_all", icon: FileText },
+  { value: "juridico", labelKey: "pubdocs_category_juridico", icon: Scale },
+  { value: "governo", labelKey: "pubdocs_category_governo", icon: Building2 },
+  { value: "dfis", labelKey: "pubdocs_category_dfis", icon: FileCheck },
+  { value: "tecnico", labelKey: "pubdocs_category_tecnico", icon: Cpu },
 ];
 
 const LANGUAGE_LABELS: Record<string, string> = {
@@ -49,16 +49,16 @@ const PublicDocuments = () => {
       } else {
         console.error("Error loading documents:", response.error);
         toast({
-          title: "Erro",
-          description: response.error || "Erro ao carregar documentos",
+          title: t('pubdocs_toast_error_title'),
+          description: response.error || t('pubdocs_toast_load_error'),
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("Error loading documents:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao carregar documentos",
+        title: t('pubdocs_toast_error_title'),
+        description: t('pubdocs_toast_load_error'),
         variant: "destructive",
       });
     } finally {
@@ -83,8 +83,8 @@ const PublicDocuments = () => {
         window.URL.revokeObjectURL(url);
         
         toast({
-          title: "Download iniciado",
-          description: `${doc.title} está a ser descarregado`,
+          title: t('pubdocs_toast_download_started'),
+          description: `${doc.title} ${t('pubdocs_toast_download_started_desc')}`,
         });
       } else {
         throw new Error("Download failed");
@@ -92,8 +92,8 @@ const PublicDocuments = () => {
     } catch (error) {
       console.error("Download error:", error);
       toast({
-        title: "Erro no download",
-        description: "Não foi possível descarregar o documento",
+        title: t('pubdocs_toast_download_error_title'),
+        description: t('pubdocs_toast_download_error_desc'),
         variant: "destructive",
       });
     } finally {
@@ -150,12 +150,12 @@ const PublicDocuments = () => {
               <Link to="/landing">
                 <Button variant="ghost" size="sm" className="gap-2">
                   <ArrowLeft className="h-4 w-4" />
-                  Voltar
+                  {t('pubdocs_nav_back')}
                 </Button>
               </Link>
               <Link to="/login">
                 <Button variant="outline" size="sm">
-                  Entrar
+                  {t('pubdocs_nav_login')}
                 </Button>
               </Link>
             </nav>
@@ -170,20 +170,20 @@ const PublicDocuments = () => {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
               <Globe className="h-4 w-4 text-primary" />
-              <span className="text-sm text-primary font-medium">Documentos Públicos</span>
+              <span className="text-sm text-primary font-medium">{t('pubdocs_hero_badge')}</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Biblioteca de Documentos
+              {t('pubdocs_hero_title')}
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              Aceda a documentos jurídicos, governamentais, técnicos e DFIS do sistema AFROLOC
+              {t('pubdocs_hero_subtitle')}
             </p>
             
             {/* Search */}
             <div className="max-w-md mx-auto relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
-                placeholder="Pesquisar documentos..."
+                placeholder={t('pubdocs_search_placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12 text-lg bg-card/50 border-border/50"
@@ -210,7 +210,7 @@ const PublicDocuments = () => {
                     className="flex flex-col gap-1 py-3 data-[state=active]:bg-primary/20"
                   >
                     <Icon className="h-4 w-4" />
-                    <span className="text-xs">{cat.label}</span>
+                    <span className="text-xs">{t(cat.labelKey)}</span>
                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
                       {count}
                     </Badge>
@@ -227,18 +227,18 @@ const PublicDocuments = () => {
         <div className="container mx-auto px-4">
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <div className="animate-pulse text-muted-foreground">Carregando documentos...</div>
+              <div className="animate-pulse text-muted-foreground">{t('pubdocs_loading')}</div>
             </div>
           ) : filteredDocuments.length === 0 ? (
             <div className="text-center py-20">
               <FileText className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">
-                Nenhum documento encontrado
+                {t('pubdocs_empty_title')}
               </h3>
               <p className="text-muted-foreground">
-                {searchQuery 
-                  ? "Tente ajustar os termos de pesquisa" 
-                  : "Ainda não existem documentos públicos nesta categoria"}
+                {searchQuery
+                  ? t('pubdocs_empty_search')
+                  : t('pubdocs_empty_category')}
               </p>
             </div>
           ) : activeCategory === "all" ? (
@@ -255,7 +255,7 @@ const PublicDocuments = () => {
                       <div className={`p-2 rounded-lg bg-gradient-to-br ${getCategoryColor(cat.value)}`}>
                         <Icon className={`h-5 w-5 ${getCategoryIconColor(cat.value)}`} />
                       </div>
-                      <h2 className="text-xl font-semibold text-foreground">{cat.label}</h2>
+                      <h2 className="text-xl font-semibold text-foreground">{t(cat.labelKey)}</h2>
                       <Badge variant="outline">{categoryDocs.length}</Badge>
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -298,17 +298,17 @@ const PublicDocuments = () => {
       <footer className="py-8 border-t border-border bg-card/30">
         <div className="container mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} AFROLOC. Todos os direitos reservados.
+            © {new Date().getFullYear()} AFROLOC. {t('pubdocs_footer_rights')}
           </p>
           <div className="flex justify-center gap-4 mt-4">
             <Link to="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              Sobre
+              {t('pubdocs_footer_about')}
             </Link>
             <Link to="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              Contacto
+              {t('pubdocs_footer_contact')}
             </Link>
             <Link to="/faq" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              FAQ
+              {t('pubdocs_footer_faq')}
             </Link>
           </div>
         </div>
@@ -328,6 +328,7 @@ interface DocumentCardProps {
 }
 
 const DocumentCard = ({ doc, onDownload, downloading, getCategoryColor, getCategoryIconColor, getCategoryIcon }: DocumentCardProps) => {
+  const { t } = useLanguage();
   const Icon = getCategoryIcon(doc.category);
   
   return (
@@ -361,7 +362,7 @@ const DocumentCard = ({ doc, onDownload, downloading, getCategoryColor, getCateg
               className="w-full gap-2 group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
             >
               <Download className={`h-4 w-4 ${downloading ? 'animate-bounce' : ''}`} />
-              {downloading ? "A descarregar..." : "Descarregar"}
+              {downloading ? t('pubdocs_card_downloading') : t('pubdocs_card_download')}
             </Button>
           </div>
         </div>

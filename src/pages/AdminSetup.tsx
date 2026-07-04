@@ -8,8 +8,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, UserPlus, Loader2 } from "lucide-react";
 import afrolocSymbol from "@/assets/afroloc-symbol.png";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AdminSetup() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -70,14 +72,14 @@ export default function AdminSetup() {
       if (setupError) throw setupError;
 
       toast({
-        title: 'Admin Created',
-        description: 'First administrator account created successfully. You can now login.',
+        title: t('adminsetup_toast_created_title'),
+        description: t('adminsetup_toast_created_desc'),
       });
 
       navigate('/admin/login');
     } catch (error: any) {
       toast({
-        title: 'Setup Failed',
+        title: t('adminsetup_toast_failed_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -100,14 +102,14 @@ export default function AdminSetup() {
         <Card className="w-full max-w-md border-destructive/20">
           <CardHeader className="text-center">
             <Shield className="h-12 w-12 mx-auto text-destructive mb-4" />
-            <CardTitle>Setup Already Complete</CardTitle>
+            <CardTitle>{t('adminsetup_already_complete_title')}</CardTitle>
             <CardDescription>
-              An administrator account already exists. Use the admin login page.
+              {t('adminsetup_already_complete_desc')}
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button onClick={() => navigate('/admin/login')} className="w-full">
-              Go to Admin Login
+              {t('adminsetup_go_to_login')}
             </Button>
           </CardFooter>
         </Card>
@@ -122,26 +124,26 @@ export default function AdminSetup() {
           <div className="flex justify-center mb-4">
             <img src={afrolocSymbol} alt="AFROLOC" className="h-14 w-14 object-cover rounded-xl shadow-md" />
           </div>
-          <CardTitle className="text-2xl font-bold">First-Time Setup</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('adminsetup_title')}</CardTitle>
           <CardDescription>
-            Create the first administrator account for AFROLOC
+            {t('adminsetup_subtitle')}
           </CardDescription>
         </CardHeader>
         
         <form onSubmit={handleSetup}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t('adminsetup_label_fullname')}</Label>
               <Input
                 id="fullName"
-                placeholder="Administrator Name"
+                placeholder={t('adminsetup_ph_fullname')}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">{t('adminsetup_label_phone')}</Label>
               <Input
                 id="phone"
                 placeholder="+244 923 456 789"
@@ -151,7 +153,7 @@ export default function AdminSetup() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">{t('adminsetup_label_email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -162,18 +164,18 @@ export default function AdminSetup() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('adminsetup_label_password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Strong password"
+                placeholder={t('adminsetup_ph_password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
               />
               <p className="text-xs text-muted-foreground">
-                Minimum 8 characters with uppercase, number, and symbol
+                {t('adminsetup_password_hint')}
               </p>
             </div>
           </CardContent>
@@ -185,7 +187,7 @@ export default function AdminSetup() {
               ) : (
                 <UserPlus className="mr-2 h-4 w-4" />
               )}
-              Create Admin Account
+              {t('adminsetup_create_button')}
             </Button>
           </CardFooter>
         </form>
