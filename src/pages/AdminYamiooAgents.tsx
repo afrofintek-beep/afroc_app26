@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { UserPlus, Users, Search, Loader2, Hash, Phone, Mail, ShieldCheck, ShieldOff, RefreshCw } from "lucide-react";
 
@@ -39,6 +40,7 @@ export default function AdminYamiooAgents() {
   const [notes, setNotes] = useState("");
   const [registering, setRegistering] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const fetchAgents = useCallback(async () => {
     setLoading(true);
@@ -50,11 +52,11 @@ export default function AdminYamiooAgents() {
       setAgents(resp.data?.agents || []);
     } catch (err) {
       console.error("Fetch agents error:", err);
-      toast({ title: "Erro", description: "Falha ao carregar agentes.", variant: "destructive" });
+      toast({ title: t('yamiooagents_toast_error'), description: t('yamiooagents_toast_load_failed'), variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, t]);
 
   useEffect(() => {
     fetchAgents();
@@ -70,11 +72,11 @@ export default function AdminYamiooAgents() {
       if (resp.error) throw resp.error;
       setSearchResults(resp.data?.results || []);
       if (!resp.data?.found) {
-        toast({ title: "Não encontrado", description: "Nenhum utilizador com este número.", variant: "destructive" });
+        toast({ title: t('yamiooagents_toast_not_found'), description: t('yamiooagents_toast_no_user'), variant: "destructive" });
       }
     } catch (err) {
       console.error("Search error:", err);
-      toast({ title: "Erro", description: "Falha na pesquisa.", variant: "destructive" });
+      toast({ title: t('yamiooagents_toast_error'), description: t('yamiooagents_toast_search_failed'), variant: "destructive" });
     } finally {
       setSearching(false);
     }
@@ -90,21 +92,21 @@ export default function AdminYamiooAgents() {
       });
       if (resp.error) throw resp.error;
       if (resp.data?.error) {
-        toast({ title: "Erro", description: resp.data.error, variant: "destructive" });
+        toast({ title: t('yamiooagents_toast_error'), description: resp.data.error, variant: "destructive" });
         return;
       }
       toast({
-        title: "Agente registado!",
+        title: t('yamiooagents_toast_registered'),
         description: resp.data?.reactivated
-          ? `${selectedUser.full_name || "Utilizador"} foi reactivado como agente.`
-          : `${selectedUser.full_name || "Utilizador"} registado como agente Yamioo #${resp.data?.agent_number}.`,
+          ? `${selectedUser.full_name || t('yamiooagents_default_user')} ${t('yamiooagents_toast_reactivated_suffix')}`
+          : `${selectedUser.full_name || t('yamiooagents_default_user')} ${t('yamiooagents_toast_registered_suffix')} Yamioo #${resp.data?.agent_number}.`,
       });
       setRegisterOpen(false);
       resetForm();
       fetchAgents();
     } catch (err: any) {
       console.error("Register error:", err);
-      toast({ title: "Erro", description: err?.message || "Falha ao registar agente.", variant: "destructive" });
+      toast({ title: t('yamiooagents_toast_error'), description: err?.message || t('yamiooagents_toast_register_failed'), variant: "destructive" });
     } finally {
       setRegistering(false);
     }
@@ -117,11 +119,11 @@ export default function AdminYamiooAgents() {
         body: { agent_id: agent.id },
       });
       if (resp.error) throw resp.error;
-      toast({ title: "Agente desactivado", description: `Agente #${agent.agent_number} foi desactivado.` });
+      toast({ title: t('yamiooagents_toast_deactivated'), description: `${t('yamiooagents_agent_label')} #${agent.agent_number} ${t('yamiooagents_toast_deactivated_suffix')}` });
       fetchAgents();
     } catch (err) {
       console.error("Deactivate error:", err);
-      toast({ title: "Erro", description: "Falha ao desactivar agente.", variant: "destructive" });
+      toast({ title: t('yamiooagents_toast_error'), description: t('yamiooagents_toast_deactivate_failed'), variant: "destructive" });
     }
   };
 
@@ -143,36 +145,36 @@ export default function AdminYamiooAgents() {
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Users className="h-6 w-6 text-primary" />
-              Gestão de Agentes Yamioo
+              {t('yamiooagents_page_title')}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Registe e gira os agentes autorizados a criar endereços em nome de solicitantes
+              {t('yamiooagents_page_subtitle')}
             </p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={fetchAgents} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-              Atualizar
+              {t('yamiooagents_refresh')}
             </Button>
             <Dialog open={registerOpen} onOpenChange={(o) => { setRegisterOpen(o); if (!o) resetForm(); }}>
               <DialogTrigger asChild>
                 <Button>
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Registar Agente
+                  {t('yamiooagents_register_agent')}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
-                  <DialogTitle>Registar Novo Agente Yamioo</DialogTitle>
+                  <DialogTitle>{t('yamiooagents_dialog_title')}</DialogTitle>
                   <DialogDescription>
-                    Pesquise o utilizador por telefone e atribua-lhe o papel de agente. O número de agente será atribuído automaticamente.
+                    {t('yamiooagents_dialog_description')}
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-4 py-2">
                   {/* Search */}
                   <div className="space-y-2">
-                    <Label>Telefone do utilizador</Label>
+                    <Label>{t('yamiooagents_phone_label')}</Label>
                     <div className="flex gap-2">
                       <Input
                         placeholder="+244 9XX XXX XXX"
@@ -190,14 +192,14 @@ export default function AdminYamiooAgents() {
                   {/* Results */}
                   {searchResults.length > 0 && !selectedUser && (
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">{searchResults.length} resultado(s)</Label>
+                      <Label className="text-xs text-muted-foreground">{searchResults.length} {t('yamiooagents_results')}</Label>
                       {searchResults.map((r: any) => (
                         <button
                           key={r.user_id}
                           onClick={() => setSelectedUser(r)}
                           className="w-full text-left p-3 rounded-lg border hover:border-primary hover:bg-accent/50 transition-colors"
                         >
-                          <p className="font-medium text-sm">{r.full_name || "Sem nome"}</p>
+                          <p className="font-medium text-sm">{r.full_name || t('yamiooagents_no_name')}</p>
                           <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mt-1">
                             <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{r.phone || "—"}</span>
                             <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{r.email || "—"}</span>
@@ -213,11 +215,11 @@ export default function AdminYamiooAgents() {
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-semibold text-sm">{selectedUser.full_name || "Sem nome"}</p>
-                            <p className="text-xs text-muted-foreground">{selectedUser.phone} · {selectedUser.email || "sem email"}</p>
+                            <p className="font-semibold text-sm">{selectedUser.full_name || t('yamiooagents_no_name')}</p>
+                            <p className="text-xs text-muted-foreground">{selectedUser.phone} · {selectedUser.email || t('yamiooagents_no_email')}</p>
                           </div>
                           <Button variant="ghost" size="sm" onClick={() => setSelectedUser(null)} className="text-xs">
-                            Alterar
+                            {t('yamiooagents_change')}
                           </Button>
                         </div>
                       </CardContent>
@@ -227,9 +229,9 @@ export default function AdminYamiooAgents() {
                   {/* Notes */}
                   {selectedUser && (
                     <div className="space-y-2">
-                      <Label>Notas (opcional)</Label>
+                      <Label>{t('yamiooagents_notes_label')}</Label>
                       <Textarea
-                        placeholder="Ex: Agente da zona do Cazenga, escritório principal..."
+                        placeholder={t('yamiooagents_notes_placeholder')}
                         value={notes}
                         onChange={(e) => setNotes(e.target.value)}
                         rows={2}
@@ -240,11 +242,11 @@ export default function AdminYamiooAgents() {
 
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setRegisterOpen(false); resetForm(); }}>
-                    Cancelar
+                    {t('yamiooagents_cancel')}
                   </Button>
                   <Button onClick={handleRegister} disabled={!selectedUser || registering}>
                     {registering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
-                    Registar Agente
+                    {t('yamiooagents_register_agent')}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -261,7 +263,7 @@ export default function AdminYamiooAgents() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{agents.length}</p>
-                <p className="text-xs text-muted-foreground">Total de agentes</p>
+                <p className="text-xs text-muted-foreground">{t('yamiooagents_stat_total')}</p>
               </div>
             </CardContent>
           </Card>
@@ -272,7 +274,7 @@ export default function AdminYamiooAgents() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{activeAgents.length}</p>
-                <p className="text-xs text-muted-foreground">Activos</p>
+                <p className="text-xs text-muted-foreground">{t('yamiooagents_stat_active')}</p>
               </div>
             </CardContent>
           </Card>
@@ -283,7 +285,7 @@ export default function AdminYamiooAgents() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{inactiveAgents.length}</p>
-                <p className="text-xs text-muted-foreground">Inactivos</p>
+                <p className="text-xs text-muted-foreground">{t('yamiooagents_stat_inactive')}</p>
               </div>
             </CardContent>
           </Card>
@@ -292,8 +294,8 @@ export default function AdminYamiooAgents() {
         {/* Agents table */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Lista de Agentes</CardTitle>
-            <CardDescription>Todos os agentes registados com número sequencial atribuído</CardDescription>
+            <CardTitle className="text-lg">{t('yamiooagents_list_title')}</CardTitle>
+            <CardDescription>{t('yamiooagents_list_description')}</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -303,8 +305,8 @@ export default function AdminYamiooAgents() {
             ) : agents.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Users className="h-10 w-10 mx-auto mb-3 opacity-50" />
-                <p>Nenhum agente registado</p>
-                <p className="text-xs mt-1">Clique em "Registar Agente" para começar</p>
+                <p>{t('yamiooagents_empty_title')}</p>
+                <p className="text-xs mt-1">{t('yamiooagents_empty_hint')}</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -312,13 +314,13 @@ export default function AdminYamiooAgents() {
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-16">#</TableHead>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Localização</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead>Notas</TableHead>
-                      <TableHead className="w-24">Acções</TableHead>
+                      <TableHead>{t('yamiooagents_th_name')}</TableHead>
+                      <TableHead>{t('yamiooagents_th_phone')}</TableHead>
+                      <TableHead>{t('yamiooagents_th_email')}</TableHead>
+                      <TableHead>{t('yamiooagents_th_location')}</TableHead>
+                      <TableHead>{t('yamiooagents_th_status')}</TableHead>
+                      <TableHead>{t('yamiooagents_th_notes')}</TableHead>
+                      <TableHead className="w-24">{t('yamiooagents_th_actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -338,9 +340,9 @@ export default function AdminYamiooAgents() {
                         </TableCell>
                         <TableCell>
                           {agent.is_active ? (
-                            <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300">Activo</Badge>
+                            <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300">{t('yamiooagents_badge_active')}</Badge>
                           ) : (
-                            <Badge variant="secondary" className="text-destructive">Inactivo</Badge>
+                            <Badge variant="secondary" className="text-destructive">{t('yamiooagents_badge_inactive')}</Badge>
                           )}
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground max-w-[200px] truncate">
@@ -356,15 +358,15 @@ export default function AdminYamiooAgents() {
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Desactivar agente #{agent.agent_number}?</AlertDialogTitle>
+                                  <AlertDialogTitle>{t('yamiooagents_deactivate_title_prefix')} #{agent.agent_number}?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    {agent.full_name || "Este utilizador"} perderá o papel de agente Yamioo e não poderá criar endereços em nome de terceiros. Esta acção pode ser revertida.
+                                    {agent.full_name || t('yamiooagents_this_user')} {t('yamiooagents_deactivate_desc')}
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogCancel>{t('yamiooagents_cancel')}</AlertDialogCancel>
                                   <AlertDialogAction onClick={() => handleDeactivate(agent)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                                    Desactivar
+                                    {t('yamiooagents_deactivate')}
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>

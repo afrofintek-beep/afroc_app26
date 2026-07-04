@@ -22,6 +22,7 @@ import {
 import { AlertCircle, CheckCircle2, FileText, Loader2, Sparkles, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const COUNTRIES = [
   { code: "AO", name: "Angola" },
@@ -83,6 +84,7 @@ interface TestResult {
 }
 
 export default function AddressTest() {
+  const { t } = useLanguage();
   const [country, setCountry] = useState<string>("AO");
   const [rawAddress, setRawAddress] = useState<string>("");
   const [result, setResult] = useState<TestResult | null>(null);
@@ -100,7 +102,7 @@ export default function AddressTest() {
 
       if (error) {
         toast({
-          title: "Erro na normalização",
+          title: t('addrtest_toast_normalize_error'),
           description: error.message,
           variant: "destructive",
         });
@@ -114,8 +116,8 @@ export default function AddressTest() {
       });
     } catch (err) {
       toast({
-        title: "Erro",
-        description: "Falha ao chamar a função de normalização",
+        title: t('addrtest_toast_error'),
+        description: t('addrtest_toast_normalize_call_fail'),
         variant: "destructive",
       });
     } finally {
@@ -136,7 +138,7 @@ export default function AddressTest() {
 
       if (normalizeError) {
         toast({
-          title: "Erro na normalização",
+          title: t('addrtest_toast_normalize_error'),
           description: normalizeError.message,
           variant: "destructive",
         });
@@ -150,7 +152,7 @@ export default function AddressTest() {
 
       if (error) {
         toast({
-          title: "Erro na validação",
+          title: t('addrtest_toast_validate_error'),
           description: error.message,
           variant: "destructive",
         });
@@ -166,8 +168,8 @@ export default function AddressTest() {
       });
     } catch (err) {
       toast({
-        title: "Erro",
-        description: "Falha ao chamar a função de validação",
+        title: t('addrtest_toast_error'),
+        description: t('addrtest_toast_validate_call_fail'),
         variant: "destructive",
       });
     } finally {
@@ -188,7 +190,7 @@ export default function AddressTest() {
 
       if (normalizeError) {
         toast({
-          title: "Erro na normalização",
+          title: t('addrtest_toast_normalize_error'),
           description: normalizeError.message,
           variant: "destructive",
         });
@@ -205,7 +207,7 @@ export default function AddressTest() {
 
       if (error) {
         toast({
-          title: "Erro na formatação",
+          title: t('addrtest_toast_format_error'),
           description: error.message,
           variant: "destructive",
         });
@@ -221,8 +223,8 @@ export default function AddressTest() {
       });
     } catch (err) {
       toast({
-        title: "Erro",
-        description: "Falha ao chamar a função de formatação",
+        title: t('addrtest_toast_error'),
+        description: t('addrtest_toast_format_call_fail'),
         variant: "destructive",
       });
     } finally {
@@ -236,9 +238,9 @@ export default function AddressTest() {
       <div className="mx-auto max-w-4xl space-y-6">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Address Test</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('addrtest_page_title')}</h1>
           <p className="text-muted-foreground">
-            Testar o módulo AFROLOC Address Core: normalização, validação e formatação via Edge Functions.
+            {t('addrtest_page_subtitle')}
           </p>
         </div>
 
@@ -247,19 +249,19 @@ export default function AddressTest() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Entrada
+              {t('addrtest_input_title')}
             </CardTitle>
             <CardDescription>
-              Introduza um endereço para testar as funções do Address Core.
+              {t('addrtest_input_desc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Country Select */}
             <div className="space-y-2">
-              <Label htmlFor="country">País</Label>
+              <Label htmlFor="country">{t('addrtest_country_label')}</Label>
               <Select value={country} onValueChange={setCountry}>
                 <SelectTrigger id="country" className="w-full md:w-[280px] bg-background">
-                  <SelectValue placeholder="Selecione o país" />
+                  <SelectValue placeholder={t('addrtest_country_placeholder')} />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
                   {COUNTRIES.map((c) => (
@@ -278,10 +280,10 @@ export default function AddressTest() {
 
             {/* Address Textarea */}
             <div className="space-y-2">
-              <Label htmlFor="address">Endereço livre</Label>
+              <Label htmlFor="address">{t('addrtest_address_label')}</Label>
               <Textarea
                 id="address"
-                placeholder="Ex: Avenida 4 de Fevereiro, 123, Apartamento 5B, Ingombota, Luanda"
+                placeholder={t('addrtest_address_placeholder')}
                 value={rawAddress}
                 onChange={(e) => setRawAddress(e.target.value)}
                 className="min-h-[100px] resize-y"
@@ -296,7 +298,7 @@ export default function AddressTest() {
                 className="gap-2"
               >
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Normalizar
+                {t('addrtest_btn_normalize')}
               </Button>
               <Button
                 onClick={handleValidate}
@@ -305,7 +307,7 @@ export default function AddressTest() {
                 className="gap-2"
               >
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                Validar
+                {t('addrtest_btn_validate')}
               </Button>
               <Button
                 onClick={handleFormat}
@@ -314,7 +316,7 @@ export default function AddressTest() {
                 className="gap-2"
               >
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Tag className="h-4 w-4" />}
-                Formatar etiqueta
+                {t('addrtest_btn_format')}
               </Button>
             </div>
           </CardContent>
@@ -325,11 +327,11 @@ export default function AddressTest() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                Resultado
+                {t('addrtest_result_title')}
                 <Badge variant={result.type === "validate" && result.valid ? "default" : "secondary"}>
-                  {result.type === "normalize" && "Normalização"}
-                  {result.type === "validate" && "Validação"}
-                  {result.type === "format" && "Formatação"}
+                  {result.type === "normalize" && t('addrtest_badge_normalize')}
+                  {result.type === "validate" && t('addrtest_badge_validate')}
+                  {result.type === "format" && t('addrtest_badge_format')}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -337,20 +339,20 @@ export default function AddressTest() {
               {/* Errors & Warnings (Validate) */}
               {result.type === "validate" && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">Status</h4>
+                  <h4 className="font-medium">{t('addrtest_status_heading')}</h4>
                   <div className="flex items-center gap-2">
                     {result.valid ? (
                       <>
                         <CheckCircle2 className="h-5 w-5 text-green-500" />
                         <span className="text-green-600 dark:text-green-400">
-                          Endereço válido
+                          {t('addrtest_valid')}
                         </span>
                       </>
                     ) : (
                       <>
                         <AlertCircle className="h-5 w-5 text-destructive" />
                         <span className="text-destructive">
-                          Endereço inválido
+                          {t('addrtest_invalid')}
                         </span>
                       </>
                     )}
@@ -358,7 +360,7 @@ export default function AddressTest() {
 
                   {result.errors && result.errors.length > 0 && (
                     <div className="space-y-2">
-                      <h5 className="text-sm font-medium text-destructive">Erros</h5>
+                      <h5 className="text-sm font-medium text-destructive">{t('addrtest_errors_heading')}</h5>
                       <ul className="space-y-1">
                         {result.errors.map((err, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm">
@@ -376,7 +378,7 @@ export default function AddressTest() {
 
                   {result.warnings && result.warnings.length > 0 && (
                     <div className="space-y-2">
-                      <h5 className="text-sm font-medium text-yellow-600 dark:text-yellow-500">Avisos</h5>
+                      <h5 className="text-sm font-medium text-yellow-600 dark:text-yellow-500">{t('addrtest_warnings_heading')}</h5>
                       <ul className="space-y-1">
                         {result.warnings.map((warn, i) => (
                           <li key={i} className="flex items-start gap-2 text-sm">
@@ -397,7 +399,7 @@ export default function AddressTest() {
               {/* Format Preview */}
               {result.type === "format" && result.lines && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">Preview da Etiqueta Postal</h4>
+                  <h4 className="font-medium">{t('addrtest_label_preview_heading')}</h4>
                   <div className="border rounded-lg p-4 bg-muted/30 font-mono text-sm uppercase">
                     {result.lines.map((line, i) => (
                       <div key={i} className="leading-relaxed">
@@ -406,8 +408,8 @@ export default function AddressTest() {
                     ))}
                   </div>
                   <div className="flex gap-4 text-xs text-muted-foreground">
-                    <span>País: <code>{result.country}</code></span>
-                    <span>Template: <code>{result.template_id}</code></span>
+                    <span>{t('addrtest_country_field')}: <code>{result.country}</code></span>
+                    <span>{t('addrtest_template_field')}: <code>{result.template_id}</code></span>
                   </div>
                 </div>
               )}
@@ -415,7 +417,7 @@ export default function AddressTest() {
               {/* Normalization Changes */}
               {result.type === "normalize" && result.changes && result.changes.length > 0 && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">Alterações Aplicadas</h4>
+                  <h4 className="font-medium">{t('addrtest_changes_heading')}</h4>
                   <ul className="space-y-1 text-sm">
                     {result.changes.map((change, i) => (
                       <li key={i} className="flex items-center gap-2 flex-wrap">
@@ -434,23 +436,23 @@ export default function AddressTest() {
 
               {result.type === "normalize" && (!result.changes || result.changes.length === 0) && (
                 <div className="text-sm text-muted-foreground">
-                  Nenhuma alteração de normalização aplicada.
+                  {t('addrtest_no_changes')}
                 </div>
               )}
 
               {/* Display/Label Preview for Normalize */}
               {result.type === "normalize" && result.address && (
                 <div className="space-y-3">
-                  <h4 className="font-medium">Preview</h4>
+                  <h4 className="font-medium">{t('addrtest_preview_heading')}</h4>
                   <div className="space-y-2">
                     <div>
-                      <span className="text-xs text-muted-foreground">Display:</span>
+                      <span className="text-xs text-muted-foreground">{t('addrtest_display_label')}</span>
                       <div className="border rounded-lg p-3 bg-muted/30 text-sm">
                         {result.address.display || "-"}
                       </div>
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground">Label (uppercase):</span>
+                      <span className="text-xs text-muted-foreground">{t('addrtest_label_uppercase_label')}</span>
                       <div className="border rounded-lg p-3 bg-muted/30 font-mono text-sm uppercase">
                         {result.address.label || "-"}
                       </div>
@@ -463,7 +465,7 @@ export default function AddressTest() {
 
               {/* JSON Output */}
               <div className="space-y-3">
-                <h4 className="font-medium">JSON do Address Canónico</h4>
+                <h4 className="font-medium">{t('addrtest_json_heading')}</h4>
                 <ScrollArea className="h-[200px] w-full rounded-md border">
                   <pre className="p-4 text-xs font-mono">
                     {JSON.stringify(result.address, null, 2)}

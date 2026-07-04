@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Calendar, TrendingUp, TrendingDown, Award, CheckCircle2, Clock, ArrowUpRight, ArrowDownRight, Minus, GitCompare } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 
@@ -27,6 +28,7 @@ const COLORS = {
 };
 
 export default function IdentitiesTimelineView({ records }: IdentitiesTimelineViewProps) {
+  const { t } = useLanguage();
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
   const [groupBy, setGroupBy] = useState<'day' | 'month'>('day');
   const [showComparison, setShowComparison] = useState(false);
@@ -147,7 +149,7 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
     return {
       total: filteredRecords.length,
       dailyAverage,
-      busiestPeriod: busiestPeriod ? `${busiestPeriod.date} (${busiestPeriod.total})` : 'N/A'
+      busiestPeriod: busiestPeriod ? `${busiestPeriod.date} (${busiestPeriod.total})` : t('timeline_not_available')
     };
   }, [filteredRecords, dateRange, timelineData]);
 
@@ -214,10 +216,10 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-              <SelectItem value="all">All time</SelectItem>
+              <SelectItem value="7d">{t('timeline_last_7_days')}</SelectItem>
+              <SelectItem value="30d">{t('timeline_last_30_days')}</SelectItem>
+              <SelectItem value="90d">{t('timeline_last_90_days')}</SelectItem>
+              <SelectItem value="all">{t('timeline_all_time')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -226,8 +228,8 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="day">By Day</SelectItem>
-              <SelectItem value="month">By Month</SelectItem>
+              <SelectItem value="day">{t('timeline_by_day')}</SelectItem>
+              <SelectItem value="month">{t('timeline_by_month')}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -237,7 +239,7 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
             size="sm"
           >
             <GitCompare className="h-4 w-4 mr-2" />
-            {showComparison ? 'Hide' : 'Compare'}
+            {showComparison ? t('timeline_hide') : t('timeline_compare')}
           </Button>
         </div>
 
@@ -249,7 +251,7 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
           {showComparison && comparisonDateRange && (
             <Badge variant="secondary">
               <Calendar className="h-3 w-3 mr-1" />
-              vs {format(comparisonDateRange.start, 'MMM dd, yyyy')} - {format(comparisonDateRange.end, 'MMM dd, yyyy')}
+              {t('timeline_vs')} {format(comparisonDateRange.start, 'MMM dd, yyyy')} - {format(comparisonDateRange.end, 'MMM dd, yyyy')}
             </Badge>
           )}
         </div>
@@ -261,17 +263,17 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <GitCompare className="h-5 w-5" />
-              <CardTitle className="text-lg">Period Comparison</CardTitle>
+              <CardTitle className="text-lg">{t('timeline_period_comparison')}</CardTitle>
             </div>
             <CardDescription>
-              Comparing current period with previous {timeRange === '7d' ? '7 days' : timeRange === '30d' ? '30 days' : timeRange === '90d' ? '90 days' : 'period'}
+              {t('timeline_comparing_current_previous')} {timeRange === '7d' ? t('timeline_7_days') : timeRange === '30d' ? t('timeline_30_days') : timeRange === '90d' ? t('timeline_90_days') : t('timeline_period')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center justify-between p-3 rounded-lg bg-background">
                 <div>
-                  <div className="text-sm text-muted-foreground">Total Change</div>
+                  <div className="text-sm text-muted-foreground">{t('timeline_total_change')}</div>
                   <div className="text-2xl font-bold flex items-center gap-2">
                     {comparisonStats.totalChangeValue > 0 ? '+' : ''}{comparisonStats.totalChangeValue}
                     {getChangeIcon(comparisonStats.totalChange)}
@@ -281,14 +283,14 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground text-right">
-                  <div>Current: {statistics.total}</div>
-                  <div>Previous: {comparisonStats.comparisonTotal}</div>
+                  <div>{t('timeline_current')}: {statistics.total}</div>
+                  <div>{t('timeline_previous')}: {comparisonStats.comparisonTotal}</div>
                 </div>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-background">
                 <div>
-                  <div className="text-sm text-muted-foreground">Daily Avg Change</div>
+                  <div className="text-sm text-muted-foreground">{t('timeline_daily_avg_change')}</div>
                   <div className="text-2xl font-bold flex items-center gap-2">
                     {parseFloat(comparisonStats.dailyAvgChangeValue) > 0 ? '+' : ''}{comparisonStats.dailyAvgChangeValue}
                     {getChangeIcon(comparisonStats.dailyAvgChange)}
@@ -298,13 +300,13 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground text-right">
-                  <div>Current: {statistics.dailyAverage}/day</div>
-                  <div>Previous: {(comparisonStats.comparisonTotal / Math.ceil((comparisonDateRange!.end.getTime() - comparisonDateRange!.start.getTime()) / (1000 * 60 * 60 * 24))).toFixed(1)}/day</div>
+                  <div>{t('timeline_current')}: {statistics.dailyAverage}{t('timeline_per_day_suffix')}</div>
+                  <div>{t('timeline_previous')}: {(comparisonStats.comparisonTotal / Math.ceil((comparisonDateRange!.end.getTime() - comparisonDateRange!.start.getTime()) / (1000 * 60 * 60 * 24))).toFixed(1)}{t('timeline_per_day_suffix')}</div>
                 </div>
               </div>
 
               <div className="p-3 rounded-lg bg-background">
-                <div className="text-sm text-muted-foreground mb-2">Status Comparison</div>
+                <div className="text-sm text-muted-foreground mb-2">{t('timeline_status_comparison')}</div>
                 <div className="space-y-1 text-xs">
                   {Object.keys({...comparisonStats.currentStatusDist, ...comparisonStats.comparisonStatusDist}).map(status => {
                     const current = comparisonStats.currentStatusDist[status] || 0;
@@ -330,19 +332,19 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Total Created</CardDescription>
+            <CardDescription>{t('timeline_total_created')}</CardDescription>
             <CardTitle className="text-3xl">{statistics.total}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              In selected time range
+              {t('timeline_in_selected_range')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Daily Average</CardDescription>
+            <CardDescription>{t('timeline_daily_average')}</CardDescription>
             <CardTitle className="text-3xl flex items-center gap-2">
               {statistics.dailyAverage}
               <TrendingUp className="h-5 w-5 text-primary" />
@@ -350,19 +352,19 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              Identities per day
+              {t('timeline_identities_per_day')}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Busiest Period</CardDescription>
+            <CardDescription>{t('timeline_busiest_period')}</CardDescription>
             <CardTitle className="text-xl">{statistics.busiestPeriod}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              Highest creation count
+              {t('timeline_highest_creation_count')}
             </p>
           </CardContent>
         </Card>
@@ -371,16 +373,16 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
       {/* Charts */}
       <Tabs defaultValue="timeline" className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-3">
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
-          <TabsTrigger value="status">By Status</TabsTrigger>
-          <TabsTrigger value="property">By Type</TabsTrigger>
+          <TabsTrigger value="timeline">{t('timeline_tab_timeline')}</TabsTrigger>
+          <TabsTrigger value="status">{t('timeline_tab_by_status')}</TabsTrigger>
+          <TabsTrigger value="property">{t('timeline_tab_by_type')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="timeline" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Creation Timeline</CardTitle>
-              <CardDescription>Number of identities created over time</CardDescription>
+              <CardTitle>{t('timeline_creation_timeline')}</CardTitle>
+              <CardDescription>{t('timeline_number_created_over_time')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={400}>
@@ -405,31 +407,31 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                   <Legend />
                   <Line 
                     type="monotone" 
-                    dataKey="total" 
-                    stroke="#3b82f6" 
+                    dataKey="total"
+                    stroke="#3b82f6"
                     strokeWidth={2}
-                    name="Total"
+                    name={t('timeline_total')}
                   />
                   <Line 
                     type="monotone" 
-                    dataKey="certified" 
-                    stroke={COLORS.certified} 
+                    dataKey="certified"
+                    stroke={COLORS.certified}
                     strokeWidth={2}
-                    name="Certified"
+                    name={t('timeline_certified')}
                   />
                   <Line 
                     type="monotone" 
-                    dataKey="verified" 
-                    stroke={COLORS.verified} 
+                    dataKey="verified"
+                    stroke={COLORS.verified}
                     strokeWidth={2}
-                    name="Verified"
+                    name={t('timeline_verified')}
                   />
                   <Line 
                     type="monotone" 
-                    dataKey="draft" 
-                    stroke={COLORS.draft} 
+                    dataKey="draft"
+                    stroke={COLORS.draft}
                     strokeWidth={2}
-                    name="Draft"
+                    name={t('timeline_draft')}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -438,8 +440,8 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
 
           <Card>
             <CardHeader>
-              <CardTitle>Status Breakdown by Period</CardTitle>
-              <CardDescription>Stacked view of identity statuses</CardDescription>
+              <CardTitle>{t('timeline_status_breakdown_by_period')}</CardTitle>
+              <CardDescription>{t('timeline_stacked_view_statuses')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -455,9 +457,9 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="certified" stackId="a" fill={COLORS.certified} name="Certified" />
-                  <Bar dataKey="verified" stackId="a" fill={COLORS.verified} name="Verified" />
-                  <Bar dataKey="draft" stackId="a" fill={COLORS.draft} name="Draft" />
+                  <Bar dataKey="certified" stackId="a" fill={COLORS.certified} name={t('timeline_certified')} />
+                  <Bar dataKey="verified" stackId="a" fill={COLORS.verified} name={t('timeline_verified')} />
+                  <Bar dataKey="draft" stackId="a" fill={COLORS.draft} name={t('timeline_draft')} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -467,8 +469,8 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
         <TabsContent value="status" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Status Distribution</CardTitle>
-              <CardDescription>Breakdown of identities by status</CardDescription>
+              <CardTitle>{t('timeline_status_distribution')}</CardTitle>
+              <CardDescription>{t('timeline_breakdown_by_status')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -508,7 +510,7 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                             {item.name}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {((item.value / filteredRecords.length) * 100).toFixed(1)}% of total
+                            {((item.value / filteredRecords.length) * 100).toFixed(1)}{t('timeline_percent_of_total')}
                           </div>
                         </div>
                       </div>
@@ -524,8 +526,8 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
         <TabsContent value="property" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Property Type Distribution</CardTitle>
-              <CardDescription>Breakdown of identities by property type</CardDescription>
+              <CardTitle>{t('timeline_property_type_distribution')}</CardTitle>
+              <CardDescription>{t('timeline_breakdown_by_property_type')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -560,7 +562,7 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                         <div>
                           <div className="font-medium">{item.name}</div>
                           <div className="text-sm text-muted-foreground">
-                            {((item.value / filteredRecords.length) * 100).toFixed(1)}% of total
+                            {((item.value / filteredRecords.length) * 100).toFixed(1)}{t('timeline_percent_of_total')}
                           </div>
                         </div>
                       </div>
@@ -574,8 +576,8 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
 
           <Card>
             <CardHeader>
-              <CardTitle>Property Types Over Time</CardTitle>
-              <CardDescription>Trend of property type creation</CardDescription>
+              <CardTitle>{t('timeline_property_types_over_time')}</CardTitle>
+              <CardDescription>{t('timeline_trend_property_type_creation')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -591,7 +593,7 @@ export default function IdentitiesTimelineView({ records }: IdentitiesTimelineVi
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="total" fill="#3b82f6" name="Total Created" />
+                  <Bar dataKey="total" fill="#3b82f6" name={t('timeline_total_created')} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>

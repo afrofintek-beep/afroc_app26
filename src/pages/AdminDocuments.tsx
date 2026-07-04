@@ -18,6 +18,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Shield, FileText, CheckCircle2, XCircle, Clock, Eye, Search, Filter, ArrowLeft } from "lucide-react";
 import { LevelGate } from "@/components/LevelGate";
 import type { Database } from "@/integrations/supabase/types";
@@ -41,6 +42,7 @@ export default function AdminDocuments() {
   const [documentPreview, setDocumentPreview] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -89,7 +91,7 @@ export default function AdminDocuments() {
       setDocuments(docsWithDetails);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('admindocs_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -131,7 +133,7 @@ export default function AdminDocuments() {
       setSelectedDoc(doc);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('admindocs_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -173,8 +175,8 @@ export default function AdminDocuments() {
       }
 
       toast({
-        title: "Success",
-        description: "Document approved successfully",
+        title: t('admindocs_toast_success_title'),
+        description: t('admindocs_toast_approved_desc'),
       });
 
       setActionDialog(null);
@@ -183,7 +185,7 @@ export default function AdminDocuments() {
       await loadDocuments();
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('admindocs_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -193,8 +195,8 @@ export default function AdminDocuments() {
   const handleReject = async () => {
     if (!selectedDoc || !rejectionReason.trim()) {
       toast({
-        title: "Error",
-        description: "Please provide a rejection reason",
+        title: t('admindocs_toast_error_title'),
+        description: t('admindocs_toast_reason_required_desc'),
         variant: "destructive",
       });
       return;
@@ -232,8 +234,8 @@ export default function AdminDocuments() {
       }
 
       toast({
-        title: "Success",
-        description: "Document rejected",
+        title: t('admindocs_toast_success_title'),
+        description: t('admindocs_toast_rejected_desc'),
       });
 
       setActionDialog(null);
@@ -243,7 +245,7 @@ export default function AdminDocuments() {
       await loadDocuments();
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('admindocs_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -253,11 +255,11 @@ export default function AdminDocuments() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "verified":
-        return <Badge variant="default" className="bg-green-600">Verified</Badge>;
+        return <Badge variant="default" className="bg-green-600">{t('admindocs_status_verified')}</Badge>;
       case "pending":
-        return <Badge variant="secondary">Pending Review</Badge>;
+        return <Badge variant="secondary">{t('admindocs_status_pending')}</Badge>;
       case "rejected":
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="destructive">{t('admindocs_status_rejected')}</Badge>;
       default:
         return null;
     }
@@ -265,10 +267,10 @@ export default function AdminDocuments() {
 
   const getDocumentTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      national_id: "National ID Card",
-      utility_bill: "Utility Bill",
-      residence_certificate: "Residence Certificate",
-      property_deed: "Property Deed/Lease",
+      national_id: t('admindocs_doctype_national_id'),
+      utility_bill: t('admindocs_doctype_utility_bill'),
+      residence_certificate: t('admindocs_doctype_residence_certificate'),
+      property_deed: t('admindocs_doctype_property_deed'),
     };
     return labels[type] || type;
   };
@@ -281,7 +283,7 @@ export default function AdminDocuments() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground">{t('admindocs_loading')}</p>
         </div>
       </DashboardLayout>
     );
@@ -303,9 +305,9 @@ export default function AdminDocuments() {
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
                     <Shield className="h-8 w-8" />
-                    Document Review
+                    {t('admindocs_page_title')}
                   </h1>
-                  <p className="text-muted-foreground">Review and manage identity document submissions</p>
+                  <p className="text-muted-foreground">{t('admindocs_page_subtitle')}</p>
                 </div>
               </div>
 
@@ -313,7 +315,7 @@ export default function AdminDocuments() {
               <div className="grid gap-4 md:grid-cols-4">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Total Documents</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{t('admindocs_stat_total')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{documents.length}</div>
@@ -321,7 +323,7 @@ export default function AdminDocuments() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{t('admindocs_stat_pending')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-yellow-600">{getStatusCount("pending")}</div>
@@ -329,7 +331,7 @@ export default function AdminDocuments() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Verified</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{t('admindocs_stat_verified')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-green-600">{getStatusCount("verified")}</div>
@@ -337,7 +339,7 @@ export default function AdminDocuments() {
                 </Card>
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Rejected</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{t('admindocs_stat_rejected')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-red-600">{getStatusCount("rejected")}</div>
@@ -348,7 +350,7 @@ export default function AdminDocuments() {
               {/* Filters */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Filters</CardTitle>
+                  <CardTitle className="text-lg">{t('admindocs_filters_title')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex gap-4">
@@ -356,7 +358,7 @@ export default function AdminDocuments() {
                       <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
-                          placeholder="Search by AFROLOC, email, or document type..."
+                          placeholder={t('admindocs_search_placeholder')}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           className="pl-10"
@@ -367,10 +369,10 @@ export default function AdminDocuments() {
                       <Filter className="h-4 w-4 text-muted-foreground" />
                       <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)} className="w-auto">
                         <TabsList>
-                          <TabsTrigger value="all">All</TabsTrigger>
-                          <TabsTrigger value="pending">Pending</TabsTrigger>
-                          <TabsTrigger value="verified">Verified</TabsTrigger>
-                          <TabsTrigger value="rejected">Rejected</TabsTrigger>
+                          <TabsTrigger value="all">{t('admindocs_tab_all')}</TabsTrigger>
+                          <TabsTrigger value="pending">{t('admindocs_tab_pending')}</TabsTrigger>
+                          <TabsTrigger value="verified">{t('admindocs_tab_verified')}</TabsTrigger>
+                          <TabsTrigger value="rejected">{t('admindocs_tab_rejected')}</TabsTrigger>
                         </TabsList>
                       </Tabs>
                     </div>
@@ -381,16 +383,16 @@ export default function AdminDocuments() {
               {/* Documents List */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Document Submissions</CardTitle>
+                  <CardTitle>{t('admindocs_list_title')}</CardTitle>
                   <CardDescription>
-                    {filteredDocuments.length} document{filteredDocuments.length !== 1 ? 's' : ''} found
+                    {filteredDocuments.length} {filteredDocuments.length !== 1 ? t('admindocs_list_count_plural') : t('admindocs_list_count_singular')} {t('admindocs_list_count_found')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   {filteredDocuments.length === 0 ? (
                     <div className="text-center py-12">
                       <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No documents found</p>
+                      <p className="text-muted-foreground">{t('admindocs_empty')}</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
@@ -412,19 +414,19 @@ export default function AdminDocuments() {
                                   <span className="font-mono">{doc.afroloc_code}</span>
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium">User:</span> {doc.user_email}
+                                  <span className="font-medium">{t('admindocs_label_user')}</span> {doc.user_email}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium">File:</span> {doc.file_name}{" "}
+                                  <span className="font-medium">{t('admindocs_label_file')}</span> {doc.file_name}{" "}
                                   <span className="text-xs">({(doc.file_size / 1024).toFixed(1)} KB)</span>
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium">Uploaded:</span>{" "}
+                                  <span className="font-medium">{t('admindocs_label_uploaded')}</span>{" "}
                                   {new Date(doc.created_at).toLocaleString()}
                                 </p>
                                 {doc.rejection_reason && (
                                   <p className="text-sm text-destructive">
-                                    <span className="font-medium">Rejection Reason:</span> {doc.rejection_reason}
+                                    <span className="font-medium">{t('admindocs_label_rejection_reason')}</span> {doc.rejection_reason}
                                   </p>
                                 )}
                               </div>
@@ -437,7 +439,7 @@ export default function AdminDocuments() {
                               onClick={() => handleViewDocument(doc)}
                             >
                               <Eye className="mr-2 h-4 w-4" />
-                              Review
+                              {t('admindocs_btn_review')}
                             </Button>
                           </div>
                         </div>
@@ -458,11 +460,11 @@ export default function AdminDocuments() {
       }}>
         <DialogContent className="max-w-4xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Document Review</DialogTitle>
+            <DialogTitle>{t('admindocs_preview_title')}</DialogTitle>
             <DialogDescription>
               {selectedDoc && (
                 <>
-                  {getDocumentTypeLabel(selectedDoc.document_type)} for {selectedDoc.afroloc_code}
+                  {getDocumentTypeLabel(selectedDoc.document_type)} {t('admindocs_preview_for')} {selectedDoc.afroloc_code}
                 </>
               )}
             </DialogDescription>
@@ -475,12 +477,12 @@ export default function AdminDocuments() {
                   <iframe
                     src={documentPreview}
                     className="w-full h-[500px]"
-                    title="Document Preview"
+                    title={t('admindocs_preview_title')}
                   />
                 ) : (
                   <img
                     src={documentPreview}
-                    alt="Document"
+                    alt={t('admindocs_img_alt')}
                     className="w-full h-auto max-h-[500px] object-contain"
                   />
                 )}
@@ -494,7 +496,7 @@ export default function AdminDocuments() {
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Approve Document
+                  {t('admindocs_btn_approve_document')}
                 </Button>
                 <Button
                   onClick={() => setActionDialog("reject")}
@@ -502,7 +504,7 @@ export default function AdminDocuments() {
                   className="flex-1"
                 >
                   <XCircle className="mr-2 h-4 w-4" />
-                  Reject Document
+                  {t('admindocs_btn_reject_document')}
                 </Button>
               </div>
             )}
@@ -514,18 +516,18 @@ export default function AdminDocuments() {
       <Dialog open={actionDialog === "approve"} onOpenChange={() => setActionDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Approve Document</DialogTitle>
+            <DialogTitle>{t('admindocs_approve_dialog_title')}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to approve this document? This action will mark it as verified.
+              {t('admindocs_approve_dialog_desc')}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setActionDialog(null)}>
-              Cancel
+              {t('admindocs_btn_cancel')}
             </Button>
             <Button onClick={handleApprove} className="bg-green-600 hover:bg-green-700">
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Approve
+              {t('admindocs_btn_approve')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -538,24 +540,24 @@ export default function AdminDocuments() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reject Document</DialogTitle>
+            <DialogTitle>{t('admindocs_reject_dialog_title')}</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejecting this document. The user will see this message.
+              {t('admindocs_reject_dialog_desc')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="rejection_reason">Rejection Reason *</Label>
+              <Label htmlFor="rejection_reason">{t('admindocs_reject_reason_label')}</Label>
               <Textarea
                 id="rejection_reason"
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="e.g., Document is blurry, expired, or doesn't match the address..."
+                placeholder={t('admindocs_reject_reason_placeholder')}
                 rows={4}
                 maxLength={500}
               />
               <p className="text-sm text-muted-foreground">
-                {rejectionReason.length}/500 characters
+                {rejectionReason.length}/500 {t('admindocs_characters')}
               </p>
             </div>
           </div>
@@ -564,7 +566,7 @@ export default function AdminDocuments() {
               setActionDialog(null);
               setRejectionReason("");
             }}>
-              Cancel
+              {t('admindocs_btn_cancel')}
             </Button>
             <Button
               onClick={handleReject}
@@ -572,7 +574,7 @@ export default function AdminDocuments() {
               disabled={!rejectionReason.trim()}
             >
               <XCircle className="mr-2 h-4 w-4" />
-            Reject Document
+            {t('admindocs_btn_reject_document')}
           </Button>
         </DialogFooter>
       </DialogContent>

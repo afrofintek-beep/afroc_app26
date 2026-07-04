@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -24,6 +25,7 @@ type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"] & {
 export default function TempAddressManager() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [records, setRecords] = useState<AfrolocRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -69,7 +71,7 @@ export default function TempAddressManager() {
       .maybeSingle();
 
     if (findErr || !rec) {
-      toast({ title: "Erro", description: "Código AFROLOC não encontrado.", variant: "destructive" });
+      toast({ title: t('tempaddr_toast_error'), description: t('tempaddr_toast_code_not_found'), variant: "destructive" });
       setGranting(false);
       return;
     }
@@ -89,9 +91,9 @@ export default function TempAddressManager() {
       .eq("id", rec.id);
 
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      toast({ title: t('tempaddr_toast_error'), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Sucesso", description: `Código temporário atribuído (${grantDays} dias).` });
+      toast({ title: t('tempaddr_toast_success'), description: `${t('tempaddr_toast_granted')} (${grantDays} ${t('tempaddr_days')}).` });
       setGrantOpen(false);
       setGrantCode("");
       fetchRecords();
@@ -117,9 +119,9 @@ export default function TempAddressManager() {
       .eq("id", reactivateRecord.id);
 
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      toast({ title: t('tempaddr_toast_error'), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Reativado", description: `Endereço reativado por ${reactivateDays} dias.` });
+      toast({ title: t('tempaddr_toast_reactivated'), description: `${t('tempaddr_toast_reactivated_desc')} ${reactivateDays} ${t('tempaddr_days')}.` });
       setReactivateRecord(null);
       fetchRecords();
     }
@@ -133,9 +135,9 @@ export default function TempAddressManager() {
       .eq("id", record.id);
 
     if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      toast({ title: t('tempaddr_toast_error'), description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Suspenso", description: "Endereço temporário suspenso." });
+      toast({ title: t('tempaddr_toast_suspended'), description: t('tempaddr_toast_suspended_desc') });
       fetchRecords();
     }
   };
@@ -166,12 +168,12 @@ export default function TempAddressManager() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Gestão de Endereços Temporários</h1>
-            <p className="text-sm text-muted-foreground">Atribuir, suspender e reativar códigos AFROLOC temporários</p>
+            <h1 className="text-2xl font-bold">{t('tempaddr_page_title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('tempaddr_page_subtitle')}</p>
           </div>
           <Button onClick={() => setGrantOpen(true)}>
             <Timer className="h-4 w-4 mr-2" />
-            Atribuir temporário
+            {t('tempaddr_grant_button')}
           </Button>
         </div>
 
@@ -180,7 +182,7 @@ export default function TempAddressManager() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Pesquisar por código ou localização..."
+              placeholder={t('tempaddr_search_placeholder')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9"
@@ -191,10 +193,10 @@ export default function TempAddressManager() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="active">Ativos</SelectItem>
-              <SelectItem value="expired">Expirados</SelectItem>
-              <SelectItem value="suspended">Suspensos</SelectItem>
+              <SelectItem value="all">{t('tempaddr_filter_all')}</SelectItem>
+              <SelectItem value="active">{t('tempaddr_filter_active')}</SelectItem>
+              <SelectItem value="expired">{t('tempaddr_filter_expired')}</SelectItem>
+              <SelectItem value="suspended">{t('tempaddr_filter_suspended')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -204,7 +206,7 @@ export default function TempAddressManager() {
           <Card>
             <CardContent className="py-3 text-center">
               <p className="text-2xl font-bold">{records.length}</p>
-              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-xs text-muted-foreground">{t('tempaddr_stat_total')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -215,7 +217,7 @@ export default function TempAddressManager() {
                   return d !== null && d > 0 && (r.status as string) !== "suspended";
                 }).length}
               </p>
-              <p className="text-xs text-muted-foreground">Ativos</p>
+              <p className="text-xs text-muted-foreground">{t('tempaddr_filter_active')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -226,7 +228,7 @@ export default function TempAddressManager() {
                   return d !== null && d <= 0;
                 }).length}
               </p>
-              <p className="text-xs text-muted-foreground">Expirados</p>
+              <p className="text-xs text-muted-foreground">{t('tempaddr_filter_expired')}</p>
             </CardContent>
           </Card>
           <Card>
@@ -234,7 +236,7 @@ export default function TempAddressManager() {
               <p className="text-2xl font-bold text-amber-500">
                 {records.filter(r => (r.status as string) === "suspended").length}
               </p>
-              <p className="text-xs text-muted-foreground">Suspensos</p>
+              <p className="text-xs text-muted-foreground">{t('tempaddr_filter_suspended')}</p>
             </CardContent>
           </Card>
         </div>
@@ -247,7 +249,7 @@ export default function TempAddressManager() {
         ) : filteredRecords.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
-              Nenhum endereço temporário encontrado.
+              {t('tempaddr_empty')}
             </CardContent>
           </Card>
         ) : (
@@ -265,13 +267,13 @@ export default function TempAddressManager() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <p className="font-mono font-bold text-sm">{r.code}</p>
                           {isExpired ? (
-                            <Badge variant="destructive" className="text-[10px]">EXPIRADO</Badge>
+                            <Badge variant="destructive" className="text-[10px]">{t('tempaddr_badge_expired')}</Badge>
                           ) : isSuspended ? (
-                            <Badge variant="outline" className="text-[10px] border-amber-400 text-amber-600">SUSPENSO</Badge>
+                            <Badge variant="outline" className="text-[10px] border-amber-400 text-amber-600">{t('tempaddr_badge_suspended')}</Badge>
                           ) : (
                             <Badge variant="outline" className="text-[10px] border-amber-400 text-amber-600">
                               <Timer className="h-2.5 w-2.5 mr-0.5" />
-                              {days}d restantes
+                              {days}{t('tempaddr_days_remaining_suffix')}
                             </Badge>
                           )}
                         </div>
@@ -283,11 +285,11 @@ export default function TempAddressManager() {
                           {r.temporary_expires_at && (
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              Expira: {new Date(r.temporary_expires_at).toLocaleDateString("pt")}
+                              {t('tempaddr_expires_label')}: {new Date(r.temporary_expires_at).toLocaleDateString("pt")}
                             </span>
                           )}
                           {r.temporary_validity_days && (
-                            <span>{r.temporary_validity_days} dias</span>
+                            <span>{r.temporary_validity_days} {t('tempaddr_days')}</span>
                           )}
                         </div>
                       </div>
@@ -295,13 +297,13 @@ export default function TempAddressManager() {
                         {(isExpired || isSuspended) && (
                           <Button size="sm" variant="outline" onClick={() => { setReactivateRecord(r); setReactivateDays("30"); }}>
                             <RefreshCw className="h-3.5 w-3.5 mr-1" />
-                            Reativar
+                            {t('tempaddr_reactivate')}
                           </Button>
                         )}
                         {!isExpired && !isSuspended && (
                           <Button size="sm" variant="outline" className="text-destructive" onClick={() => handleSuspend(r)}>
                             <XCircle className="h-3.5 w-3.5 mr-1" />
-                            Suspender
+                            {t('tempaddr_suspend')}
                           </Button>
                         )}
                       </div>
@@ -317,11 +319,11 @@ export default function TempAddressManager() {
         <Dialog open={grantOpen} onOpenChange={setGrantOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Atribuir código temporário</DialogTitle>
+              <DialogTitle>{t('tempaddr_grant_dialog_title')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>Código AFROLOC</Label>
+                <Label>{t('tempaddr_code_label')}</Label>
                 <Input
                   placeholder="AO-LUA-G10-X1A2-Y3B4"
                   value={grantCode}
@@ -330,24 +332,24 @@ export default function TempAddressManager() {
                 />
               </div>
               <div>
-                <Label>Validade</Label>
+                <Label>{t('tempaddr_validity_label')}</Label>
                 <Select value={grantDays} onValueChange={setGrantDays}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="30">30 dias</SelectItem>
-                    <SelectItem value="60">60 dias</SelectItem>
-                    <SelectItem value="90">90 dias</SelectItem>
+                    <SelectItem value="30">30 {t('tempaddr_days')}</SelectItem>
+                    <SelectItem value="60">60 {t('tempaddr_days')}</SelectItem>
+                    <SelectItem value="90">90 {t('tempaddr_days')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setGrantOpen(false)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setGrantOpen(false)}>{t('tempaddr_cancel')}</Button>
               <Button onClick={handleGrant} disabled={granting || !grantCode.trim()}>
                 {granting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Timer className="h-4 w-4 mr-2" />}
-                Atribuir
+                {t('tempaddr_grant_submit')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -357,31 +359,31 @@ export default function TempAddressManager() {
         <Dialog open={!!reactivateRecord} onOpenChange={(open) => !open && setReactivateRecord(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Reativar endereço temporário</DialogTitle>
+              <DialogTitle>{t('tempaddr_reactivate_dialog_title')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <p className="text-sm">
-                Código: <span className="font-mono font-bold">{reactivateRecord?.code}</span>
+                {t('tempaddr_code_label_short')}: <span className="font-mono font-bold">{reactivateRecord?.code}</span>
               </p>
               <div>
-                <Label>Nova validade</Label>
+                <Label>{t('tempaddr_new_validity_label')}</Label>
                 <Select value={reactivateDays} onValueChange={setReactivateDays}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="30">30 dias</SelectItem>
-                    <SelectItem value="60">60 dias</SelectItem>
-                    <SelectItem value="90">90 dias</SelectItem>
+                    <SelectItem value="30">30 {t('tempaddr_days')}</SelectItem>
+                    <SelectItem value="60">60 {t('tempaddr_days')}</SelectItem>
+                    <SelectItem value="90">90 {t('tempaddr_days')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setReactivateRecord(null)}>Cancelar</Button>
+              <Button variant="outline" onClick={() => setReactivateRecord(null)}>{t('tempaddr_cancel')}</Button>
               <Button onClick={handleReactivate} disabled={reactivating}>
                 {reactivating ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-                Reativar
+                {t('tempaddr_reactivate')}
               </Button>
             </DialogFooter>
           </DialogContent>

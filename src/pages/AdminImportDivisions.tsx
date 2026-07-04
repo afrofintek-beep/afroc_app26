@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, Download, ArrowLeft } from 'lucide-react';
@@ -29,6 +30,7 @@ interface DivisionRow {
 export default function AdminImportDivisions() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<DivisionRow[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -54,8 +56,8 @@ export default function AdminImportDivisions() {
       parseExcel(selectedFile);
     } else {
       toast({
-        title: 'Invalid File Format',
-        description: 'Please upload a CSV or Excel file',
+        title: t('importdiv_toast_invalid_format_title'),
+        description: t('importdiv_toast_invalid_format_desc'),
         variant: 'destructive',
       });
     }
@@ -70,7 +72,7 @@ export default function AdminImportDivisions() {
       },
       error: (error) => {
         toast({
-          title: 'Parse Error',
+          title: t('importdiv_toast_parse_error_title'),
           description: error.message,
           variant: 'destructive',
         });
@@ -89,8 +91,8 @@ export default function AdminImportDivisions() {
         processData(jsonData);
       } catch (error) {
         toast({
-          title: 'Parse Error',
-          description: 'Failed to parse Excel file',
+          title: t('importdiv_toast_parse_error_title'),
+          description: t('importdiv_toast_excel_parse_failed'),
           variant: 'destructive',
         });
       }
@@ -143,8 +145,8 @@ export default function AdminImportDivisions() {
   const handleImport = async () => {
     if (validationErrors.length > 0) {
       toast({
-        title: 'Validation Errors',
-        description: 'Please fix validation errors before importing',
+        title: t('importdiv_toast_validation_errors_title'),
+        description: t('importdiv_toast_validation_errors_desc'),
         variant: 'destructive',
       });
       return;
@@ -208,8 +210,8 @@ export default function AdminImportDivisions() {
     setImportStats(stats);
     
     toast({
-      title: 'Import Complete',
-      description: `Successfully imported ${stats.success} divisions. ${stats.skipped} skipped (duplicates). ${stats.failed} failed.`,
+      title: t('importdiv_toast_import_complete_title'),
+      description: `${t('importdiv_toast_imported_prefix')} ${stats.success} ${t('importdiv_toast_imported_divisions')} ${stats.skipped} ${t('importdiv_toast_skipped_duplicates')} ${stats.failed} ${t('importdiv_toast_failed')}`,
     });
   };
 
@@ -258,33 +260,33 @@ export default function AdminImportDivisions() {
                   className="mb-2"
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Country Config
+                  {t('importdiv_back_to_country_config')}
                 </Button>
                 <h1 className="text-3xl font-bold flex items-center gap-2">
                   <FileSpreadsheet className="h-8 w-8 text-primary" />
-                  Import Administrative Divisions
+                  {t('importdiv_page_title')}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Bulk import provinces, municipalities, and communes from CSV or Excel files
+                  {t('importdiv_page_subtitle')}
                 </p>
               </div>
               <Button variant="outline" onClick={downloadTemplate}>
                 <Download className="h-4 w-4 mr-2" />
-                Download Template
+                {t('importdiv_download_template')}
               </Button>
             </div>
 
             {/* Upload Section */}
             <Card>
               <CardHeader>
-                <CardTitle>Upload File</CardTitle>
+                <CardTitle>{t('importdiv_upload_file_title')}</CardTitle>
                 <CardDescription>
-                  Upload a CSV or Excel file containing administrative divisions. Required columns: country_code, level, code, name
+                  {t('importdiv_upload_file_desc')} country_code, level, code, name
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="file">Select File (CSV or Excel)</Label>
+                  <Label htmlFor="file">{t('importdiv_select_file_label')}</Label>
                   <Input
                     id="file"
                     type="file"
@@ -298,24 +300,24 @@ export default function AdminImportDivisions() {
                   <Alert>
                     <Upload className="h-4 w-4" />
                     <AlertDescription>
-                      File loaded: <strong>{file.name}</strong> ({data.length} rows)
+                      {t('importdiv_file_loaded')} <strong>{file.name}</strong> ({data.length} {t('importdiv_rows')})
                     </AlertDescription>
                   </Alert>
                 )}
 
                 {/* Column Guide */}
                 <div className="p-4 border rounded-lg bg-muted/50">
-                  <h4 className="font-semibold mb-2 text-sm">Column Guide:</h4>
+                  <h4 className="font-semibold mb-2 text-sm">{t('importdiv_column_guide_title')}</h4>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li><strong>country_code*</strong>: 2-letter country code (e.g., AO, CD)</li>
-                    <li><strong>level*</strong>: Administrative level (1-5)</li>
-                    <li><strong>code*</strong>: Unique code for the division (e.g., AO-LUA)</li>
-                    <li><strong>name*</strong>: Division name</li>
-                    <li><strong>parent_code</strong>: Parent division code (for level 2+)</li>
-                    <li><strong>parent_level</strong>: Parent division level</li>
-                    <li><strong>metadata</strong>: JSON object for additional data</li>
+                    <li><strong>country_code*</strong>: {t('importdiv_guide_country_code')}</li>
+                    <li><strong>level*</strong>: {t('importdiv_guide_level')}</li>
+                    <li><strong>code*</strong>: {t('importdiv_guide_code')}</li>
+                    <li><strong>name*</strong>: {t('importdiv_guide_name')}</li>
+                    <li><strong>parent_code</strong>: {t('importdiv_guide_parent_code')}</li>
+                    <li><strong>parent_level</strong>: {t('importdiv_guide_parent_level')}</li>
+                    <li><strong>metadata</strong>: {t('importdiv_guide_metadata')}</li>
                   </ul>
-                  <p className="text-xs text-muted-foreground mt-2">* Required fields</p>
+                  <p className="text-xs text-muted-foreground mt-2">{t('importdiv_required_fields')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -325,14 +327,14 @@ export default function AdminImportDivisions() {
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <div className="font-semibold mb-2">Validation Errors ({validationErrors.length})</div>
+                  <div className="font-semibold mb-2">{t('importdiv_validation_errors_heading')} ({validationErrors.length})</div>
                   <ul className="list-disc pl-5 space-y-1 max-h-40 overflow-y-auto">
                     {validationErrors.slice(0, 10).map((error, idx) => (
                       <li key={idx} className="text-sm">{error}</li>
                     ))}
                     {validationErrors.length > 10 && (
                       <li className="text-sm font-semibold">
-                        ... and {validationErrors.length - 10} more errors
+                        ... {t('importdiv_and')} {validationErrors.length - 10} {t('importdiv_more_errors')}
                       </li>
                     )}
                   </ul>
@@ -345,18 +347,18 @@ export default function AdminImportDivisions() {
               <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <AlertDescription>
-                  <div className="font-semibold text-green-600 mb-2">Import Complete!</div>
+                  <div className="font-semibold text-green-600 mb-2">{t('importdiv_import_complete_heading')}</div>
                   <div className="grid grid-cols-3 gap-4 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Success:</span>{' '}
+                      <span className="text-muted-foreground">{t('importdiv_stat_success')}</span>{' '}
                       <strong className="text-green-600">{importStats.success}</strong>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Skipped:</span>{' '}
+                      <span className="text-muted-foreground">{t('importdiv_stat_skipped')}</span>{' '}
                       <strong>{importStats.skipped}</strong>
                     </div>
                     <div>
-                      <span className="text-muted-foreground">Failed:</span>{' '}
+                      <span className="text-muted-foreground">{t('importdiv_stat_failed')}</span>{' '}
                       <strong className="text-red-600">{importStats.failed}</strong>
                     </div>
                   </div>
@@ -370,9 +372,9 @@ export default function AdminImportDivisions() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Data Preview</CardTitle>
+                      <CardTitle>{t('importdiv_data_preview_title')}</CardTitle>
                       <CardDescription>
-                        Review the data before importing ({data.length} rows)
+                        {t('importdiv_data_preview_desc')} ({data.length} {t('importdiv_rows')})
                       </CardDescription>
                     </div>
                     <Button
@@ -380,7 +382,7 @@ export default function AdminImportDivisions() {
                       disabled={importing || validationErrors.length > 0}
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      {importing ? 'Importing...' : 'Import Data'}
+                      {importing ? t('importdiv_importing') : t('importdiv_import_data')}
                     </Button>
                   </div>
                 </CardHeader>
@@ -389,7 +391,7 @@ export default function AdminImportDivisions() {
                     <div className="mb-4 space-y-2">
                       <Progress value={progress} className="w-full" />
                       <p className="text-sm text-muted-foreground text-center">
-                        Importing... {progress}%
+                        {t('importdiv_importing')} {progress}%
                       </p>
                     </div>
                   )}
@@ -399,12 +401,12 @@ export default function AdminImportDivisions() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Country</TableHead>
-                            <TableHead>Level</TableHead>
-                            <TableHead>Code</TableHead>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Parent Code</TableHead>
+                            <TableHead>{t('importdiv_th_status')}</TableHead>
+                            <TableHead>{t('importdiv_th_country')}</TableHead>
+                            <TableHead>{t('importdiv_th_level')}</TableHead>
+                            <TableHead>{t('importdiv_th_code')}</TableHead>
+                            <TableHead>{t('importdiv_th_name')}</TableHead>
+                            <TableHead>{t('importdiv_th_parent_code')}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -412,9 +414,9 @@ export default function AdminImportDivisions() {
                             <TableRow key={idx}>
                               <TableCell>
                                 {row.errors && row.errors.length > 0 ? (
-                                  <Badge variant="destructive">Invalid</Badge>
+                                  <Badge variant="destructive">{t('importdiv_badge_invalid')}</Badge>
                                 ) : (
-                                  <Badge variant="outline">Valid</Badge>
+                                  <Badge variant="outline">{t('importdiv_badge_valid')}</Badge>
                                 )}
                               </TableCell>
                               <TableCell className="font-mono text-xs">{row.country_code}</TableCell>
@@ -429,7 +431,7 @@ export default function AdminImportDivisions() {
                     </div>
                     {data.length > 100 && (
                       <div className="p-2 text-center text-sm text-muted-foreground bg-muted">
-                        Showing first 100 of {data.length} rows
+                        {t('importdiv_showing_first_100')} {data.length} {t('importdiv_rows')}
                       </div>
                     )}
                   </div>

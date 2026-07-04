@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Download, Mail, MessageSquare, Search, CheckCircle, XCircle, AlertCircle, TrendingUp, Calendar, ArrowLeft } from "lucide-react";
 import { LevelGate } from "@/components/LevelGate";
 import type { Database } from "@/integrations/supabase/types";
@@ -28,6 +29,7 @@ export default function AdminContractDownloads() {
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "all">("30d");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -70,7 +72,7 @@ export default function AdminContractDownloads() {
 
         const enrichedDownloads = downloadsData.map(download => ({
           ...download,
-          downloader_name: profileMap.get(download.downloaded_by_user_id) || "Unknown"
+          downloader_name: profileMap.get(download.downloaded_by_user_id) || t('contractdl_unknown')
         }));
 
         setDownloads(enrichedDownloads);
@@ -81,7 +83,7 @@ export default function AdminContractDownloads() {
       }
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: t('contractdl_error'),
         description: error.message,
         variant: "destructive",
       });
@@ -110,14 +112,14 @@ export default function AdminContractDownloads() {
       return (
         <Badge variant="default" className="gap-1 bg-green-600">
           <CheckCircle className="h-3 w-3" />
-          Sent
+          {t('contractdl_sent')}
         </Badge>
       );
     }
     return (
       <Badge variant="destructive" className="gap-1">
         <XCircle className="h-3 w-3" />
-        Failed
+        {t('contractdl_failed')}
       </Badge>
     );
   };
@@ -184,10 +186,10 @@ export default function AdminContractDownloads() {
 
   // Success rate pie chart data
   const successRatePieData = [
-    { name: "Both Sent", value: timeFilteredDownloads.filter(d => d.email_sent && d.whatsapp_sent).length, color: "#10b981" },
-    { name: "Email Only", value: timeFilteredDownloads.filter(d => d.email_sent && !d.whatsapp_sent).length, color: "#3b82f6" },
-    { name: "WhatsApp Only", value: timeFilteredDownloads.filter(d => !d.email_sent && d.whatsapp_sent).length, color: "#8b5cf6" },
-    { name: "Both Failed", value: timeFilteredDownloads.filter(d => !d.email_sent && !d.whatsapp_sent).length, color: "#ef4444" },
+    { name: t('contractdl_both_sent'), value: timeFilteredDownloads.filter(d => d.email_sent && d.whatsapp_sent).length, color: "#10b981" },
+    { name: t('contractdl_email_only'), value: timeFilteredDownloads.filter(d => d.email_sent && !d.whatsapp_sent).length, color: "#3b82f6" },
+    { name: t('contractdl_whatsapp_only'), value: timeFilteredDownloads.filter(d => !d.email_sent && d.whatsapp_sent).length, color: "#8b5cf6" },
+    { name: t('contractdl_both_failed'), value: timeFilteredDownloads.filter(d => !d.email_sent && !d.whatsapp_sent).length, color: "#ef4444" },
   ].filter(item => item.value > 0);
 
   // Calculate success rates
@@ -217,9 +219,9 @@ export default function AdminContractDownloads() {
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                   <div>
-                    <h1 className="text-3xl font-bold text-foreground">Contract Downloads</h1>
+                    <h1 className="text-3xl font-bold text-foreground">{t('contractdl_title')}</h1>
                     <p className="text-muted-foreground">
-                      Monitor witness contract downloads and notification delivery status
+                      {t('contractdl_subtitle')}
                     </p>
                   </div>
                 </div>
@@ -229,10 +231,10 @@ export default function AdminContractDownloads() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="7d">Last 7 days</SelectItem>
-                    <SelectItem value="30d">Last 30 days</SelectItem>
-                    <SelectItem value="90d">Last 90 days</SelectItem>
-                    <SelectItem value="all">All time</SelectItem>
+                    <SelectItem value="7d">{t('contractdl_last_7_days')}</SelectItem>
+                    <SelectItem value="30d">{t('contractdl_last_30_days')}</SelectItem>
+                    <SelectItem value="90d">{t('contractdl_last_90_days')}</SelectItem>
+                    <SelectItem value="all">{t('contractdl_all_time')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -242,7 +244,7 @@ export default function AdminContractDownloads() {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Total Downloads
+                      {t('contractdl_total_downloads')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -256,7 +258,7 @@ export default function AdminContractDownloads() {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Email Success Rate
+                      {t('contractdl_email_success_rate')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -265,7 +267,7 @@ export default function AdminContractDownloads() {
                       <span className="text-2xl font-bold">{emailSuccessRate}%</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {timeFilteredDownloads.filter(d => d.email_sent).length} / {timeFilteredDownloads.length} sent
+                      {timeFilteredDownloads.filter(d => d.email_sent).length} / {timeFilteredDownloads.length} {t('contractdl_sent_suffix')}
                     </p>
                   </CardContent>
                 </Card>
@@ -273,7 +275,7 @@ export default function AdminContractDownloads() {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                      WhatsApp Success Rate
+                      {t('contractdl_whatsapp_success_rate')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -282,7 +284,7 @@ export default function AdminContractDownloads() {
                       <span className="text-2xl font-bold">{whatsappSuccessRate}%</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      {timeFilteredDownloads.filter(d => d.whatsapp_sent).length} / {timeFilteredDownloads.length} sent
+                      {timeFilteredDownloads.filter(d => d.whatsapp_sent).length} / {timeFilteredDownloads.length} {t('contractdl_sent_suffix')}
                     </p>
                   </CardContent>
                 </Card>
@@ -290,7 +292,7 @@ export default function AdminContractDownloads() {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm font-medium text-muted-foreground">
-                      Both Notifications
+                      {t('contractdl_both_notifications')}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -303,7 +305,7 @@ export default function AdminContractDownloads() {
                     <p className="text-xs text-muted-foreground mt-1">
                       {timeFilteredDownloads.length > 0 
                         ? ((timeFilteredDownloads.filter(d => d.email_sent && d.whatsapp_sent).length / timeFilteredDownloads.length) * 100).toFixed(1)
-                        : "0"}% success rate
+                        : "0"}% {t('contractdl_success_rate_suffix')}
                     </p>
                   </CardContent>
                 </Card>
@@ -312,9 +314,9 @@ export default function AdminContractDownloads() {
               {/* Analytics Charts */}
               <Tabs defaultValue="trends" className="space-y-4">
                 <TabsList>
-                  <TabsTrigger value="trends">Download Trends</TabsTrigger>
-                  <TabsTrigger value="notifications">Notification Success</TabsTrigger>
-                  <TabsTrigger value="distribution">Distribution</TabsTrigger>
+                  <TabsTrigger value="trends">{t('contractdl_tab_trends')}</TabsTrigger>
+                  <TabsTrigger value="notifications">{t('contractdl_tab_notifications')}</TabsTrigger>
+                  <TabsTrigger value="distribution">{t('contractdl_tab_distribution')}</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="trends" className="space-y-4">
@@ -322,9 +324,9 @@ export default function AdminContractDownloads() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <TrendingUp className="h-5 w-5" />
-                        Downloads Over Time
+                        {t('contractdl_downloads_over_time')}
                       </CardTitle>
-                      <CardDescription>Daily contract download activity</CardDescription>
+                      <CardDescription>{t('contractdl_downloads_over_time_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
@@ -358,9 +360,9 @@ export default function AdminContractDownloads() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Mail className="h-5 w-5" />
-                        Notification Delivery Success
+                        {t('contractdl_notification_delivery_success')}
                       </CardTitle>
-                      <CardDescription>Email vs WhatsApp delivery rates</CardDescription>
+                      <CardDescription>{t('contractdl_notification_delivery_success_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <ResponsiveContainer width="100%" height={300}>
@@ -370,8 +372,8 @@ export default function AdminContractDownloads() {
                           <YAxis />
                           <Tooltip />
                           <Legend />
-                          <Bar dataKey="successful" fill="#10b981" name="Successful" />
-                          <Bar dataKey="failed" fill="#ef4444" name="Failed" />
+                          <Bar dataKey="successful" fill="#10b981" name={t('contractdl_successful')} />
+                          <Bar dataKey="failed" fill="#ef4444" name={t('contractdl_failed')} />
                         </BarChart>
                       </ResponsiveContainer>
                     </CardContent>
@@ -383,9 +385,9 @@ export default function AdminContractDownloads() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Calendar className="h-5 w-5" />
-                        Notification Success Distribution
+                        {t('contractdl_notification_success_distribution')}
                       </CardTitle>
-                      <CardDescription>Breakdown of notification delivery outcomes</CardDescription>
+                      <CardDescription>{t('contractdl_notification_success_distribution_desc')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-col md:flex-row items-center gap-8">
@@ -431,16 +433,16 @@ export default function AdminContractDownloads() {
               {/* Search */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Download History</CardTitle>
+                  <CardTitle>{t('contractdl_download_history')}</CardTitle>
                   <CardDescription>
-                    Search by AFROLOC, Witness ID, or downloader name
+                    {t('contractdl_search_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search downloads..."
+                      placeholder={t('contractdl_search_placeholder')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10"
@@ -453,7 +455,7 @@ export default function AdminContractDownloads() {
               {loading ? (
                 <Card>
                   <CardContent className="py-12 text-center">
-                    <p className="text-muted-foreground">Loading downloads...</p>
+                    <p className="text-muted-foreground">{t('contractdl_loading')}</p>
                   </CardContent>
                 </Card>
               ) : filteredDownloads.length === 0 ? (
@@ -461,7 +463,7 @@ export default function AdminContractDownloads() {
                   <CardContent className="py-12 text-center">
                     <Download className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
-                      {searchQuery ? "No downloads found matching your search" : "No downloads yet"}
+                      {searchQuery ? t('contractdl_no_results') : t('contractdl_no_downloads')}
                     </p>
                   </CardContent>
                 </Card>
@@ -478,15 +480,15 @@ export default function AdminContractDownloads() {
                               <p className="font-mono font-semibold">{download.afroloc_code}</p>
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground">Witness AFROLOC</label>
+                              <label className="text-xs font-medium text-muted-foreground">{t('contractdl_witness_afroloc')}</label>
                               <p className="font-mono">{download.witness_afro_id}</p>
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground">Downloaded By</label>
+                              <label className="text-xs font-medium text-muted-foreground">{t('contractdl_downloaded_by')}</label>
                               <p>{download.downloader_name}</p>
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground">Downloaded At</label>
+                              <label className="text-xs font-medium text-muted-foreground">{t('contractdl_downloaded_at')}</label>
                               <p className="text-sm">
                                 {new Date(download.downloaded_at).toLocaleString()}
                               </p>
@@ -497,7 +499,7 @@ export default function AdminContractDownloads() {
                           <div className="space-y-3">
                             <div className="flex items-center gap-2">
                               <Mail className="h-4 w-4 text-muted-foreground" />
-                              <label className="text-xs font-medium text-muted-foreground">Email Notification</label>
+                              <label className="text-xs font-medium text-muted-foreground">{t('contractdl_email_notification')}</label>
                             </div>
                             {getNotificationBadge(download.email_sent, download.email_status)}
                             {download.email_status && (
@@ -513,7 +515,7 @@ export default function AdminContractDownloads() {
                           <div className="space-y-3">
                             <div className="flex items-center gap-2">
                               <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                              <label className="text-xs font-medium text-muted-foreground">WhatsApp Notification</label>
+                              <label className="text-xs font-medium text-muted-foreground">{t('contractdl_whatsapp_notification')}</label>
                             </div>
                             {getNotificationBadge(download.whatsapp_sent, download.whatsapp_status)}
                             {download.whatsapp_status && (

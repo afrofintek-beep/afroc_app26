@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   Package, 
   Mail, 
@@ -123,6 +124,20 @@ export default function DeliveryChannels({
   const [isConfirming, setIsConfirming] = useState(false);
   
   const { toast } = useToast();
+  const { t } = useLanguage();
+
+  const POINT_TYPE_LABELS: Record<string, string> = {
+    po_box: t('delivery_type_po_box'),
+    locker: t('delivery_type_locker'),
+    pickup: t('delivery_type_pickup'),
+  };
+
+  const STATUS_LABELS: Record<string, string> = {
+    pending_otp: t('delivery_status_pending_otp'),
+    active: t('delivery_status_active'),
+    revoked: t('delivery_status_revoked'),
+    expired: t('delivery_status_expired'),
+  };
 
   useEffect(() => {
     if (afrolocRecordId) {
@@ -168,8 +183,8 @@ export default function DeliveryChannels({
   const handleAddDeliveryPoint = async () => {
     if (!afrolocRecordId || !selectedOperator || !pointCode) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor preencha o operador e o código do ponto de entrega",
+        title: t('delivery_toast_required_fields_title'),
+        description: t('delivery_toast_required_fields_desc'),
         variant: "destructive",
       });
       return;
@@ -192,8 +207,8 @@ export default function DeliveryChannels({
 
       if (data.success) {
         toast({
-          title: "Ponto de entrega registado",
-          description: "Por favor confirme com o código OTP enviado",
+          title: t('delivery_toast_registered_title'),
+          description: t('delivery_toast_registered_desc'),
         });
         
         // Store pending point ID and show OTP dialog
@@ -213,8 +228,8 @@ export default function DeliveryChannels({
       }
     } catch (error: any) {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível registar o ponto de entrega",
+        title: t('delivery_toast_error_title'),
+        description: error.message || t('delivery_toast_register_failed'),
         variant: "destructive",
       });
     } finally {
@@ -238,8 +253,8 @@ export default function DeliveryChannels({
 
       if (data.success) {
         toast({
-          title: "Ponto de entrega confirmado",
-          description: "O seu canal de entrega está agora ativo",
+          title: t('delivery_toast_confirmed_title'),
+          description: t('delivery_toast_confirmed_desc'),
         });
         
         setShowOtpDialog(false);
@@ -251,15 +266,15 @@ export default function DeliveryChannels({
         await loadDeliveryPoints();
       } else if (data.error) {
         toast({
-          title: "Código inválido",
-          description: data.message || "Por favor verifique o código OTP",
+          title: t('delivery_toast_invalid_code_title'),
+          description: data.message || t('delivery_toast_invalid_code_desc'),
           variant: "destructive",
         });
       }
     } catch (error: any) {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível confirmar o código",
+        title: t('delivery_toast_error_title'),
+        description: error.message || t('delivery_toast_confirm_failed'),
         variant: "destructive",
       });
     } finally {
@@ -277,15 +292,15 @@ export default function DeliveryChannels({
 
       if (data.success) {
         toast({
-          title: "Canal primário definido",
-          description: "Este é agora o seu canal de entrega principal",
+          title: t('delivery_toast_primary_set_title'),
+          description: t('delivery_toast_primary_set_desc'),
         });
         await loadDeliveryPoints();
       }
     } catch (error: any) {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível definir como primário",
+        title: t('delivery_toast_error_title'),
+        description: error.message || t('delivery_toast_primary_failed'),
         variant: "destructive",
       });
     }
@@ -304,15 +319,15 @@ export default function DeliveryChannels({
 
       if (data.success) {
         toast({
-          title: "Canal revogado",
-          description: "O ponto de entrega foi removido",
+          title: t('delivery_toast_revoked_title'),
+          description: t('delivery_toast_revoked_desc'),
         });
         await loadDeliveryPoints();
       }
     } catch (error: any) {
       toast({
-        title: "Erro",
-        description: error.message || "Não foi possível revogar o canal",
+        title: t('delivery_toast_error_title'),
+        description: error.message || t('delivery_toast_revoke_failed'),
         variant: "destructive",
       });
     }
@@ -326,10 +341,10 @@ export default function DeliveryChannels({
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
-            Canais de Entrega
+            {t('delivery_card_title')}
           </CardTitle>
           <CardDescription>
-            Adicione caixas postais, lockers ou pontos de recolha ao seu endereço AFROLOC
+            {t('delivery_card_description')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -366,12 +381,12 @@ export default function DeliveryChannels({
                           {point.is_primary && (
                             <Badge variant="default" className="text-xs">
                               <Star className="h-3 w-3 mr-1" />
-                              Primário
+                              {t('delivery_badge_primary')}
                             </Badge>
                           )}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          {POINT_TYPE_CONFIG[point.point_type]?.label}: {point.point_code}
+                          {POINT_TYPE_LABELS[point.point_type]}: {point.point_code}
                         </div>
                         {point.point_name && (
                           <div className="text-xs text-muted-foreground">{point.point_name}</div>
@@ -384,14 +399,14 @@ export default function DeliveryChannels({
                         className="text-xs"
                       >
                         <StatusIcon className="h-3 w-3 mr-1" />
-                        {statusConfig?.label}
+                        {STATUS_LABELS[point.status]}
                       </Badge>
                       {point.status === "active" && !point.is_primary && (
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleSetPrimary(point.id)}
-                          title="Definir como primário"
+                          title={t('delivery_action_set_primary')}
                         >
                           <Star className="h-4 w-4" />
                         </Button>
@@ -401,7 +416,7 @@ export default function DeliveryChannels({
                           variant="ghost"
                           size="sm"
                           onClick={() => handleRevoke(point.id)}
-                          title="Revogar"
+                          title={t('delivery_action_revoke')}
                           className="text-destructive hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -416,7 +431,7 @@ export default function DeliveryChannels({
             <Alert>
               <Package className="h-4 w-4" />
               <AlertDescription>
-                Nenhum canal de entrega configurado. Adicione uma caixa postal, locker ou ponto de recolha.
+                {t('delivery_empty_state')}
               </AlertDescription>
             </Alert>
           )}
@@ -426,10 +441,10 @@ export default function DeliveryChannels({
             <div className="space-y-4 p-4 border rounded-lg bg-muted/20">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Operador</Label>
+                  <Label>{t('delivery_label_operator')}</Label>
                   <Select value={selectedOperator} onValueChange={setSelectedOperator}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccione o operador" />
+                      <SelectValue placeholder={t('delivery_placeholder_select_operator')} />
                     </SelectTrigger>
                     <SelectContent>
                       {operators.map((op) => (
@@ -441,7 +456,7 @@ export default function DeliveryChannels({
                   </Select>
                 </div>
                 <div>
-                  <Label>Tipo</Label>
+                  <Label>{t('delivery_label_type')}</Label>
                   <Select 
                     value={pointType} 
                     onValueChange={(v) => setPointType(v as "po_box" | "locker" | "pickup")}
@@ -454,7 +469,7 @@ export default function DeliveryChannels({
                         <SelectItem key={key} value={key}>
                           <div className="flex items-center gap-2">
                             <config.icon className="h-4 w-4" />
-                            {config.label}
+                            {POINT_TYPE_LABELS[key]}
                           </div>
                         </SelectItem>
                       ))}
@@ -465,29 +480,29 @@ export default function DeliveryChannels({
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Código / Número *</Label>
+                  <Label>{t('delivery_label_code')}</Label>
                   <Input
                     value={pointCode}
                     onChange={(e) => setPointCode(e.target.value)}
-                    placeholder="Ex: CP 1234"
+                    placeholder={t('delivery_placeholder_code')}
                   />
                 </div>
                 <div>
-                  <Label>Nome (Opcional)</Label>
+                  <Label>{t('delivery_label_name')}</Label>
                   <Input
                     value={pointName}
                     onChange={(e) => setPointName(e.target.value)}
-                    placeholder="Ex: Correios Central"
+                    placeholder={t('delivery_placeholder_name')}
                   />
                 </div>
               </div>
 
               <div>
-                <Label>Endereço do Ponto (Opcional)</Label>
+                <Label>{t('delivery_label_address')}</Label>
                 <Input
                   value={pointAddress}
                   onChange={(e) => setPointAddress(e.target.value)}
-                  placeholder="Ex: Rua X, nº Y, Luanda"
+                  placeholder={t('delivery_placeholder_address')}
                 />
               </div>
 
@@ -497,7 +512,7 @@ export default function DeliveryChannels({
                   onClick={() => setShowAddForm(false)}
                   disabled={isSubmitting}
                 >
-                  Cancelar
+                  {t('delivery_button_cancel')}
                 </Button>
                 <Button
                   onClick={handleAddDeliveryPoint}
@@ -506,12 +521,12 @@ export default function DeliveryChannels({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      A registar...
+                      {t('delivery_button_registering')}
                     </>
                   ) : (
                     <>
                       <Plus className="h-4 w-4 mr-2" />
-                      Adicionar
+                      {t('delivery_button_add')}
                     </>
                   )}
                 </Button>
@@ -525,13 +540,13 @@ export default function DeliveryChannels({
               disabled={!afrolocRecordId}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Adicionar Canal de Entrega
+              {t('delivery_button_add_channel')}
             </Button>
           )}
 
           {!afrolocRecordId && (
             <p className="text-xs text-muted-foreground text-center">
-              Guarde o endereço AFROLOC primeiro para adicionar canais de entrega
+              {t('delivery_save_address_first')}
             </p>
           )}
         </CardContent>
@@ -541,9 +556,9 @@ export default function DeliveryChannels({
       <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirmar Canal de Entrega</DialogTitle>
+            <DialogTitle>{t('delivery_dialog_title')}</DialogTitle>
             <DialogDescription>
-              Introduza o código OTP de 6 dígitos enviado para confirmar o seu canal de entrega.
+              {t('delivery_dialog_description')}
             </DialogDescription>
           </DialogHeader>
           
@@ -551,7 +566,7 @@ export default function DeliveryChannels({
             {devOtp && (
               <Alert>
                 <AlertDescription className="font-mono text-center text-lg">
-                  Código de teste: <strong>{devOtp}</strong>
+                  {t('delivery_dev_otp_label')} <strong>{devOtp}</strong>
                 </AlertDescription>
               </Alert>
             )}
@@ -584,7 +599,7 @@ export default function DeliveryChannels({
                 }}
                 disabled={isConfirming}
               >
-                Cancelar
+                {t('delivery_button_cancel')}
               </Button>
               <Button
                 onClick={handleConfirmOtp}
@@ -593,12 +608,12 @@ export default function DeliveryChannels({
                 {isConfirming ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    A confirmar...
+                    {t('delivery_button_confirming')}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Confirmar
+                    {t('delivery_button_confirm')}
                   </>
                 )}
               </Button>

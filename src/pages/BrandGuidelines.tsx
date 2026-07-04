@@ -24,115 +24,115 @@ export default function BrandGuidelines() {
 
   // Primary Colors (from v2.0 PDF)
   const primaryColors = [
-    { name: "Primary Gold", hex: "#D4A853", hsl: "38 85% 45%", usage: "Main brand color, primary buttons, highlights" },
-    { name: "Primary Glow", hex: "#E8C97A", hsl: "38 90% 55%", usage: "Gradients, glow effects, hover states" },
-    { name: "Amber Accent", hex: "#F59E0B", hsl: "25 85% 55%", usage: "Alerts, badges, indicators, secondary CTAs" },
+    { name: t('brand_color_primary_gold'), hex: "#D4A853", hsl: "38 85% 45%", usage: t('brand_color_primary_gold_usage') },
+    { name: t('brand_color_primary_glow'), hex: "#E8C97A", hsl: "38 90% 55%", usage: t('brand_color_primary_glow_usage') },
+    { name: t('brand_color_amber_accent'), hex: "#F59E0B", hsl: "25 85% 55%", usage: t('brand_color_amber_accent_usage') },
   ];
 
   // Neutral Colors (from v2.0 PDF)
   const neutralColors = [
-    { name: "Background Dark", hex: "#1A1814", hsl: "30 15% 6%", usage: "Main background (dark mode)" },
-    { name: "Background Light", hex: "#F8F5F0", hsl: "40 30% 96%", usage: "Main background (light mode)" },
-    { name: "Foreground Light", hex: "#F5F0E8", hsl: "40 30% 94%", usage: "Main text (dark mode)" },
-    { name: "Foreground Dark", hex: "#2D2519", hsl: "30 25% 15%", usage: "Main text (light mode)" },
+    { name: t('brand_color_bg_dark'), hex: "#1A1814", hsl: "30 15% 6%", usage: t('brand_color_bg_dark_usage') },
+    { name: t('brand_color_bg_light'), hex: "#F8F5F0", hsl: "40 30% 96%", usage: t('brand_color_bg_light_usage') },
+    { name: t('brand_color_fg_light'), hex: "#F5F0E8", hsl: "40 30% 94%", usage: t('brand_color_fg_light_usage') },
+    { name: t('brand_color_fg_dark'), hex: "#2D2519", hsl: "30 25% 15%", usage: t('brand_color_fg_dark_usage') },
   ];
 
   // Brand Values (from v2.0 PDF)
   const brandValues = [
-    { 
-      icon: Shield, 
-      title: "Security", 
-      description: "Data and digital identity protection with the highest standards."
+    {
+      icon: Shield,
+      title: t('brand_value_security_title'),
+      description: t('brand_value_security_desc')
     },
-    { 
-      icon: Users, 
-      title: "Inclusion", 
-      description: "Accessible addressing for over 1 billion Africans."
+    {
+      icon: Users,
+      title: t('brand_value_inclusion_title'),
+      description: t('brand_value_inclusion_desc')
     },
-    { 
-      icon: Zap, 
-      title: "Innovation", 
-      description: "Cutting-edge technology adapted to local realities."
+    {
+      icon: Zap,
+      title: t('brand_value_innovation_title'),
+      description: t('brand_value_innovation_desc')
     },
-    { 
-      icon: Globe, 
-      title: "Sovereignty", 
-      description: "African solutions for African challenges."
+    {
+      icon: Globe,
+      title: t('brand_value_sovereignty_title'),
+      description: t('brand_value_sovereignty_desc')
     },
   ];
 
   // Typography Scale (from v2.0 PDF)
   const typeScale = [
-    { level: "H1", example: "Main Page Titles", size: "48px / 56px" },
-    { level: "H2", example: "Section Titles", size: "36px" },
-    { level: "H3", example: "Subtitles", size: "24px" },
-    { level: "H4", example: "Card Titles", size: "18px" },
-    { level: "Body", example: "Paragraph text for content and descriptions.", size: "16px" },
-    { level: "Caption", example: "Captions and auxiliary text", size: "14px" },
-    { level: "Small", example: "Notes and metadata", size: "12px" },
+    { level: "H1", example: t('brand_type_h1'), size: "48px / 56px" },
+    { level: "H2", example: t('brand_type_h2'), size: "36px" },
+    { level: "H3", example: t('brand_type_h3'), size: "24px" },
+    { level: "H4", example: t('brand_type_h4'), size: "18px" },
+    { level: "Body", example: t('brand_type_body'), size: "16px" },
+    { level: "Caption", example: t('brand_type_caption'), size: "14px" },
+    { level: "Small", example: t('brand_type_small'), size: "12px" },
   ];
 
   // Tone of Voice (from v2.0 PDF)
   const toneOfVoice = [
-    { 
-      title: "Professional", 
-      description: "Clear, confident and results-oriented communication.",
-      example: "AFROLOC offers the definitive solution for digital addressing in Africa."
+    {
+      title: t('brand_tone_professional_title'),
+      description: t('brand_tone_professional_desc'),
+      example: t('brand_tone_professional_example')
     },
-    { 
-      title: "Accessible", 
-      description: "Simple language everyone can understand, without unnecessary jargon.",
-      example: "Create your unique address in seconds, directly from your phone."
+    {
+      title: t('brand_tone_accessible_title'),
+      description: t('brand_tone_accessible_desc'),
+      example: t('brand_tone_accessible_example')
     },
-    { 
-      title: "Inspiring", 
-      description: "Communicate the vision of positive impact and transformation.",
-      example: "Together, we are building the future of African digital infrastructure."
+    {
+      title: t('brand_tone_inspiring_title'),
+      description: t('brand_tone_inspiring_desc'),
+      example: t('brand_tone_inspiring_example')
     },
-    { 
-      title: "Empathetic", 
-      description: "Demonstrate understanding of user needs and challenges.",
-      example: "We know an address can change everything. That is why we simplified the process."
+    {
+      title: t('brand_tone_empathetic_title'),
+      description: t('brand_tone_empathetic_desc'),
+      example: t('brand_tone_empathetic_example')
     },
   ];
 
   // Gradients (from v2.0 PDF)
   const gradients = [
-    { name: "Primary Gradient", css: "linear-gradient(135deg, #D4A853, #E07B2C)", usage: "Primary buttons, headers, CTAs" },
-    { name: "Gold Glow", css: "linear-gradient(135deg, #D4A853, #E8C97A)", usage: "Highlight effects, premium elements" },
-    { name: "Warm Gradient", css: "linear-gradient(135deg, #D4A853, #F59E0B)", usage: "Energy elements, innovation" },
-    { name: "Hero Gradient", css: "linear-gradient(135deg, #1A1814 0%, #2A2520 50%, rgba(212, 168, 83, 0.1) 100%)", usage: "Hero sections, special backgrounds" },
+    { name: t('brand_gradient_primary'), css: "linear-gradient(135deg, #D4A853, #E07B2C)", usage: t('brand_gradient_primary_usage') },
+    { name: t('brand_gradient_gold_glow'), css: "linear-gradient(135deg, #D4A853, #E8C97A)", usage: t('brand_gradient_gold_glow_usage') },
+    { name: t('brand_gradient_warm'), css: "linear-gradient(135deg, #D4A853, #F59E0B)", usage: t('brand_gradient_warm_usage') },
+    { name: t('brand_gradient_hero'), css: "linear-gradient(135deg, #1A1814 0%, #2A2520 50%, rgba(212, 168, 83, 0.1) 100%)", usage: t('brand_gradient_hero_usage') },
   ];
 
   // Usage Guidelines (from v2.0 PDF)
   const dosItems = [
-    "Symbol with text on the right (horizontal version)",
-    "Symbol alone with adequate protection space",
-    "Adequate contrast on light or dark backgrounds",
-    "Original proportions maintained in all applications",
-    "Official colors from the brand palette",
-    "Application on high-quality materials"
+    t('brand_dos_1'),
+    t('brand_dos_2'),
+    t('brand_dos_3'),
+    t('brand_dos_4'),
+    t('brand_dos_5'),
+    t('brand_dos_6')
   ];
 
   const dontsItems = [
-    "Do not rotate the symbol",
-    "Do not alter brand colors",
-    "Do not distort proportions (stretch, compress)",
-    "Do not apply unauthorized effects (shadows, outlines)",
-    "Do not use on low contrast backgrounds",
-    "Do not add elements to the logo",
-    "Do not use low resolution versions"
+    t('brand_donts_1'),
+    t('brand_donts_2'),
+    t('brand_donts_3'),
+    t('brand_donts_4'),
+    t('brand_donts_5'),
+    t('brand_donts_6'),
+    t('brand_donts_7')
   ];
 
   // Digital Applications (from v2.0 PDF)
   const digitalApplications = [
-    { name: "App Icon", spec: "Symbol with golden gradient background (iOS: 1024px, Android: 512px)" },
-    { name: "Favicon", spec: "Simplified version 32x32px and 16x16px" },
-    { name: "Header/Navigation", spec: "Symbol + text 'AFROLOC' (max height: 40px)" },
-    { name: "Auth Cards", spec: "Centered symbol with elegant shadow" },
-    { name: "Social Media", spec: "Square avatar 400x400px with dark background" },
-    { name: "Email Signature", spec: "Symbol 40px + inline text" },
-    { name: "Loading States", spec: "Symbol with pulse-glow animation" },
+    { name: t('brand_digital_app_icon'), spec: t('brand_digital_app_icon_spec') },
+    { name: t('brand_digital_favicon'), spec: t('brand_digital_favicon_spec') },
+    { name: t('brand_digital_header_nav'), spec: t('brand_digital_header_nav_spec') },
+    { name: t('brand_digital_auth_cards'), spec: t('brand_digital_auth_cards_spec') },
+    { name: t('brand_digital_social_media'), spec: t('brand_digital_social_media_spec') },
+    { name: t('brand_digital_email_sig'), spec: t('brand_digital_email_sig_spec') },
+    { name: t('brand_digital_loading_states'), spec: t('brand_digital_loading_states_spec') },
   ];
 
   const loadImageAsBase64 = (src: string): Promise<{ base64: string; width: number; height: number }> => {
@@ -650,14 +650,14 @@ export default function BrandGuidelines() {
       doc.save("AFROLOC-Brand-Book-v2.0-EN.pdf");
 
       toast({
-        title: "PDF Generated",
-        description: "The Brand Book was downloaded successfully.",
+        title: t('brand_toast_pdf_generated_title'),
+        description: t('brand_toast_pdf_generated_desc'),
       });
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast({
-        title: "Error",
-        description: "Could not generate the PDF.",
+        title: t('brand_toast_error_title'),
+        description: t('brand_toast_error_desc'),
         variant: "destructive",
       });
     } finally {
@@ -689,12 +689,12 @@ export default function BrandGuidelines() {
             {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  {t('brand_btn_generating')}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Download PDF
+                  {t('brand_btn_download_pdf')}
                 </>
               )}
             </Button>
@@ -705,52 +705,50 @@ export default function BrandGuidelines() {
       {/* Page 1: Cover */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20">
         <Badge variant="outline" className="mb-10 border-primary/30 text-muted-foreground text-sm px-4 py-1">
-          Version 2.0 • Official
+          {t('brand_badge_version_official')}
         </Badge>
-        
-        <img 
-          src={afrolocSymbol} 
-          alt="Afroloc" 
-          className="h-32 w-32 md:h-40 md:w-40 object-cover rounded-lg shadow-md ring-1 ring-primary/20 mb-12" 
+
+        <img
+          src={afrolocSymbol}
+          alt={t('brand_logo_alt')}
+          className="h-32 w-32 md:h-40 md:w-40 object-cover rounded-lg shadow-md ring-1 ring-primary/20 mb-12"
         />
         
         <h1 className="text-7xl md:text-9xl lg:text-[10rem] font-bold text-primary mb-6 tracking-tight drop-shadow-lg">
           AFROLOC
         </h1>
         
-        <h2 className="text-3xl md:text-4xl lg:text-5xl text-primary/80 mb-3 font-light">Brand Guidelines</h2>
-        
-        <p className="text-muted-foreground text-base md:text-lg tracking-[0.4em] mb-16">VERSION 2.0</p>
-        
+        <h2 className="text-3xl md:text-4xl lg:text-5xl text-primary/80 mb-3 font-light">{t('brand_guidelines_title')}</h2>
+
+        <p className="text-muted-foreground text-base md:text-lg tracking-[0.4em] mb-16">{t('brand_version_caption')}</p>
+
         <div className="h-1 w-32 bg-gradient-to-r from-transparent via-primary to-transparent mb-10" />
-        
+
         <p className="text-primary/90 text-center max-w-2xl mb-3 text-xl md:text-2xl font-light leading-relaxed">
-          Pioneering the future of African addressing through innovative digital solutions.
+          {t('brand_cover_tagline_1')}
         </p>
         <p className="text-muted-foreground text-center max-w-2xl text-lg md:text-xl">
-          Building bridges between traditional methods and digital transformation.
+          {t('brand_cover_tagline_2')}
         </p>
       </section>
 
       {/* Page 2: Introduction & Mission */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Introduction & Mission</h2>
-          <p className="text-muted-foreground mb-12">This Brand Book establishes the official guidelines for the correct use of the AFROLOC visual identity.</p>
-          
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_intro_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_intro_desc')}</p>
+
           <div className="border border-primary/30 rounded-xl p-8 md:p-12 mb-8">
-            <h3 className="text-xl font-bold text-primary mb-4">Mission</h3>
+            <h3 className="text-xl font-bold text-primary mb-4">{t('brand_mission_title')}</h3>
             <p className="text-lg text-primary/90 leading-relaxed mb-6">
-              Democratizing access to secure and verifiable digital addresses for every African citizen, 
-              promoting financial, social and economic inclusion through innovative technology.
+              {t('brand_mission_text')}
             </p>
           </div>
-          
+
           <div className="border border-primary/30 rounded-xl p-8 md:p-12">
-            <h3 className="text-xl font-bold text-primary mb-4">Vision</h3>
+            <h3 className="text-xl font-bold text-primary mb-4">{t('brand_vision_title')}</h3>
             <p className="text-lg text-primary/90 leading-relaxed">
-              To be the leading digital addressing platform for the African continent, connecting over 1 billion people 
-              to opportunities through secure and verifiable location identities.
+              {t('brand_vision_text')}
             </p>
           </div>
         </div>
@@ -759,8 +757,8 @@ export default function BrandGuidelines() {
       {/* Page 3: Brand Values */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Brand Values</h2>
-          <p className="text-muted-foreground mb-12">The principles that guide everything we do</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_values_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_values_subtitle')}</p>
           
           <div className="grid md:grid-cols-2 gap-6">
             {brandValues.map((value, index) => (
@@ -779,40 +777,40 @@ export default function BrandGuidelines() {
       {/* Page 4: Logo */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-5xl">
-          <h2 className="text-4xl md:text-6xl font-bold text-primary mb-4">Logo</h2>
-          <p className="text-muted-foreground text-lg mb-16">The Afroloc emblem represents location, security and African connection</p>
+          <h2 className="text-4xl md:text-6xl font-bold text-primary mb-4">{t('brand_logo_title')}</h2>
+          <p className="text-muted-foreground text-lg mb-16">{t('brand_logo_subtitle')}</p>
           
           <div className="grid md:grid-cols-2 gap-8 mb-16">
             {/* Primary Logo */}
             <div className="border border-primary/30 rounded-2xl p-10 flex flex-col items-center bg-[#0F1620]">
-              <img 
-                src={afrolocSymbol} 
-                alt="Afroloc" 
-                className="h-24 w-24 md:h-32 md:w-32 object-cover rounded-lg shadow-md ring-1 ring-primary/20 mb-8" 
+              <img
+                src={afrolocSymbol}
+                alt={t('brand_logo_alt')}
+                className="h-24 w-24 md:h-32 md:w-32 object-cover rounded-lg shadow-md ring-1 ring-primary/20 mb-8"
               />
               <h3 className="text-3xl md:text-4xl font-bold text-primary mb-8 tracking-wide">AFROLOC</h3>
-              <p className="text-muted-foreground">Primary Logo - Dark Background</p>
+              <p className="text-muted-foreground">{t('brand_logo_primary_caption')}</p>
             </div>
             
             {/* Clear Space */}
             <div className="border border-primary/30 rounded-2xl p-10 flex flex-col items-center bg-[#0F1620]">
               <div className="border-2 border-dashed border-primary/40 p-8 rounded-xl mb-8">
-                <img 
-                  src={afrolocSymbolGold} 
-                  alt="Afroloc" 
-                  className="h-20 w-20 md:h-24 md:w-24 object-cover rounded-lg opacity-80" 
+                <img
+                  src={afrolocSymbolGold}
+                  alt={t('brand_logo_alt')}
+                  className="h-20 w-20 md:h-24 md:w-24 object-cover rounded-lg opacity-80"
                 />
               </div>
               <h3 className="text-2xl md:text-3xl font-semibold text-primary/60 mb-8 tracking-wide">AFROLOC</h3>
-              <p className="text-muted-foreground">Minimum Clear Space</p>
+              <p className="text-muted-foreground">{t('brand_logo_clear_space')}</p>
             </div>
           </div>
           
           {/* Logo Variations */}
           <div className="border border-primary/30 rounded-2xl p-8 bg-[#0F1620]">
-            <h3 className="text-xl font-bold text-primary mb-8">Logo Variations</h3>
+            <h3 className="text-xl font-bold text-primary mb-8">{t('brand_logo_variations_title')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {["Full Color", "Monochrome", "Reversed", "On Gradient"].map((variation, index) => (
+              {[t('brand_logo_var_full_color'), t('brand_logo_var_monochrome'), t('brand_logo_var_reversed'), t('brand_logo_var_on_gradient')].map((variation, index) => (
                 <div key={index} className="flex flex-col items-center">
                   <div className={`w-full aspect-square rounded-xl flex items-center justify-center mb-4 ${
                     index === 2 ? "bg-primary shadow-xl shadow-primary/30" : index === 3 ? "bg-gradient-to-br from-primary to-amber-600 shadow-xl shadow-primary/30" : "bg-[#181E27] border border-primary/20"
@@ -837,12 +835,12 @@ export default function BrandGuidelines() {
       {/* Page 5: Color Palette */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Color Palette</h2>
-          <p className="text-muted-foreground mb-12">A sophisticated palette combining deep navy with rich golden accents</p>
-          
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_palette_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_palette_subtitle')}</p>
+
           {/* Primary Colors */}
           <div className="mb-10">
-            <h3 className="text-lg font-bold text-primary mb-4">Primary Colors</h3>
+            <h3 className="text-lg font-bold text-primary mb-4">{t('brand_palette_primary_heading')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {primaryColors.map((color, index) => (
                 <div key={index}>
@@ -860,7 +858,7 @@ export default function BrandGuidelines() {
           
           {/* Neutral Colors */}
           <div className="mb-10">
-            <h3 className="text-lg font-bold text-primary mb-4">Neutral Colors</h3>
+            <h3 className="text-lg font-bold text-primary mb-4">{t('brand_palette_neutral_heading')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {neutralColors.map((color, index) => (
                 <div key={index}>
@@ -878,7 +876,7 @@ export default function BrandGuidelines() {
           
           {/* Brand Gradients */}
           <div>
-            <h3 className="text-lg font-bold text-primary mb-4">Brand Gradients</h3>
+            <h3 className="text-lg font-bold text-primary mb-4">{t('brand_palette_gradients_heading')}</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {gradients.slice(0, 2).map((gradient, index) => (
                 <div key={index}>
@@ -898,17 +896,17 @@ export default function BrandGuidelines() {
       {/* Page 6: Typography */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Typography</h2>
-          <p className="text-muted-foreground mb-12">A modern typographic system that balances authority with accessibility</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_typography_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_typography_subtitle')}</p>
           
           {/* Display Font */}
           <div className="border border-primary/30 rounded-xl p-8 mb-8">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <p className="text-xs text-muted-foreground tracking-wider mb-2">DISPLAY FONT</p>
+                <p className="text-xs text-muted-foreground tracking-wider mb-2">{t('brand_typo_display_font_label')}</p>
                 <h3 className="text-2xl font-bold text-primary">Space Grotesk</h3>
               </div>
-              <span className="text-sm text-primary/60">Headlines & Titles</span>
+              <span className="text-sm text-primary/60">{t('brand_typo_headlines_titles')}</span>
             </div>
             
             <p className="text-6xl font-bold text-primary mb-6">Aa</p>
@@ -928,7 +926,7 @@ export default function BrandGuidelines() {
           
           {/* Type Scale */}
           <div className="border border-primary/30 rounded-xl p-8">
-            <h3 className="text-lg font-bold text-primary mb-6">Type Scale</h3>
+            <h3 className="text-lg font-bold text-primary mb-6">{t('brand_type_scale_title')}</h3>
             <div className="space-y-6">
               {typeScale.map((item, index) => (
                 <div key={index} className="flex items-baseline gap-6 border-b border-primary/10 pb-4 last:border-0">
@@ -952,8 +950,8 @@ export default function BrandGuidelines() {
       {/* Page 7: Tone of Voice */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Tone of Voice</h2>
-          <p className="text-muted-foreground mb-12">How we communicate with our audience</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_tone_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_tone_subtitle')}</p>
           
           <div className="grid md:grid-cols-2 gap-6">
             {toneOfVoice.map((item, index) => (
@@ -972,8 +970,8 @@ export default function BrandGuidelines() {
       {/* Page 8: Usage Guidelines */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Usage Guidelines</h2>
-          <p className="text-muted-foreground mb-12">Correct and incorrect uses of the brand</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_usage_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_usage_subtitle')}</p>
           
           <div className="grid md:grid-cols-2 gap-6 mb-12">
             {/* Do's */}
@@ -982,7 +980,7 @@ export default function BrandGuidelines() {
                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
                   <Check className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-green-500">Correct Uses</h3>
+                <h3 className="text-lg font-bold text-green-500">{t('brand_correct_uses')}</h3>
               </div>
               <ul className="space-y-3">
                 {dosItems.map((item, index) => (
@@ -1000,7 +998,7 @@ export default function BrandGuidelines() {
                 <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
                   <X className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-red-500">Incorrect Uses</h3>
+                <h3 className="text-lg font-bold text-red-500">{t('brand_incorrect_uses')}</h3>
               </div>
               <ul className="space-y-3">
                 {dontsItems.map((item, index) => (
@@ -1018,8 +1016,8 @@ export default function BrandGuidelines() {
       {/* Page 9: Digital Applications */}
       <section className="min-h-screen px-4 py-20">
         <div className="container mx-auto max-w-4xl">
-          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">Digital Applications</h2>
-          <p className="text-muted-foreground mb-12">How to apply the brand across digital touchpoints</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">{t('brand_digital_title')}</h2>
+          <p className="text-muted-foreground mb-12">{t('brand_digital_subtitle')}</p>
           
           <div className="grid md:grid-cols-2 gap-4 mb-12">
             {digitalApplications.map((app, index) => (
@@ -1032,17 +1030,17 @@ export default function BrandGuidelines() {
           
           {/* Email Signature */}
           <div className="border border-primary/30 rounded-xl p-8 bg-[#0F1620]">
-            <h3 className="text-lg font-bold text-primary mb-6">Email Signature</h3>
+            <h3 className="text-lg font-bold text-primary mb-6">{t('brand_email_signature_title')}</h3>
             <div className="bg-[#1A1814] rounded-lg p-6">
               <div className="flex items-center gap-4 mb-4">
-                <img 
-                  src={afrolocSymbol} 
-                  alt="Afroloc" 
-                  className="h-10 w-10 object-cover rounded-lg shadow-md ring-1 ring-primary/20" 
+                <img
+                  src={afrolocSymbol}
+                  alt={t('brand_logo_alt')}
+                  className="h-10 w-10 object-cover rounded-lg shadow-md ring-1 ring-primary/20"
                 />
                 <div>
-                  <p className="text-primary font-semibold">Full Name | Title</p>
-                  <p className="text-muted-foreground text-sm">AFROLOC - Digital Addressing System of Africa</p>
+                  <p className="text-primary font-semibold">{t('brand_email_sig_name_title')}</p>
+                  <p className="text-muted-foreground text-sm">{t('brand_email_sig_tagline')}</p>
                 </div>
               </div>
               <p className="text-muted-foreground text-sm">email@afroloc.app | www.afroloc.app</p>
@@ -1051,8 +1049,8 @@ export default function BrandGuidelines() {
           
           {/* Footer */}
           <div className="text-center pt-16 mt-12 border-t border-primary/20">
-            <p className="text-primary font-semibold mb-2">© 2025 AFROLOC. All rights reserved.</p>
-            <p className="text-muted-foreground text-sm">Brand Guidelines v2.0 • For internal use and approved partners</p>
+            <p className="text-primary font-semibold mb-2">{t('brand_footer_copyright')}</p>
+            <p className="text-muted-foreground text-sm">{t('brand_footer_note')}</p>
           </div>
         </div>
       </section>

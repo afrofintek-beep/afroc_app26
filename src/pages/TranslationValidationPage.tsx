@@ -23,9 +23,11 @@ import {
   type LanguageStats,
 } from "@/utils/translationValidator";
 import { downloadSyncedTranslations } from "@/utils/syncTranslations";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function TranslationValidationPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [report, setReport] = useState<ValidationReport>(() => validateTranslations());
 
   const handleRefresh = () => {
@@ -52,16 +54,16 @@ export default function TranslationValidationPage() {
   };
 
   const handleDownloadSynced = async () => {
-    toast.info("Downloading synced translation files...");
+    toast.info(t('transval_downloading_synced'));
     await downloadSyncedTranslations();
-    toast.success("All synced translation files downloaded!");
+    toast.success(t('transval_synced_downloaded'));
   };
 
   const getCompletionBadge = (rate: number) => {
-    if (rate === 100) return <Badge variant="default" className="bg-green-600">Complete</Badge>;
-    if (rate >= 90) return <Badge variant="secondary" className="bg-yellow-600">Good</Badge>;
-    if (rate >= 70) return <Badge variant="outline" className="text-orange-500 border-orange-500">Partial</Badge>;
-    return <Badge variant="destructive">Incomplete</Badge>;
+    if (rate === 100) return <Badge variant="default" className="bg-green-600">{t('transval_status_complete')}</Badge>;
+    if (rate >= 90) return <Badge variant="secondary" className="bg-yellow-600">{t('transval_status_good')}</Badge>;
+    if (rate >= 70) return <Badge variant="outline" className="text-orange-500 border-orange-500">{t('transval_status_partial')}</Badge>;
+    return <Badge variant="destructive">{t('transval_status_incomplete')}</Badge>;
   };
 
   const getProgressColor = (rate: number) => {
@@ -97,28 +99,28 @@ export default function TranslationValidationPage() {
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <Languages className="h-6 w-6 text-primary" />
-              <h1 className="text-3xl font-bold">Translation Validation Report</h1>
+              <h1 className="text-3xl font-bold">{t('transval_page_title')}</h1>
             </div>
             <p className="text-muted-foreground">
-              {report.totalKeys} total keys across {report.languages.length} languages • Baseline: Portuguese (pt.json)
+              {report.totalKeys} {t('transval_total_keys_across')} {report.languages.length} {t('transval_languages_baseline')}
             </p>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={handleRefresh}>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
+              {t('transval_refresh')}
             </Button>
             <Button variant="default" size="sm" onClick={handleDownloadSynced}>
               <FileDown className="h-4 w-4 mr-2" />
-              Download Synced Files
+              {t('transval_download_synced_files')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleDownloadManual}>
               <Download className="h-4 w-4 mr-2" />
-              Export Excel
+              {t('transval_export_excel')}
             </Button>
             <Button variant="outline" size="sm" onClick={handleDownloadReport}>
               <Download className="h-4 w-4 mr-2" />
-              Export JSON
+              {t('transval_export_json')}
             </Button>
           </div>
         </div>
@@ -127,31 +129,31 @@ export default function TranslationValidationPage() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Total Keys</CardDescription>
+              <CardDescription>{t('transval_total_keys')}</CardDescription>
               <CardTitle className="text-3xl">{report.totalKeys}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Languages</CardDescription>
+              <CardDescription>{t('transval_languages')}</CardDescription>
               <CardTitle className="text-3xl">{report.languages.length}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Avg. Completion</CardDescription>
+              <CardDescription>{t('transval_avg_completion')}</CardDescription>
               <CardTitle className="text-3xl">{avgCompletion}%</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Complete</CardDescription>
+              <CardDescription>{t('transval_complete')}</CardDescription>
               <CardTitle className="text-3xl text-green-500">{completeLanguages}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardDescription>Missing Keys</CardDescription>
+              <CardDescription>{t('transval_missing_keys')}</CardDescription>
               <CardTitle className="text-3xl text-amber-500">{report.missingTranslations.length}</CardTitle>
             </CardHeader>
           </Card>
@@ -167,11 +169,11 @@ export default function TranslationValidationPage() {
               <TabsList className="mb-6">
                 <TabsTrigger value="table">
                   <BarChart3 className="h-4 w-4 mr-2" />
-                  Completion Table
+                  {t('transval_completion_table')}
                 </TabsTrigger>
-                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="overview">{t('transval_overview')}</TabsTrigger>
                 <TabsTrigger value="missing">
-                  Missing Keys
+                  {t('transval_missing_keys')}
                   {!report.isValid && (
                     <Badge variant="destructive" className="ml-2">
                       {report.missingTranslations.length}
@@ -182,17 +184,17 @@ export default function TranslationValidationPage() {
 
               <TabsContent value="table">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Language Completion Summary</h3>
+                  <h3 className="text-lg font-semibold">{t('transval_lang_completion_summary')}</h3>
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Language</TableHead>
-                        <TableHead>Code</TableHead>
-                        <TableHead className="text-right">Present Keys</TableHead>
-                        <TableHead className="text-right">Missing Keys</TableHead>
-                        <TableHead className="text-right">Completion</TableHead>
-                        <TableHead className="w-[200px]">Progress</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>{t('transval_col_language')}</TableHead>
+                        <TableHead>{t('transval_col_code')}</TableHead>
+                        <TableHead className="text-right">{t('transval_col_present_keys')}</TableHead>
+                        <TableHead className="text-right">{t('transval_missing_keys')}</TableHead>
+                        <TableHead className="text-right">{t('transval_col_completion')}</TableHead>
+                        <TableHead className="w-[200px]">{t('transval_col_progress')}</TableHead>
+                        <TableHead>{t('transval_col_status')}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -236,18 +238,18 @@ export default function TranslationValidationPage() {
                     {report.isValid ? (
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-5 w-5 text-green-500" />
-                        <span className="font-medium">All translations are complete!</span>
+                        <span className="font-medium">{t('transval_all_complete')}</span>
                       </div>
                     ) : (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
                           <AlertCircle className="h-5 w-5 text-yellow-500" />
                           <span className="font-medium">
-                            Found {report.missingTranslations.length} missing translations across {Object.keys(groupedMissing).length} languages
+                            {t('transval_found')} {report.missingTranslations.length} {t('transval_missing_across')} {Object.keys(groupedMissing).length} {t('transval_languages')}
                           </span>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          Review the details below to complete all translations.
+                          {t('transval_review_details')}
                         </p>
                       </div>
                     )}
@@ -255,7 +257,7 @@ export default function TranslationValidationPage() {
 
                   {/* Completion Rates Cards */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Language Completion Rates</h3>
+                    <h3 className="text-lg font-semibold">{t('transval_lang_completion_rates')}</h3>
                     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                       {report.languageStats.map((lang: LanguageStats) => (
                         <Card key={lang.code}>
@@ -265,14 +267,14 @@ export default function TranslationValidationPage() {
                               {getCompletionBadge(lang.completionRate)}
                             </div>
                             <CardDescription>
-                              {lang.presentKeys} / {lang.totalKeys} keys • 
-                              {lang.missingKeys > 0 ? ` ${lang.missingKeys} missing` : ' All present'}
+                              {lang.presentKeys} / {lang.totalKeys} {t('transval_keys')} •
+                              {lang.missingKeys > 0 ? ` ${lang.missingKeys} ${t('transval_missing_lower')}` : ` ${t('transval_all_present')}`}
                             </CardDescription>
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-2">
                               <div className="flex items-center justify-between text-sm">
-                                <span className="text-muted-foreground">Progress</span>
+                                <span className="text-muted-foreground">{t('transval_col_progress')}</span>
                                 <span className="font-semibold">{lang.completionRate}%</span>
                               </div>
                               <Progress value={lang.completionRate} className="h-2" />
@@ -289,9 +291,9 @@ export default function TranslationValidationPage() {
                 {report.isValid ? (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
                     <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">All Translations Complete!</h3>
+                    <h3 className="text-xl font-semibold mb-2">{t('transval_all_translations_complete')}</h3>
                     <p className="text-muted-foreground">
-                      Every language has all required translation keys.
+                      {t('transval_every_language_has_keys')}
                     </p>
                   </div>
                 ) : (
@@ -302,7 +304,7 @@ export default function TranslationValidationPage() {
                           <CardHeader>
                             <div className="flex items-center justify-between">
                               <CardTitle className="text-lg uppercase">{language}</CardTitle>
-                              <Badge variant="outline">{missing.length} missing</Badge>
+                              <Badge variant="outline">{missing.length} {t('transval_missing_lower')}</Badge>
                             </div>
                           </CardHeader>
                           <CardContent>
@@ -315,7 +317,7 @@ export default function TranslationValidationPage() {
                                   <code className="font-mono text-sm font-semibold">{m.key}</code>
                                   {m.referenceValue && (
                                     <p className="text-muted-foreground mt-2 text-sm">
-                                      <span className="font-medium">English:</span> {m.referenceValue}
+                                      <span className="font-medium">{t('transval_english_label')}</span> {m.referenceValue}
                                     </p>
                                   )}
                                 </div>

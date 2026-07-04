@@ -11,48 +11,48 @@ const timeline = [
   {
     year: "2023",
     quarter: "Q1",
-    title: "Concepção",
-    description: "Início do desenvolvimento do conceito de endereçamento digital continental para África",
+    titleKey: "about_timeline_2023q1_title",
+    descriptionKey: "about_timeline_2023q1_desc",
     icon: Sparkles,
     color: "from-primary to-primary-glow",
   },
   {
     year: "2023",
     quarter: "Q2",
-    title: "Prototipagem",
-    description: "Desenvolvimento do primeiro protótipo e testes com comunidades em Angola",
+    titleKey: "about_timeline_2023q2_title",
+    descriptionKey: "about_timeline_2023q2_desc",
     icon: Rocket,
     color: "from-secondary to-accent",
   },
   {
     year: "2023",
     quarter: "Q4",
-    title: "Validação Comunitária",
-    description: "Implementação do sistema de validação por testemunhas e níveis de autorização",
+    titleKey: "about_timeline_2023q4_title",
+    descriptionKey: "about_timeline_2023q4_desc",
     icon: Users,
     color: "from-accent to-brown",
   },
   {
     year: "2024",
     quarter: "Q1",
-    title: "Expansão Regional",
-    description: "Lançamento em múltiplos países africanos com suporte multilíngue",
+    titleKey: "about_timeline_2024q1_title",
+    descriptionKey: "about_timeline_2024q1_desc",
     icon: Globe,
     color: "from-brown to-primary",
   },
   {
     year: "2024",
     quarter: "Q2",
-    title: "Integração Financeira",
-    description: "Parcerias com instituições financeiras para inclusão bancária",
+    titleKey: "about_timeline_2024q2_title",
+    descriptionKey: "about_timeline_2024q2_desc",
     icon: TrendingUp,
     color: "from-primary to-secondary",
   },
   {
     year: "2024",
     quarter: "Q3",
-    title: "API Pública",
-    description: "Lançamento da API aberta para desenvolvedores e empresas",
+    titleKey: "about_timeline_2024q3_title",
+    descriptionKey: "about_timeline_2024q3_desc",
     icon: Zap,
     color: "from-secondary to-accent",
   },
@@ -61,26 +61,26 @@ const timeline = [
 const values = [
   {
     icon: Heart,
-    title: "Inclusão",
-    description: "Acreditamos que todo africano merece um endereço digital verificável, independentemente de sua localização ou situação socioeconômica.",
+    titleKey: "about_value_inclusion_title",
+    descriptionKey: "about_value_inclusion_desc",
     gradient: "from-primary/20 to-primary-glow/20",
   },
   {
     icon: Shield,
-    title: "Segurança",
-    description: "Protegemos a identidade e privacidade dos usuários através de validação comunitária e criptografia avançada.",
+    titleKey: "about_value_security_title",
+    descriptionKey: "about_value_security_desc",
     gradient: "from-secondary/20 to-accent/20",
   },
   {
     icon: Users,
-    title: "Comunidade",
-    description: "O sistema é validado pela própria comunidade, garantindo autenticidade e fortalecendo laços sociais.",
+    titleKey: "about_value_community_title",
+    descriptionKey: "about_value_community_desc",
     gradient: "from-accent/20 to-brown/20",
   },
   {
     icon: Globe,
-    title: "Interoperabilidade",
-    description: "Construímos um sistema continental que funciona além das fronteiras, conectando toda África.",
+    titleKey: "about_value_interoperability_title",
+    descriptionKey: "about_value_interoperability_desc",
     gradient: "from-brown/20 to-primary/20",
   },
 ];
@@ -88,26 +88,26 @@ const values = [
 const team = [
   {
     name: "Dr. Amara Okonkwo",
-    role: "CEO & Fundadora",
-    description: "PhD em Sistemas de Informação Geográfica, 15 anos de experiência em infraestrutura digital africana.",
+    roleKey: "about_team_ceo_role",
+    descriptionKey: "about_team_ceo_desc",
     avatar: "👩🏿‍💼",
   },
   {
     name: "Kwame Mensah",
-    role: "CTO",
-    description: "Ex-engenheiro principal do Google Maps, especialista em georreferenciação e sistemas distribuídos.",
+    roleKey: "about_team_cto_role",
+    descriptionKey: "about_team_cto_desc",
     avatar: "👨🏿‍💻",
   },
   {
     name: "Fatima Hassan",
-    role: "Head of Community",
-    description: "Liderou projetos de inclusão digital em 12 países africanos, fluente em 6 idiomas africanos.",
+    roleKey: "about_team_community_role",
+    descriptionKey: "about_team_community_desc",
     avatar: "👩🏾‍🦱",
   },
   {
     name: "João Santos",
-    role: "Head of Engineering",
-    description: "Arquiteto de sistemas com experiência em plataformas de larga escala e blockchain.",
+    roleKey: "about_team_engineering_role",
+    descriptionKey: "about_team_engineering_desc",
     avatar: "👨🏽‍💼",
   },
 ];
@@ -154,15 +154,15 @@ export default function About() {
         <div className="mx-auto max-w-4xl text-center space-y-6 animate-fade-in">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-strong border border-border/50 shadow-soft mb-4 animate-scale-in">
             <Heart className="h-4 w-4 text-primary animate-pulse-glow" />
-            <span className="text-sm font-medium">Nossa História</span>
+            <span className="text-sm font-medium">{t('about_hero_badge')}</span>
           </div>
-          
+
           <h1 className="text-4xl sm:text-6xl font-display font-bold tracking-tight bg-gradient-to-br from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
-            Sobre o AFROLOC
+            {t('about_hero_title')}
           </h1>
-          
+
           <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Revolucionando o endereçamento digital em África através de tecnologia inclusiva, validação comunitária e georreferenciação precisa.
+            {t('about_hero_subtitle')}
           </p>
         </div>
       </section>
@@ -179,9 +179,9 @@ export default function About() {
                   <Target className="h-8 w-8 text-white" />
                 </div>
               </div>
-              <h2 className="text-3xl font-display font-bold mb-4">Nossa Missão</h2>
+              <h2 className="text-3xl font-display font-bold mb-4">{t('about_mission_title')}</h2>
               <p className="text-muted-foreground leading-relaxed text-lg">
-                Fornecer a cada cidadão africano um endereço digital único, verificável e permanente, promovendo inclusão financeira, acesso a serviços essenciais e fortalecimento da identidade continental.
+                {t('about_mission_desc')}
               </p>
             </CardContent>
           </Card>
@@ -195,9 +195,9 @@ export default function About() {
                   <Eye className="h-8 w-8 text-white" />
                 </div>
               </div>
-              <h2 className="text-3xl font-display font-bold mb-4">Nossa Visão</h2>
+              <h2 className="text-3xl font-display font-bold mb-4">{t('about_vision_title')}</h2>
               <p className="text-muted-foreground leading-relaxed text-lg">
-                Tornar-se o sistema continental de endereçamento digital de referência, conectando mais de 1 bilhão de africanos e servindo como infraestrutura fundamental para o desenvolvimento sustentável do continente.
+                {t('about_vision_desc')}
               </p>
             </CardContent>
           </Card>
@@ -210,13 +210,13 @@ export default function About() {
           <div className="text-center mb-12 sm:mb-16 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 shadow-soft mb-6">
               <Award className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Nossos Valores</span>
+              <span className="text-sm font-medium">{t('about_values_badge')}</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-display font-bold mb-4">
-              O que nos guia
+              {t('about_values_title')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Princípios fundamentais que norteiam cada decisão e ação
+              {t('about_values_subtitle')}
             </p>
           </div>
 
@@ -225,7 +225,7 @@ export default function About() {
               const Icon = value.icon;
               return (
                 <Card
-                  key={value.title}
+                  key={value.titleKey}
                   className="glass-strong border border-border/50 shadow-elegant hover:shadow-glow hover:scale-105 transition-all duration-500 group animate-fade-in"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -235,9 +235,9 @@ export default function About() {
                         <Icon className="h-8 w-8 text-primary" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-display font-bold mb-3">{value.title}</h3>
+                    <h3 className="text-xl font-display font-bold mb-3">{t(value.titleKey)}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {value.description}
+                      {t(value.descriptionKey)}
                     </p>
                   </CardContent>
                 </Card>
@@ -253,13 +253,13 @@ export default function About() {
           <div className="text-center mb-12 sm:mb-16 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 shadow-soft mb-6">
               <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Nossa Jornada</span>
+              <span className="text-sm font-medium">{t('about_journey_badge')}</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-display font-bold mb-4">
-              Evolução do Projeto
+              {t('about_journey_title')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Do conceito à realidade continental
+              {t('about_journey_subtitle')}
             </p>
           </div>
 
@@ -291,9 +291,9 @@ export default function About() {
                                 {item.year} {item.quarter}
                               </Badge>
                             </div>
-                            <h3 className="text-xl font-display font-bold mb-2">{item.title}</h3>
+                            <h3 className="text-xl font-display font-bold mb-2">{t(item.titleKey)}</h3>
                             <p className="text-muted-foreground leading-relaxed">
-                              {item.description}
+                              {t(item.descriptionKey)}
                             </p>
                           </div>
                         </div>
@@ -316,13 +316,13 @@ export default function About() {
           <div className="text-center mb-12 sm:mb-16 animate-fade-in">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 shadow-soft mb-6">
               <Users className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Conheça a Equipe</span>
+              <span className="text-sm font-medium">{t('about_team_badge')}</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-display font-bold mb-4">
-              Liderança
+              {t('about_team_title')}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Especialistas dedicados a revolucionar o endereçamento digital em África
+              {t('about_team_subtitle')}
             </p>
           </div>
 
@@ -341,10 +341,10 @@ export default function About() {
                   </div>
                   <h3 className="text-lg font-display font-bold mb-1">{member.name}</h3>
                   <Badge variant="outline" className="mb-3 glass border-border/50">
-                    {member.role}
+                    {t(member.roleKey)}
                   </Badge>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    {member.description}
+                    {t(member.descriptionKey)}
                   </p>
                 </CardContent>
               </Card>
@@ -364,19 +364,19 @@ export default function About() {
                   <div className="text-5xl font-display font-bold bg-gradient-to-br from-primary to-primary-glow bg-clip-text text-transparent">
                     12+
                   </div>
-                  <div className="text-sm text-muted-foreground">Países Cobertos</div>
+                  <div className="text-sm text-muted-foreground">{t('about_stats_countries')}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-5xl font-display font-bold bg-gradient-to-br from-secondary to-accent bg-clip-text text-transparent">
                     50K+
                   </div>
-                  <div className="text-sm text-muted-foreground">AFROLOCs Criados</div>
+                  <div className="text-sm text-muted-foreground">{t('about_stats_afrolocs')}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="text-5xl font-display font-bold bg-gradient-to-br from-accent to-brown bg-clip-text text-transparent">
                     98%
                   </div>
-                  <div className="text-sm text-muted-foreground">Taxa de Validação</div>
+                  <div className="text-sm text-muted-foreground">{t('about_stats_validation')}</div>
                 </div>
               </div>
             </CardContent>
@@ -392,15 +392,15 @@ export default function About() {
             <CardContent className="p-8 sm:p-12 text-center space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 shadow-soft mb-4">
                 <Sparkles className="h-4 w-4 text-primary animate-pulse-glow" />
-                <span className="text-sm font-medium">Faça Parte</span>
+                <span className="text-sm font-medium">{t('about_cta_badge')}</span>
               </div>
-              
+
               <h2 className="text-3xl sm:text-4xl font-display font-bold">
-                Junte-se à revolução do endereçamento digital
+                {t('about_cta_title')}
               </h2>
-              
+
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Seja parte da transformação que está mudando a forma como África se conecta
+                {t('about_cta_subtitle')}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -410,7 +410,7 @@ export default function About() {
                   className="bg-gradient-primary hover:scale-105 shadow-elegant hover:shadow-glow transition-all px-8"
                 >
                   <MapPin className="mr-2 h-5 w-5" />
-                  Criar AFROLOC
+                  {t('about_cta_create')}
                 </Button>
                 <Button 
                   size="lg" 
@@ -418,7 +418,7 @@ export default function About() {
                   onClick={() => navigate("/pricing")}
                   className="glass-strong border-2 border-border/50 hover:border-primary hover:shadow-glow transition-all px-8"
                 >
-                  Ver Planos
+                  {t('about_cta_plans')}
                 </Button>
               </div>
             </CardContent>
@@ -429,7 +429,7 @@ export default function About() {
       {/* Footer */}
       <footer className="border-t border-border/50 py-8 mt-16">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2024 AFROLOC. Todos os direitos reservados.</p>
+          <p>© 2024 AFROLOC. {t('about_footer_rights')}</p>
         </div>
       </footer>
     </div>
