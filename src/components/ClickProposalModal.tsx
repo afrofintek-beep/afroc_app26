@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthorizationLevel, LEVEL_NAMES, hasMinimumLevel } from '@/hooks/useAuthorizationLevel';
 import type { QGResult } from '@/hooks/useQGSQEngine';
+import { useLanguage } from '@/contexts/LanguageContext';
 import mapboxgl from 'mapbox-gl';
 
 // Minimum authorization level required for DIRECT validation (auto-approve)
@@ -62,6 +63,7 @@ export function ClickProposalModal({
   copyCode,
   countryCode
 }: ClickProposalModalProps) {
+  const { t } = useLanguage();
   const { data: authLevel, isLoading: authLoading } = useAuthorizationLevel();
   const [isCreating, setIsCreating] = useState(false);
   const [addressCategory, setAddressCategory] = useState<AddressCategory>('informal');
@@ -93,7 +95,7 @@ export function ClickProposalModal({
     if (!clickProposal?.qgResult) return;
     
     if (!isFormalValid) {
-      toast.error('Para endereços formais, preencha a rua e o número');
+      toast.error(t('clickprop_formal_fill_required'));
       return;
     }
     
@@ -103,7 +105,7 @@ export function ClickProposalModal({
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error('Sessão expirada. Por favor, faça login novamente.');
+        toast.error(t('clickprop_session_expired'));
         return;
       }
       
@@ -167,15 +169,15 @@ export function ClickProposalModal({
         }
       });
       
-      const categoryLabel = ADDRESS_CATEGORIES[addressCategory].label;
-      
+      const categoryLabel = addressCategory === 'formal' ? t('clickprop_formal') : t('clickprop_informal');
+
       if (canAutoApprove) {
-        toast.success(`AFROLOC ${categoryLabel} criado e aprovado!`, {
-          description: `Código: ${code}`
+        toast.success(`AFROLOC ${categoryLabel} ${t('clickprop_created_approved')}`, {
+          description: `${t('clickprop_code_label')}: ${code}`
         });
       } else {
-        toast.success(`AFROLOC ${categoryLabel} criado com sucesso!`, {
-          description: 'Aguardando validação por um operador autorizado.'
+        toast.success(`AFROLOC ${categoryLabel} ${t('clickprop_created_success')}`, {
+          description: t('clickprop_awaiting_validation')
         });
       }
       
@@ -189,13 +191,13 @@ export function ClickProposalModal({
       
       // Check for specific error about user limit
       if (errorMessage.includes('Maximum limit') && errorMessage.includes('AFROLOC addresses')) {
-        toast.error('Limite de endereços atingido', {
-          description: 'Você já possui o máximo de 10 endereços AFROLOC permitidos. Para adicionar novos endereços, elimine um dos existentes primeiro.',
+        toast.error(t('clickprop_limit_reached'), {
+          description: t('clickprop_limit_reached_desc'),
           duration: 6000
         });
       } else {
-        toast.error('Erro ao criar AFROLOC', {
-          description: errorMessage || 'Tente novamente'
+        toast.error(t('clickprop_create_error'), {
+          description: errorMessage || t('clickprop_try_again')
         });
       }
     } finally {
@@ -213,9 +215,9 @@ export function ClickProposalModal({
             <Plus className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-sm">Criar AFROLOC</h3>
+            <h3 className="font-semibold text-sm">{t('clickprop_create_afroloc')}</h3>
             <p className="text-xs text-muted-foreground">
-              {canAutoApprove ? 'Aprovação automática' : 'Sujeito a validação'}
+              {canAutoApprove ? t('clickprop_auto_approval') : t('clickprop_subject_validation')}
             </p>
           </div>
         </div>
@@ -234,7 +236,7 @@ export function ClickProposalModal({
         <Alert className="mb-3 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-xs text-blue-800 dark:text-blue-200">
-            O seu AFROLOC será criado e enviado para validação por um operador de nível 3 ou superior.
+            {t('clickprop_will_be_validated')}
           </AlertDescription>
         </Alert>
       )}
@@ -243,7 +245,7 @@ export function ClickProposalModal({
         <Alert className="mb-3 border-green-200 bg-green-50 dark:bg-green-950/20">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-xs text-green-800 dark:text-green-200">
-            Como operador nível {userLevel}, o seu AFROLOC será aprovado automaticamente.
+            {t('clickprop_as_operator_level')} {userLevel}{t('clickprop_will_be_auto_approved')}
           </AlertDescription>
         </Alert>
       )}
@@ -252,14 +254,14 @@ export function ClickProposalModal({
         <div className="flex items-center justify-center py-6">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           <span className="ml-2 text-sm text-muted-foreground">
-            {authLoading ? 'Verificando autorização...' : 'Calculando código...'}
+            {authLoading ? t('clickprop_verifying_auth') : t('clickprop_calculating_code')}
           </span>
         </div>
       ) : clickProposal.qgResult ? (
         <div className="space-y-3">
           {/* Address Type Selection */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Tipo de Endereço</Label>
+            <Label className="text-xs font-medium">{t('clickprop_address_type')}</Label>
             <RadioGroup
               value={addressCategory}
               onValueChange={(v) => setAddressCategory(v as AddressCategory)}
@@ -281,10 +283,10 @@ export function ClickProposalModal({
                     <RadioGroupItem value={key} id={`addr-${key}`} className="sr-only" />
                     <Icon className={`h-5 w-5 ${isSelected ? config.color : 'text-muted-foreground'}`} />
                     <span className={`text-xs font-medium ${isSelected ? config.color : 'text-muted-foreground'}`}>
-                      {config.label}
+                      {t(`clickprop_${key}`)}
                     </span>
                     <span className="text-[10px] text-muted-foreground text-center leading-tight">
-                      {config.description}
+                      {t(`clickprop_${key}_desc`)}
                     </span>
                   </Label>
                 );
@@ -297,20 +299,20 @@ export function ClickProposalModal({
             <div className="space-y-2 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200">
               <div className="grid grid-cols-3 gap-2">
                 <div className="col-span-2 space-y-1">
-                  <Label htmlFor="streetName" className="text-xs">Nome da Rua *</Label>
+                  <Label htmlFor="streetName" className="text-xs">{t('clickprop_street_name')} *</Label>
                   <Input
                     id="streetName"
-                    placeholder="Ex: Av. 4 de Fevereiro"
+                    placeholder={t('clickprop_street_placeholder')}
                     value={streetName}
                     onChange={(e) => setStreetName(e.target.value)}
                     className="h-8 text-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="houseNumber" className="text-xs">Número *</Label>
+                  <Label htmlFor="houseNumber" className="text-xs">{t('clickprop_number')} *</Label>
                   <Input
                     id="houseNumber"
-                    placeholder="Ex: 123"
+                    placeholder={t('clickprop_number_placeholder')}
                     value={houseNumber}
                     onChange={(e) => setHouseNumber(e.target.value)}
                     className="h-8 text-sm"
@@ -318,14 +320,14 @@ export function ClickProposalModal({
                 </div>
               </div>
               <p className="text-[10px] text-muted-foreground">
-                * Campos obrigatórios para endereços formais
+                * {t('clickprop_required_fields_formal')}
               </p>
             </div>
           )}
           
           {/* AFROLOC Code */}
           <div className="bg-muted/50 rounded-lg p-3">
-            <p className="text-xs text-muted-foreground mb-1">Código AFROLOC Digital</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('clickprop_afroloc_digital_code')}</p>
             <div className="flex items-center gap-2">
               <code className="font-mono text-sm font-bold text-primary flex-1 break-all">
                 {clickProposal.qgResult.afroloc || clickProposal.qgResult.qgCode}
@@ -348,34 +350,34 @@ export function ClickProposalModal({
           {/* Coordinates and Cell Info */}
           <div className="grid grid-cols-4 gap-2 text-xs">
             <div className="bg-muted/30 rounded p-2">
-              <p className="text-muted-foreground">Lat</p>
+              <p className="text-muted-foreground">{t('clickprop_lat')}</p>
               <p className="font-mono font-medium text-[11px]">{clickProposal.lat.toFixed(5)}</p>
             </div>
             <div className="bg-muted/30 rounded p-2">
-              <p className="text-muted-foreground">Lon</p>
+              <p className="text-muted-foreground">{t('clickprop_lon')}</p>
               <p className="font-mono font-medium text-[11px]">{clickProposal.lon.toFixed(5)}</p>
             </div>
             <div className="bg-muted/30 rounded p-2">
-              <p className="text-muted-foreground">Zona</p>
+              <p className="text-muted-foreground">{t('clickprop_zone')}</p>
               <Badge variant="outline" className="mt-0.5 text-[10px] px-1">
-                {(clickProposal.qgResult.zone || clickProposal.qgResult.cellType) === 'urban' ? 'Urbana' : 'Rural'}
+                {(clickProposal.qgResult.zone || clickProposal.qgResult.cellType) === 'urban' ? t('clickprop_urban') : t('clickprop_rural')}
               </Badge>
             </div>
             <div className="bg-muted/30 rounded p-2">
-              <p className="text-muted-foreground">Célula</p>
+              <p className="text-muted-foreground">{t('clickprop_cell')}</p>
               <p className="font-medium mt-0.5">{clickProposal.qgResult.grid_m || clickProposal.qgResult.cellSize || 10}m</p>
             </div>
           </div>
           
           {/* User Level Info */}
           <div className="bg-muted/30 rounded p-2 text-xs">
-            <p className="text-muted-foreground">Seu Nível</p>
+            <p className="text-muted-foreground">{t('clickprop_your_level')}</p>
             <div className="flex items-center gap-2 mt-1">
               <Badge 
                 variant={canAutoApprove ? 'default' : 'secondary'}
                 className={canAutoApprove ? 'bg-green-600' : ''}
               >
-                Nível {userLevel} - {levelName}
+                {t('clickprop_level')} {userLevel} - {levelName}
               </Badge>
             </div>
           </div>
@@ -387,7 +389,7 @@ export function ClickProposalModal({
               className="flex-1"
               onClick={closeModal}
             >
-              Cancelar
+              {t('clickprop_cancel')}
             </Button>
             <Button
               className="flex-1"
@@ -397,12 +399,12 @@ export function ClickProposalModal({
               {isCreating ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                  Criando...
+                  {t('clickprop_creating')}
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-1" />
-                  {canAutoApprove ? 'Criar e Aprovar' : 'Criar AFROLOC'}
+                  {canAutoApprove ? t('clickprop_create_approve') : t('clickprop_create_afroloc')}
                 </>
               )}
             </Button>
@@ -410,12 +412,12 @@ export function ClickProposalModal({
           
           {/* Info note */}
           <p className="text-xs text-muted-foreground text-center pt-1">
-            Clique no mapa para selecionar outro local
+            {t('clickprop_click_map_other')}
           </p>
         </div>
       ) : (
         <div className="text-center py-4 text-muted-foreground">
-          <p className="text-sm">Erro ao calcular código</p>
+          <p className="text-sm">{t('clickprop_calc_error')}</p>
         </div>
       )}
     </Card>

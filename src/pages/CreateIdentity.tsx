@@ -105,8 +105,8 @@ export default function CreateIdentity() {
 
         // Show toast with zone info
         toast({
-          title: "Localização identificada",
-          description: `Zona: ${resolved.zone === 'urban' ? 'Urbana' : 'Rural'} (${resolved.gridSize}m) ${resolved.level1?.name || ''} ${resolved.level2?.name ? '> ' + resolved.level2.name : ''}`,
+          title: t('createid_toast_location_identified'),
+          description: `${t('createid_zone')}: ${resolved.zone === 'urban' ? t('createid_zone_urban') : t('createid_zone_rural')} (${resolved.gridSize}m) ${resolved.level1?.name || ''} ${resolved.level2?.name ? '> ' + resolved.level2.name : ''}`,
         });
       }
     }
@@ -315,8 +315,8 @@ export default function CreateIdentity() {
         },
         (error) => {
           toast({
-            title: "Erro",
-            description: "Não foi possível obter a localização atual",
+            title: t('createid_error'),
+            description: t('createid_error_location_unavailable'),
             variant: "destructive",
           });
         }
@@ -357,8 +357,8 @@ export default function CreateIdentity() {
     // Yamioo agents must select a requester first
     if (isYamiooAgent && !selectedRequester) {
       toast({
-        title: "Solicitante Obrigatório",
-        description: "Pesquise e selecione o solicitante antes de criar o endereço.",
+        title: t('createid_requester_required_title'),
+        description: t('createid_requester_required_desc'),
         variant: "destructive",
       });
       return;
@@ -367,8 +367,8 @@ export default function CreateIdentity() {
     // Property type is REQUIRED
     if (!propertyType) {
       toast({
-        title: "Tipo de Propriedade Obrigatório",
-        description: "Por favor, seleccione o tipo de propriedade (Residência, Apartamento, Comercial, etc.)",
+        title: t('createid_property_type_required_title'),
+        description: t('createid_property_type_required_desc'),
         variant: "destructive",
       });
       return;
@@ -380,8 +380,8 @@ export default function CreateIdentity() {
     
     if (!country || !level1Code || !level2Code || !geoLat || !geoLon) {
       toast({
-        title: "Informação Incompleta",
-        description: "Por favor, seleccione a província e o município, e capture as coordenadas GPS",
+        title: t('createid_incomplete_info_title'),
+        description: t('createid_incomplete_info_desc'),
         variant: "destructive",
       });
       return;
@@ -389,8 +389,8 @@ export default function CreateIdentity() {
     
     if (numberRequired && !number) {
       toast({
-        title: "Número Obrigatório",
-        description: "Para endereços formais (com nome de rua), o número é obrigatório",
+        title: t('createid_number_required_title'),
+        description: t('createid_number_required_desc'),
         variant: "destructive",
       });
       return;
@@ -437,8 +437,8 @@ export default function CreateIdentity() {
           const existingNonApartment = existingRecords.find(r => r.property_type !== 'apartment');
           if (existingNonApartment) {
             toast({
-              title: "Localização Já Registada",
-              description: "Já existe um endereço AFROLOC nesta localização. Apenas apartamentos/prédios podem ter múltiplos registos nas mesmas coordenadas.",
+              title: t('createid_location_registered_title'),
+              description: t('createid_location_registered_desc'),
               variant: "destructive",
             });
             setLoading(false);
@@ -449,8 +449,8 @@ export default function CreateIdentity() {
         // For apartments, require unit number to differentiate
         if (isApartmentOrBuilding && !unit) {
           toast({
-            title: "Unidade/Apartamento Obrigatório",
-            description: "Para registar um apartamento numa localização com registos existentes, é necessário informar o número da unidade/apartamento.",
+            title: t('createid_unit_required_title'),
+            description: t('createid_unit_required_desc'),
             variant: "destructive",
           });
           setLoading(false);
@@ -462,8 +462,8 @@ export default function CreateIdentity() {
           const existingSameUnit = existingRecords.find(r => r.unit?.toLowerCase() === unit.toLowerCase());
           if (existingSameUnit) {
             toast({
-              title: "Apartamento Já Registado",
-              description: `O apartamento/unidade "${unit}" já está registado nesta localização.`,
+              title: t('createid_apartment_registered_title'),
+              description: `${t('createid_apartment_registered_desc_prefix')} "${unit}" ${t('createid_apartment_registered_desc_suffix')}`,
               variant: "destructive",
             });
             setLoading(false);
@@ -553,48 +553,48 @@ export default function CreateIdentity() {
       }
 
       toast({
-        title: "Sucesso",
-        description: "AFROLOC criado com sucesso",
+        title: t('createid_success_title'),
+        description: t('createid_success_desc'),
       });
       navigate("/identities");
     } catch (error: any) {
       console.error("Error creating AFROLOC:", error);
       
       // Detailed error handling with user-friendly messages
-      let errorTitle = "Erro ao Criar AFROLOC";
+      let errorTitle = t('createid_error_create_title');
       let errorDescription = "";
-      
+
       const errorMsg = error.message?.toLowerCase() || '';
       const errorCode = error.code || '';
-      
+
       if (errorMsg.includes('maximum limit') || errorMsg.includes('afroloc addresses per user')) {
-        errorTitle = "⚠️ Limite de Endereços Atingido";
-        errorDescription = "Você já possui o número máximo de 10 endereços AFROLOC registados. Para adicionar um novo endereço, por favor exclua um dos existentes na sua lista de identidades.";
+        errorTitle = `⚠️ ${t('createid_error_limit_title')}`;
+        errorDescription = t('createid_error_limit_desc');
       } else if (errorMsg.includes('duplicate key') || errorMsg.includes('afroid_records_code_key') || errorCode === '23505') {
-        errorTitle = "🔄 Código AFROLOC Duplicado";
-        errorDescription = "O código AFROLOC gerado para esta localização já existe no sistema. Isto pode acontecer quando duas pessoas registam o mesmo local simultaneamente. Por favor, aguarde alguns segundos e tente novamente.";
+        errorTitle = `🔄 ${t('createid_error_duplicate_title')}`;
+        errorDescription = t('createid_error_duplicate_desc');
       } else if (errorMsg.includes('not authenticated') || errorMsg.includes('jwt') || errorCode === 'PGRST301') {
-        errorTitle = "🔐 Sessão Expirada";
-        errorDescription = "A sua sessão expirou. Por favor, faça login novamente para continuar o registo.";
+        errorTitle = `🔐 ${t('createid_error_session_title')}`;
+        errorDescription = t('createid_error_session_desc');
       } else if (errorMsg.includes('permission denied') || errorMsg.includes('rls') || errorCode === '42501') {
-        errorTitle = "🚫 Permissão Negada";
-        errorDescription = "Você não tem permissão para criar endereços AFROLOC. Verifique se está logado com a conta correcta ou contacte o suporte.";
+        errorTitle = `🚫 ${t('createid_error_permission_title')}`;
+        errorDescription = t('createid_error_permission_desc');
       } else if (errorMsg.includes('network') || errorMsg.includes('fetch') || errorMsg.includes('connection')) {
-        errorTitle = "📡 Erro de Conexão";
-        errorDescription = "Não foi possível conectar ao servidor. Verifique a sua conexão à internet e tente novamente.";
+        errorTitle = `📡 ${t('createid_error_connection_title')}`;
+        errorDescription = t('createid_error_connection_desc');
       } else if (errorMsg.includes('timeout')) {
-        errorTitle = "⏱️ Tempo Esgotado";
-        errorDescription = "O servidor demorou muito a responder. Por favor, tente novamente em alguns instantes.";
+        errorTitle = `⏱️ ${t('createid_error_timeout_title')}`;
+        errorDescription = t('createid_error_timeout_desc');
       } else if (errorMsg.includes('invalid') || errorMsg.includes('validation')) {
-        errorTitle = "❌ Dados Inválidos";
-        errorDescription = "Alguns dados fornecidos são inválidos. Verifique todos os campos e tente novamente.";
+        errorTitle = `❌ ${t('createid_error_invalid_title')}`;
+        errorDescription = t('createid_error_invalid_desc');
       } else if (errorMsg.includes('foreign key') || errorCode === '23503') {
-        errorTitle = "📋 Referência Inválida";
-        errorDescription = "Alguns dados de referência (província, município, etc.) são inválidos. Por favor, seleccione novamente os campos de localização.";
+        errorTitle = `📋 ${t('createid_error_reference_title')}`;
+        errorDescription = t('createid_error_reference_desc');
       } else {
         // Generic error with technical details for debugging
-        errorTitle = "❌ Erro Inesperado";
-        errorDescription = `Ocorreu um erro ao criar o seu endereço AFROLOC. Detalhes técnicos: ${error.message || 'Erro desconhecido'}. Se o problema persistir, contacte o suporte.`;
+        errorTitle = `❌ ${t('createid_error_unexpected_title')}`;
+        errorDescription = `${t('createid_error_unexpected_desc_prefix')} ${error.message || t('createid_error_unknown')}. ${t('createid_error_unexpected_desc_suffix')}`;
       }
       
       toast({
@@ -622,7 +622,7 @@ export default function CreateIdentity() {
             className="mb-4 gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Recuar
+            {t('createid_back')}
           </Button>
           <div className="relative overflow-hidden rounded-3xl bg-gradient-hero p-8 shadow-premium">
             <div className="absolute inset-0 bg-dots-pattern opacity-10"></div>
@@ -636,10 +636,10 @@ export default function CreateIdentity() {
               </div>
               <div>
                 <h1 className="text-4xl font-display font-bold text-white mb-2">
-                  Criar Nova Identidade
+                  {t('createid_hero_title')}
                 </h1>
                 <p className="text-white/90 text-lg">
-                  Gere seu endereço digital AFROLOC único e verificável
+                  {t('createid_hero_subtitle')}
                 </p>
               </div>
             </div>
@@ -665,20 +665,20 @@ export default function CreateIdentity() {
                 <div className="p-2 rounded-xl bg-gradient-primary animate-float">
                   <Save className="h-5 w-5 text-white" />
                 </div>
-                Informações do Endereço
+                {t('createid_address_info')}
               </CardTitle>
               <CardDescription className="text-base">
-                Preencha os detalhes da sua localização
+                {t('createid_address_info_desc')}
               </CardDescription>
             </CardHeader>
             <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="country">País</Label>
+                      <Label htmlFor="country">{t('createid_country')}</Label>
                       <Select value={country} onValueChange={setCountry} required>
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleccione o país" />
+                          <SelectValue placeholder={t('createid_country_placeholder')} />
                         </SelectTrigger>
                         <SelectContent>
                           {COUNTRIES_LIST.map((c) => (
@@ -700,28 +700,28 @@ export default function CreateIdentity() {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                            Tipos de Endereço
+                            {t('createid_address_types')}
                           </h4>
                           <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
-                            O sistema distingue automaticamente entre três tipos de endereços:
+                            {t('createid_address_types_intro')}
                           </p>
                           <div className="space-y-2 text-sm">
                             <div className="flex items-start gap-2">
-                              <span className="text-emerald-600 dark:text-emerald-400 font-bold flex-shrink-0">🏛️ Formal:</span>
+                              <span className="text-emerald-600 dark:text-emerald-400 font-bold flex-shrink-0">🏛️ {t('createid_type_formal_label')}</span>
                               <span className="text-blue-700 dark:text-blue-300">
-                                Endereços com ruas e números oficialmente atribuídos pelas administrações governamentais
+                                {t('createid_type_formal_desc')}
                               </span>
                             </div>
                             <div className="flex items-start gap-2">
-                              <span className="text-amber-600 dark:text-amber-400 font-bold flex-shrink-0">📍 Informal:</span>
+                              <span className="text-amber-600 dark:text-amber-400 font-bold flex-shrink-0">📍 {t('createid_type_informal_label')}</span>
                               <span className="text-blue-700 dark:text-blue-300">
-                                Endereços sem nome de rua ou número oficial atribuído
+                                {t('createid_type_informal_desc')}
                               </span>
                             </div>
                             <div className="flex items-start gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 font-bold flex-shrink-0">🌐 Digital:</span>
+                              <span className="text-blue-600 dark:text-blue-400 font-bold flex-shrink-0">🌐 {t('createid_type_digital_label')}</span>
                               <span className="text-blue-700 dark:text-blue-300">
-                                Tipo atribuído após certificação por autoridades (substitui Formal/Informal)
+                                {t('createid_type_digital_desc')}
                               </span>
                             </div>
                           </div>
@@ -731,7 +731,7 @@ export default function CreateIdentity() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="level1">Província / Estado <span className="text-destructive">*</span></Label>
+                        <Label htmlFor="level1">{t('createid_province')} <span className="text-destructive">*</span></Label>
                         <Select 
                           value={level1Code} 
                           onValueChange={(value) => {
@@ -747,7 +747,7 @@ export default function CreateIdentity() {
                           required
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Seleccione a província" />
+                            <SelectValue placeholder={t('createid_province_placeholder')} />
                           </SelectTrigger>
                           <SelectContent>
                             {provinces.map(p => (
@@ -757,7 +757,7 @@ export default function CreateIdentity() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="level2">Município / Distrito <span className="text-destructive">*</span></Label>
+                        <Label htmlFor="level2">{t('createid_municipality')} <span className="text-destructive">*</span></Label>
                         <Select 
                           value={level2Code} 
                           onValueChange={(value) => {
@@ -772,7 +772,7 @@ export default function CreateIdentity() {
                           required
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={level1Code ? "Seleccione o município" : "Primeiro seleccione a província"} />
+                            <SelectValue placeholder={level1Code ? t('createid_municipality_placeholder') : t('createid_municipality_placeholder_disabled')} />
                           </SelectTrigger>
                           <SelectContent>
                             {municipalities.map(m => (
@@ -785,7 +785,7 @@ export default function CreateIdentity() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="level3">Comuna / Localidade</Label>
+                        <Label htmlFor="level3">{t('createid_commune')}</Label>
                         <Select 
                           value={level3Code} 
                           onValueChange={(value) => {
@@ -796,7 +796,7 @@ export default function CreateIdentity() {
                           disabled={!level2Code || communes.length === 0}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder={communes.length === 0 ? "Nenhuma comuna disponível" : "Opcional"} />
+                            <SelectValue placeholder={communes.length === 0 ? t('createid_commune_placeholder_empty') : t('createid_optional')} />
                           </SelectTrigger>
                           <SelectContent>
                             {communes.map(c => (
@@ -806,12 +806,12 @@ export default function CreateIdentity() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="level4">Bairro / Aldeia</Label>
+                        <Label htmlFor="level4">{t('createid_neighborhood')}</Label>
                         <Input
                           id="level4"
                           value={level4Name}
                           onChange={(e) => setLevel4Name(e.target.value)}
-                          placeholder="Opcional"
+                          placeholder={t('createid_optional')}
                         />
                       </div>
                     </div>
@@ -819,22 +819,22 @@ export default function CreateIdentity() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="street">
-                          Street Name 
-                          <span className="text-xs text-muted-foreground ml-1">(Para endereço formal)</span>
+                          {t('createid_street_name')}
+                          <span className="text-xs text-muted-foreground ml-1">{t('createid_street_name_hint')}</span>
                         </Label>
                         <Input
                           id="street"
                           value={streetName}
                           onChange={(e) => setStreetName(e.target.value)}
-                          placeholder="Ex: Rua 1º de Maio"
+                          placeholder={t('createid_street_placeholder')}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Preencha se a rua tem nome oficial
+                          {t('createid_street_help')}
                         </p>
                       </div>
                       <div>
                         <Label htmlFor="number">
-                          Número
+                          {t('createid_number')}
                           {streetName && <span className="text-destructive ml-1">*</span>}
                         </Label>
                         {streetName ? (
@@ -842,7 +842,7 @@ export default function CreateIdentity() {
                             id="number"
                             value={number}
                             onChange={(e) => setNumber(e.target.value)}
-                            placeholder="Ex: 123"
+                            placeholder={t('createid_number_placeholder')}
                             required
                           />
                         ) : (
@@ -851,13 +851,13 @@ export default function CreateIdentity() {
                               id="number"
                               value={number}
                               onChange={(e) => setNumber(e.target.value)}
-                              placeholder="Será atribuído pela Administração"
+                              placeholder={t('createid_number_placeholder_assigned')}
                               disabled
                               className="bg-muted"
                             />
                             <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md p-3">
                               <p className="text-xs text-amber-800 dark:text-amber-200">
-                                <strong>📍 Endereço Digital:</strong> O número será atribuído pela Administração do Estado após o agendamento e confirmação do seu registo.
+                                <strong>📍 {t('createid_digital_address_label')}</strong> {t('createid_digital_address_note')}
                               </p>
                             </div>
                           </div>
@@ -867,51 +867,51 @@ export default function CreateIdentity() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="unit">Unidade / Apartamento</Label>
+                        <Label htmlFor="unit">{t('createid_unit')}</Label>
                         <Input
                           id="unit"
                           value={unit}
                           onChange={(e) => setUnit(e.target.value)}
-                          placeholder="Opcional"
+                          placeholder={t('createid_optional')}
                         />
                       </div>
                       <div>
                         <Label htmlFor="propertyName">
-                          Nome da Propriedade
-                          <span className="text-xs text-muted-foreground ml-1">(ex: Condomínio, Edifício)</span>
+                          {t('createid_property_name')}
+                          <span className="text-xs text-muted-foreground ml-1">{t('createid_property_name_hint')}</span>
                         </Label>
                         <Input
                           id="propertyName"
                           value={propertyName}
                           onChange={(e) => setPropertyName(e.target.value)}
-                          placeholder="Ex: Condomínio Paraíso Real"
+                          placeholder={t('createid_property_name_placeholder')}
                         />
                         <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                          ⚠️ Auto-atribuído — não verificado oficialmente
+                          ⚠️ {t('createid_property_name_warning')}
                         </p>
                       </div>
                     </div>
 
                     <div>
                       <Label htmlFor="propertyType">
-                        Tipo de Propriedade <span className="text-destructive">*</span>
+                        {t('createid_property_type')} <span className="text-destructive">*</span>
                       </Label>
                       <Select value={propertyType} onValueChange={setPropertyType} required>
                         <SelectTrigger className={!propertyType ? "border-amber-500" : ""}>
-                          <SelectValue placeholder="Seleccione o tipo de propriedade" />
+                          <SelectValue placeholder={t('createid_property_type_placeholder')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="house">🏠 Residência (Moradia Individual)</SelectItem>
-                          <SelectItem value="apartment">🏢 Apartamento (Prédio/Edifício)</SelectItem>
-                          <SelectItem value="commercial">🏪 Comercial</SelectItem>
-                          <SelectItem value="land">🌍 Terreno</SelectItem>
-                          <SelectItem value="other">📍 Outro</SelectItem>
+                          <SelectItem value="house">🏠 {t('createid_property_type_house')}</SelectItem>
+                          <SelectItem value="apartment">🏢 {t('createid_property_type_apartment')}</SelectItem>
+                          <SelectItem value="commercial">🏪 {t('createid_property_type_commercial')}</SelectItem>
+                          <SelectItem value="land">🌍 {t('createid_property_type_land')}</SelectItem>
+                          <SelectItem value="other">📍 {t('createid_property_type_other')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {propertyType === 'apartment' 
-                          ? "💡 Apartamentos permitem múltiplos registos na mesma localização (com unidades diferentes)"
-                          : "⚠️ Residências, comerciais e terrenos só permitem um registo por localização"
+                        {propertyType === 'apartment'
+                          ? `💡 ${t('createid_property_type_note_apartment')}`
+                          : `⚠️ ${t('createid_property_type_note_single')}`
                         }
                       </p>
                     </div>
@@ -922,7 +922,7 @@ export default function CreateIdentity() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Timer className="h-4 w-4 text-amber-500" />
-                          <Label htmlFor="isTemporary" className="font-medium">Endereço temporário</Label>
+                          <Label htmlFor="isTemporary" className="font-medium">{t('createid_temporary_address')}</Label>
                         </div>
                         <Switch
                           id="isTemporary"
@@ -932,19 +932,19 @@ export default function CreateIdentity() {
                       </div>
                       {isTemporary && (
                         <div className="space-y-2">
-                          <Label>Validade</Label>
+                          <Label>{t('createid_validity')}</Label>
                           <Select value={temporaryDays} onValueChange={setTemporaryDays}>
                             <SelectTrigger>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="30">30 dias</SelectItem>
-                              <SelectItem value="60">60 dias</SelectItem>
-                              <SelectItem value="90">90 dias</SelectItem>
+                              <SelectItem value="30">30 {t('createid_days')}</SelectItem>
+                              <SelectItem value="60">60 {t('createid_days')}</SelectItem>
+                              <SelectItem value="90">90 {t('createid_days')}</SelectItem>
                             </SelectContent>
                           </Select>
                           <p className="text-xs text-amber-600 dark:text-amber-400">
-                            ⏳ Este endereço ficará inativo após {temporaryDays} dias se não for verificado e certificado.
+                            ⏳ {t('createid_temporary_note_prefix')} {temporaryDays} {t('createid_temporary_note_suffix')}
                           </p>
                         </div>
                       )}
@@ -953,16 +953,16 @@ export default function CreateIdentity() {
                     <div className="border-t pt-4 space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Label>Localização GPS</Label>
+                          <Label>{t('createid_gps_location')}</Label>
                           {resolvingAdmin && (
                             <span className="text-xs text-muted-foreground animate-pulse">
-                              Identificando localização...
+                              {t('createid_identifying_location')}
                             </span>
                           )}
                         </div>
                         <Button type="button" variant="outline" size="sm" onClick={getCurrentLocation} disabled={resolvingAdmin}>
                           <MapPin className="mr-2 h-4 w-4" />
-                          Usar Localização Atual
+                          {t('createid_use_current_location')}
                         </Button>
                       </div>
                       
@@ -976,7 +976,7 @@ export default function CreateIdentity() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="lat">Latitude</Label>
+                          <Label htmlFor="lat">{t('createid_latitude')}</Label>
                           <Input
                             id="lat"
                             value={geoLat}
@@ -986,7 +986,7 @@ export default function CreateIdentity() {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="lon">Longitude</Label>
+                          <Label htmlFor="lon">{t('createid_longitude')}</Label>
                           <Input
                             id="lon"
                             value={geoLon}
@@ -1010,10 +1010,10 @@ export default function CreateIdentity() {
                     <div className="border-t pt-4">
                       <div className="flex items-center gap-2 mb-4">
                         <Package className="h-5 w-5 text-primary" />
-                        <Label className="text-base font-semibold">Canais de Entrega</Label>
+                        <Label className="text-base font-semibold">{t('createid_delivery_channels')}</Label>
                       </div>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Adicione pontos de entrega alternativos como caixas postais, lockers ou pontos de recolha.
+                        {t('createid_delivery_channels_desc')}
                       </p>
                       <DeliveryChannels afrolocRecordId={null} />
                     </div>
@@ -1022,11 +1022,11 @@ export default function CreateIdentity() {
 
                   <div className="flex justify-end gap-4 pt-4">
                     <Button type="button" variant="outline" onClick={() => navigate("/identities")} size="lg">
-                      Cancelar
+                      {t('createid_cancel')}
                     </Button>
                     <Button type="submit" disabled={loading} size="lg" className="bg-gradient-primary hover:scale-105 shadow-elegant hover:shadow-glow transition-all duration-300">
                       <Save className="mr-2 h-5 w-5" />
-                      {loading ? "Criando..." : "Criar Identidade"}
+                      {loading ? t('createid_creating') : t('createid_create_button')}
                     </Button>
                   </div>
                 </form>
@@ -1041,15 +1041,15 @@ export default function CreateIdentity() {
                     <div className="p-2 rounded-xl bg-gradient-warm animate-float" style={{ animationDelay: '0.2s' }}>
                       <MapPin className="h-5 w-5 text-white" />
                     </div>
-                    Preview do Código
+                    {t('createid_code_preview')}
                   </CardTitle>
                   <CardDescription>
-                    Visualização do seu AFROLOC
+                    {t('createid_code_preview_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/5 to-accent/5 border-2 border-dashed border-primary/30">
-                    <p className="text-xs text-muted-foreground mb-2 font-medium">SEU AFROLOC:</p>
+                    <p className="text-xs text-muted-foreground mb-2 font-medium">{t('createid_your_afroloc')}</p>
                     <p className="font-mono text-sm break-all text-foreground/90 leading-relaxed">
                       {generateCodePreview()}
                     </p>
@@ -1059,15 +1059,15 @@ export default function CreateIdentity() {
                     <div className="space-y-3 animate-fade-in">
                       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                         <MapPin className="h-4 w-4 text-primary" />
-                        Coordenadas GPS
+                        {t('createid_gps_coordinates')}
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="p-3 rounded-xl glass border border-border/50">
-                          <p className="text-xs text-muted-foreground mb-1">Latitude</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t('createid_latitude')}</p>
                           <p className="font-mono text-sm font-semibold">{geoLat}</p>
                         </div>
                         <div className="p-3 rounded-xl glass border border-border/50">
-                          <p className="text-xs text-muted-foreground mb-1">Longitude</p>
+                          <p className="text-xs text-muted-foreground mb-1">{t('createid_longitude')}</p>
                           <p className="font-mono text-sm font-semibold">{geoLon}</p>
                         </div>
                       </div>
@@ -1078,9 +1078,9 @@ export default function CreateIdentity() {
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-primary/5 border border-primary/20">
                       <Sparkles className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 animate-pulse-glow" />
                       <div>
-                        <p className="text-sm font-medium mb-1">Identificador Único</p>
+                        <p className="text-sm font-medium mb-1">{t('createid_unique_identifier')}</p>
                         <p className="text-xs text-muted-foreground">
-                          Este código será seu endereço digital permanente e verificável
+                          {t('createid_unique_identifier_desc')}
                         </p>
                       </div>
                     </div>

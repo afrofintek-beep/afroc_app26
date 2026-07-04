@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useCountries } from "@/hooks/useCountries";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, UserPlus, Users, BarChart3, AlertCircle, CheckCircle2, Clock, Phone, TrendingUp, MapPin } from "lucide-react";
@@ -21,6 +22,7 @@ import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Cart
 const ValidatorManagement = () => {
   const { role, loading: roleLoading } = useUserRole();
   const { countries, isLoading: countriesLoading } = useCountries();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -166,8 +168,8 @@ const ValidatorManagement = () => {
   const handleCreateValidator = async () => {
     if (!phoneNumber || !selectedCountry || !divisionId) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios",
+        title: t('validatormgmt_toast_required_title'),
+        description: t('validatormgmt_toast_required_desc'),
         variant: "destructive",
       });
       return;
@@ -189,8 +191,8 @@ const ValidatorManagement = () => {
       if (error) throw error;
 
       toast({
-        title: "Validador criado",
-        description: "Número de validação criado com sucesso",
+        title: t('validatormgmt_toast_created_title'),
+        description: t('validatormgmt_toast_created_desc'),
       });
 
       // Reset form
@@ -200,7 +202,7 @@ const ValidatorManagement = () => {
       refetch();
     } catch (error: any) {
       toast({
-        title: "Erro ao criar validador",
+        title: t('validatormgmt_toast_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -227,8 +229,8 @@ const ValidatorManagement = () => {
           <div className="flex items-center gap-3">
             <Shield className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Gestão de Validadores</h1>
-              <p className="text-sm text-muted-foreground">Sistema administrativo de validadores regionais</p>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t('validatormgmt_admin_title')}</h1>
+              <p className="text-sm text-muted-foreground">{t('validatormgmt_admin_subtitle')}</p>
             </div>
           </div>
 
@@ -236,37 +238,37 @@ const ValidatorManagement = () => {
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="create">
                 <UserPlus className="h-4 w-4 mr-2" />
-                Criar Validador
+                {t('validatormgmt_tab_create')}
               </TabsTrigger>
               <TabsTrigger value="list">
                 <Users className="h-4 w-4 mr-2" />
-                Lista de Validadores
+                {t('validatormgmt_tab_list')}
               </TabsTrigger>
               <TabsTrigger value="stats">
                 <BarChart3 className="h-4 w-4 mr-2" />
-                Estatísticas
+                {t('validatormgmt_tab_stats')}
               </TabsTrigger>
               <TabsTrigger value="analytics">
                 <TrendingUp className="h-4 w-4 mr-2" />
-                Métricas Avançadas
+                {t('validatormgmt_tab_analytics')}
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="create">
               <Card>
                 <CardHeader>
-                  <CardTitle>Adicionar Novo Validador</CardTitle>
+                  <CardTitle>{t('validatormgmt_add_title')}</CardTitle>
                   <CardDescription>
-                    Cadastre um número de telefone para validação regional
+                    {t('validatormgmt_add_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="country">País *</Label>
+                      <Label htmlFor="country">{t('validatormgmt_label_country')}</Label>
                       <Select value={selectedCountry} onValueChange={setSelectedCountry}>
                         <SelectTrigger id="country">
-                          <SelectValue placeholder="Selecione o país" />
+                          <SelectValue placeholder={t('validatormgmt_placeholder_country')} />
                         </SelectTrigger>
                         <SelectContent>
                           {countries?.map((country) => (
@@ -279,7 +281,7 @@ const ValidatorManagement = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Número de Telefone *</Label>
+                      <Label htmlFor="phone">{t('validatormgmt_label_phone')}</Label>
                       <Input
                         id="phone"
                         type="tel"
@@ -290,15 +292,15 @@ const ValidatorManagement = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="division">Divisão Administrativa *</Label>
+                      <Label htmlFor="division">{t('validatormgmt_label_division')}</Label>
                       <Select value={divisionId} onValueChange={setDivisionId} disabled={!selectedCountry}>
                         <SelectTrigger id="division">
-                          <SelectValue placeholder="Selecione a região" />
+                          <SelectValue placeholder={t('validatormgmt_placeholder_division')} />
                         </SelectTrigger>
                         <SelectContent>
                           {divisions?.map((division) => (
                             <SelectItem key={division.id} value={division.id}>
-                              {division.name} (Nível {division.level})
+                              {division.name} ({t('validatormgmt_level')} {division.level})
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -306,10 +308,10 @@ const ValidatorManagement = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="userId">ID do Usuário (opcional)</Label>
+                      <Label htmlFor="userId">{t('validatormgmt_label_userid')}</Label>
                       <Input
                         id="userId"
-                        placeholder="UUID do usuário validador"
+                        placeholder={t('validatormgmt_placeholder_userid')}
                         value={validatorUserId}
                         onChange={(e) => setValidatorUserId(e.target.value)}
                       />
@@ -318,9 +320,9 @@ const ValidatorManagement = () => {
 
                   <Alert>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Importante</AlertTitle>
+                    <AlertTitle>{t('validatormgmt_alert_important_title')}</AlertTitle>
                     <AlertDescription>
-                      O número será automaticamente marcado como verificado e ativo. Certifique-se de que o número está correto.
+                      {t('validatormgmt_alert_important_desc')}
                     </AlertDescription>
                   </Alert>
 
@@ -332,12 +334,12 @@ const ValidatorManagement = () => {
                     {submitting ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Criando...
+                        {t('validatormgmt_creating')}
                       </>
                     ) : (
                       <>
                         <UserPlus className="mr-2 h-4 w-4" />
-                        Criar Validador
+                        {t('validatormgmt_tab_create')}
                       </>
                     )}
                   </Button>
@@ -348,9 +350,9 @@ const ValidatorManagement = () => {
             <TabsContent value="list">
               <Card>
                 <CardHeader>
-                  <CardTitle>Validadores Cadastrados</CardTitle>
+                  <CardTitle>{t('validatormgmt_list_title')}</CardTitle>
                   <CardDescription>
-                    Lista de todos os números de validação no sistema
+                    {t('validatormgmt_list_desc')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -358,12 +360,12 @@ const ValidatorManagement = () => {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Telefone</TableHead>
-                          <TableHead>País</TableHead>
-                          <TableHead>Região</TableHead>
-                          <TableHead>Validador</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Uso</TableHead>
+                          <TableHead>{t('validatormgmt_th_phone')}</TableHead>
+                          <TableHead>{t('validatormgmt_th_country')}</TableHead>
+                          <TableHead>{t('validatormgmt_th_region')}</TableHead>
+                          <TableHead>{t('validatormgmt_th_validator')}</TableHead>
+                          <TableHead>{t('validatormgmt_th_status')}</TableHead>
+                          <TableHead>{t('validatormgmt_th_usage')}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -380,23 +382,23 @@ const ValidatorManagement = () => {
                               {(num.administrative_divisions as any)?.name || "N/A"}
                             </TableCell>
                             <TableCell>
-                              {(num.profiles as any)?.full_name || "Não atribuído"}
+                              {(num.profiles as any)?.full_name || t('validatormgmt_unassigned')}
                             </TableCell>
                             <TableCell>
                               {num.is_active ? (
                                 <Badge variant="default" className="gap-1">
                                   <CheckCircle2 className="h-3 w-3" />
-                                  Ativo
+                                  {t('validatormgmt_active')}
                                 </Badge>
                               ) : (
                                 <Badge variant="secondary" className="gap-1">
                                   <Clock className="h-3 w-3" />
-                                  Inativo
+                                  {t('validatormgmt_inactive')}
                                 </Badge>
                               )}
                             </TableCell>
                             <TableCell>
-                              <Badge variant="outline">{num.usage_count || 0} usos</Badge>
+                              <Badge variant="outline">{num.usage_count || 0} {t('validatormgmt_uses')}</Badge>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -411,7 +413,7 @@ const ValidatorManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Total de Validadores</CardTitle>
+                    <CardTitle className="text-sm">{t('validatormgmt_stat_total_validators')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">{validationNumbers?.length || 0}</div>
@@ -420,7 +422,7 @@ const ValidatorManagement = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Validadores Ativos</CardTitle>
+                    <CardTitle className="text-sm">{t('validatormgmt_stat_active_validators')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-green-600">
@@ -431,7 +433,7 @@ const ValidatorManagement = () => {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-sm">Total de Validações</CardTitle>
+                    <CardTitle className="text-sm">{t('validatormgmt_stat_total_validations')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-blue-600">
@@ -449,10 +451,10 @@ const ValidatorManagement = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <MapPin className="h-5 w-5 text-primary" />
-                      Validações por Região
+                      {t('validatormgmt_chart_region_title')}
                     </CardTitle>
                     <CardDescription>
-                      Top 10 regiões com mais validações
+                      {t('validatormgmt_chart_region_desc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -474,10 +476,10 @@ const ValidatorManagement = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <TrendingUp className="h-5 w-5 text-primary" />
-                      Evolução de Validações (30 dias)
+                      {t('validatormgmt_chart_timeline_title')}
                     </CardTitle>
                     <CardDescription>
-                      Histórico de validações realizadas
+                      {t('validatormgmt_chart_timeline_desc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -505,10 +507,10 @@ const ValidatorManagement = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <BarChart3 className="h-5 w-5 text-primary" />
-                      Status das Validações
+                      {t('validatormgmt_chart_status_title')}
                     </CardTitle>
                     <CardDescription>
-                      Distribuição de testemunhos por status
+                      {t('validatormgmt_chart_status_desc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -547,10 +549,10 @@ const ValidatorManagement = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Users className="h-5 w-5 text-primary" />
-                      Top Validadores
+                      {t('validatormgmt_top_validators_title')}
                     </CardTitle>
                     <CardDescription>
-                      Validadores mais ativos
+                      {t('validatormgmt_top_validators_desc')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -573,13 +575,13 @@ const ValidatorManagement = () => {
                               </div>
                             </div>
                             <Badge variant="secondary" className="font-bold">
-                              {validator.usage_count} validações
+                              {validator.usage_count} {t('validatormgmt_validations')}
                             </Badge>
                           </div>
                         ))}
                       {(!validationNumbers || validationNumbers.filter(v => v.usage_count && v.usage_count > 0).length === 0) && (
                         <p className="text-sm text-muted-foreground text-center py-4">
-                          Nenhuma validação realizada ainda
+                          {t('validatormgmt_no_validations')}
                         </p>
                       )}
                     </div>
@@ -601,8 +603,8 @@ const ValidatorManagement = () => {
           <div className="flex items-center gap-3">
             <Shield className="h-8 w-8 text-green-600" />
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold">Meu Dashboard de Validador</h1>
-              <p className="text-sm text-muted-foreground">Informações e estatísticas das suas validações</p>
+              <h1 className="text-2xl sm:text-3xl font-bold">{t('validatormgmt_myboard_title')}</h1>
+              <p className="text-sm text-muted-foreground">{t('validatormgmt_myboard_subtitle')}</p>
             </div>
           </div>
 
@@ -610,21 +612,21 @@ const ValidatorManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Informações de Contato</CardTitle>
+                  <CardTitle>{t('validatormgmt_contact_info_title')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Telefone:</span>
+                    <span className="text-muted-foreground">{t('validatormgmt_phone_label')}</span>
                     <span className="font-medium">{validatorStats.phone_number}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">País:</span>
+                    <span className="text-muted-foreground">{t('validatormgmt_country_label')}</span>
                     <span className="font-medium">{validatorStats.country_code}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status:</span>
+                    <span className="text-muted-foreground">{t('validatormgmt_status_label')}</span>
                     <Badge variant={validatorStats.is_active ? "default" : "secondary"}>
-                      {validatorStats.is_active ? "Ativo" : "Inativo"}
+                      {validatorStats.is_active ? t('validatormgmt_active') : t('validatormgmt_inactive')}
                     </Badge>
                   </div>
                 </CardContent>
@@ -632,19 +634,19 @@ const ValidatorManagement = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Estatísticas</CardTitle>
+                  <CardTitle>{t('validatormgmt_tab_stats')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total de validações:</span>
+                    <span className="text-muted-foreground">{t('validatormgmt_total_validations_label')}</span>
                     <span className="font-bold text-2xl">{validatorStats.usage_count || 0}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Última validação:</span>
+                    <span className="text-muted-foreground">{t('validatormgmt_last_validation_label')}</span>
                     <span className="font-medium">
                       {validatorStats.last_used_at
                         ? new Date(validatorStats.last_used_at).toLocaleDateString("pt")
-                        : "Nunca"}
+                        : t('validatormgmt_never')}
                     </span>
                   </div>
                 </CardContent>
@@ -653,9 +655,9 @@ const ValidatorManagement = () => {
           ) : (
             <Alert>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Sem dados</AlertTitle>
+              <AlertTitle>{t('validatormgmt_nodata_title')}</AlertTitle>
               <AlertDescription>
-                Não foi possível carregar suas informações de validador.
+                {t('validatormgmt_nodata_desc')}
               </AlertDescription>
             </Alert>
           )}
@@ -671,51 +673,51 @@ const ValidatorManagement = () => {
         <div className="flex items-center gap-3">
           <Shield className="h-8 w-8 text-primary" />
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Tornar-se Validador</h1>
-            <p className="text-sm text-muted-foreground">Informações sobre o programa de validadores</p>
+            <h1 className="text-2xl sm:text-3xl font-bold">{t('validatormgmt_become_title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('validatormgmt_become_subtitle')}</p>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>O que é um Validador?</CardTitle>
+            <CardTitle>{t('validatormgmt_what_title')}</CardTitle>
             <CardDescription>
-              Entenda o papel e responsabilidades de um validador regional
+              {t('validatormgmt_what_desc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <h3 className="font-semibold">Responsabilidades:</h3>
+              <h3 className="font-semibold">{t('validatormgmt_responsibilities_title')}</h3>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                <li>Validar endereços na sua região</li>
-                <li>Responder a solicitações de confirmação via SMS</li>
-                <li>Manter informações de contato atualizadas</li>
-                <li>Seguir o código de conduta do validador</li>
+                <li>{t('validatormgmt_resp_1')}</li>
+                <li>{t('validatormgmt_resp_2')}</li>
+                <li>{t('validatormgmt_resp_3')}</li>
+                <li>{t('validatormgmt_resp_4')}</li>
               </ul>
             </div>
 
             <div className="space-y-2">
-              <h3 className="font-semibold">Requisitos:</h3>
+              <h3 className="font-semibold">{t('validatormgmt_requirements_title')}</h3>
               <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                <li>Ser residente permanente da região</li>
-                <li>Ter conhecimento local do território</li>
-                <li>Disponibilidade para responder solicitações</li>
-                <li>Telefone ativo e verificado</li>
+                <li>{t('validatormgmt_req_1')}</li>
+                <li>{t('validatormgmt_req_2')}</li>
+                <li>{t('validatormgmt_req_3')}</li>
+                <li>{t('validatormgmt_req_4')}</li>
               </ul>
             </div>
 
             <Alert>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Como aplicar?</AlertTitle>
+              <AlertTitle>{t('validatormgmt_howtoapply_title')}</AlertTitle>
               <AlertDescription>
-                Entre em contato com a administração através da página de contato para solicitar ser um validador na sua região.
+                {t('validatormgmt_howtoapply_desc')}
               </AlertDescription>
             </Alert>
 
             <Button variant="outline" className="w-full sm:w-auto" asChild>
               <a href="/contact">
                 <Phone className="mr-2 h-4 w-4" />
-                Entrar em Contato
+                {t('validatormgmt_contact_button')}
               </a>
             </Button>
           </CardContent>

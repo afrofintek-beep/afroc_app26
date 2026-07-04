@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useAuthorizationLevel } from "@/hooks/useAuthorizationLevel";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { 
   MapPin, 
   Phone, 
@@ -83,20 +84,21 @@ interface Subordinate {
   } | null;
 }
 
-const statusConfig: Record<RequestStatus, { label: string; color: string; icon: React.ElementType }> = {
-  pending_otp: { label: "Aguarda OTP", color: "bg-yellow-500", icon: Clock },
-  otp_verified: { label: "OTP Verificado", color: "bg-blue-500", icon: CheckCircle },
-  pending_document: { label: "Aguarda Documento", color: "bg-orange-500", icon: FileText },
-  pending_assignment: { label: "Por Atribuir", color: "bg-purple-500", icon: UserPlus },
-  assigned: { label: "Atribuído", color: "bg-indigo-500", icon: User },
-  in_progress: { label: "Em Progresso", color: "bg-cyan-500", icon: Navigation },
-  pending_site_visit: { label: "Aguarda Visita", color: "bg-teal-500", icon: MapPin },
-  completed: { label: "Concluído", color: "bg-green-500", icon: CheckCircle },
-  rejected: { label: "Rejeitado", color: "bg-red-500", icon: XCircle },
-  cancelled: { label: "Cancelado", color: "bg-gray-500", icon: XCircle },
+const statusConfig: Record<RequestStatus, { labelKey: string; color: string; icon: React.ElementType }> = {
+  pending_otp: { labelKey: "afrolocreq_status_pending_otp", color: "bg-yellow-500", icon: Clock },
+  otp_verified: { labelKey: "afrolocreq_status_otp_verified", color: "bg-blue-500", icon: CheckCircle },
+  pending_document: { labelKey: "afrolocreq_status_pending_document", color: "bg-orange-500", icon: FileText },
+  pending_assignment: { labelKey: "afrolocreq_status_pending_assignment", color: "bg-purple-500", icon: UserPlus },
+  assigned: { labelKey: "afrolocreq_status_assigned", color: "bg-indigo-500", icon: User },
+  in_progress: { labelKey: "afrolocreq_status_in_progress", color: "bg-cyan-500", icon: Navigation },
+  pending_site_visit: { labelKey: "afrolocreq_status_pending_site_visit", color: "bg-teal-500", icon: MapPin },
+  completed: { labelKey: "afrolocreq_status_completed", color: "bg-green-500", icon: CheckCircle },
+  rejected: { labelKey: "afrolocreq_status_rejected", color: "bg-red-500", icon: XCircle },
+  cancelled: { labelKey: "afrolocreq_status_cancelled", color: "bg-gray-500", icon: XCircle },
 };
 
 const AfrolocRequests = () => {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const { data: authLevel } = useAuthorizationLevel();
   const [activeTab, setActiveTab] = useState("pending");
@@ -185,14 +187,14 @@ const AfrolocRequests = () => {
       return data;
     },
     onSuccess: () => {
-      toast.success("Pedido atribuído com sucesso");
+      toast.success(t("afrolocreq_toast_assign_success"));
       setAssignDialogOpen(false);
       setSelectedAssignee("");
       setAssignNotes("");
       queryClient.invalidateQueries({ queryKey: ["afroloc-requests"] });
     },
     onError: (error) => {
-      toast.error("Erro ao atribuir pedido: " + error.message);
+      toast.error(t("afrolocreq_toast_assign_error") + ": " + error.message);
     },
   });
 
@@ -231,9 +233,9 @@ const AfrolocRequests = () => {
     },
     onSuccess: (data) => {
       if (data.afroloc_code) {
-        toast.success(`AFROLOC criado: ${data.afroloc_code}`);
+        toast.success(`${t("afrolocreq_toast_afroloc_created")}: ${data.afroloc_code}`);
       } else {
-        toast.success("Pedido processado");
+        toast.success(t("afrolocreq_toast_request_processed"));
       }
       setProcessDialogOpen(false);
       setRejectionReason("");
@@ -241,7 +243,7 @@ const AfrolocRequests = () => {
       queryClient.invalidateQueries({ queryKey: ["afroloc-requests"] });
     },
     onError: (error) => {
-      toast.error("Erro ao processar pedido: " + error.message);
+      toast.error(t("afrolocreq_toast_process_error") + ": " + error.message);
     },
   });
 
@@ -284,7 +286,7 @@ const AfrolocRequests = () => {
             <div className="flex items-center gap-2">
               <Badge className={`${config.color} text-white`}>
                 <StatusIcon className="h-3 w-3 mr-1" />
-                {config.label}
+                {t(config.labelKey)}
               </Badge>
               <span className="text-xs text-muted-foreground">
                 {format(new Date(request.created_at), "dd MMM yyyy HH:mm", { locale: pt })}
@@ -344,7 +346,7 @@ const AfrolocRequests = () => {
                 }}
               >
                 <UserPlus className="h-4 w-4 mr-1" />
-                Atribuir
+                {t("afrolocreq_btn_assign")}
               </Button>
             )}
             {canProcess && (
@@ -356,7 +358,7 @@ const AfrolocRequests = () => {
                 }}
               >
                 <CheckCircle className="h-4 w-4 mr-1" />
-                Processar
+                {t("afrolocreq_btn_process")}
               </Button>
             )}
             {request.facade_photo_path && (
@@ -380,14 +382,14 @@ const AfrolocRequests = () => {
       <div className="container mx-auto p-4 md:p-6 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Pedidos AFROLOC</h1>
+            <h1 className="text-2xl font-bold">{t("afrolocreq_page_title")}</h1>
             <p className="text-muted-foreground">
-              Gerencie os pedidos de criação de código AFROLOC por SMS
+              {t("afrolocreq_page_subtitle")}
             </p>
           </div>
           <Button onClick={() => refetch()} variant="outline" size="sm">
             <RefreshCcw className="h-4 w-4 mr-2" />
-            Atualizar
+            {t("afrolocreq_btn_refresh")}
           </Button>
         </div>
 
@@ -395,7 +397,7 @@ const AfrolocRequests = () => {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Pesquisar por endereço, telefone ou nome..."
+              placeholder={t("afrolocreq_search_placeholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -406,7 +408,7 @@ const AfrolocRequests = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="pending">
-              Pendentes
+              {t("afrolocreq_tab_pending")}
               {requests?.filter(r => ["pending_otp", "otp_verified", "pending_document", "pending_assignment"].includes(r.status)).length > 0 && (
                 <Badge variant="secondary" className="ml-2">
                   {requests?.filter(r => ["pending_otp", "otp_verified", "pending_document", "pending_assignment"].includes(r.status)).length}
@@ -414,14 +416,14 @@ const AfrolocRequests = () => {
               )}
             </TabsTrigger>
             <TabsTrigger value="assigned">
-              Atribuídos
+              {t("afrolocreq_tab_assigned")}
               {requests?.filter(r => ["assigned", "in_progress", "pending_site_visit"].includes(r.status)).length > 0 && (
                 <Badge variant="secondary" className="ml-2">
                   {requests?.filter(r => ["assigned", "in_progress", "pending_site_visit"].includes(r.status)).length}
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="completed">Finalizados</TabsTrigger>
+            <TabsTrigger value="completed">{t("afrolocreq_tab_completed")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-4">
@@ -443,7 +445,7 @@ const AfrolocRequests = () => {
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
                   <MapPin className="h-12 w-12 text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Nenhum pedido encontrado</p>
+                  <p className="text-muted-foreground">{t("afrolocreq_empty_state")}</p>
                 </CardContent>
               </Card>
             )}
@@ -454,7 +456,7 @@ const AfrolocRequests = () => {
         <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Atribuir Pedido</DialogTitle>
+              <DialogTitle>{t("afrolocreq_assign_dialog_title")}</DialogTitle>
             </DialogHeader>
             {selectedRequest && (
               <div className="space-y-4">
@@ -464,15 +466,15 @@ const AfrolocRequests = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Atribuir a</Label>
+                  <Label>{t("afrolocreq_assign_to_label")}</Label>
                   <Select value={selectedAssignee} onValueChange={setSelectedAssignee}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione um validador" />
+                      <SelectValue placeholder={t("afrolocreq_assign_select_placeholder")} />
                     </SelectTrigger>
                     <SelectContent>
                       {subordinates?.map((sub) => (
                         <SelectItem key={sub.user_id} value={sub.user_id}>
-                          {sub.profiles?.full_name || "Sem nome"} - Nível {sub.current_level}
+                          {sub.profiles?.full_name || t("afrolocreq_no_name")} - {t("afrolocreq_level")} {sub.current_level}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -480,23 +482,23 @@ const AfrolocRequests = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Notas (opcional)</Label>
+                  <Label>{t("afrolocreq_notes_optional_label")}</Label>
                   <Textarea
                     value={assignNotes}
                     onChange={(e) => setAssignNotes(e.target.value)}
-                    placeholder="Instruções adicionais..."
+                    placeholder={t("afrolocreq_notes_placeholder")}
                   />
                 </div>
 
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>
-                    Cancelar
+                    {t("afrolocreq_btn_cancel")}
                   </Button>
-                  <Button 
+                  <Button
                     onClick={handleAssign}
                     disabled={!selectedAssignee || assignMutation.isPending}
                   >
-                    {assignMutation.isPending ? "A atribuir..." : "Atribuir"}
+                    {assignMutation.isPending ? t("afrolocreq_btn_assigning") : t("afrolocreq_btn_assign")}
                   </Button>
                 </DialogFooter>
               </div>
@@ -508,7 +510,7 @@ const AfrolocRequests = () => {
         <Dialog open={processDialogOpen} onOpenChange={setProcessDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Processar Pedido</DialogTitle>
+              <DialogTitle>{t("afrolocreq_process_dialog_title")}</DialogTitle>
             </DialogHeader>
             {selectedRequest && (
               <div className="space-y-4">
@@ -522,41 +524,41 @@ const AfrolocRequests = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Notas da Visita</Label>
+                  <Label>{t("afrolocreq_visit_notes_label")}</Label>
                   <Textarea
                     value={siteVisitNotes}
                     onChange={(e) => setSiteVisitNotes(e.target.value)}
-                    placeholder="Descreva o que encontrou no local..."
+                    placeholder={t("afrolocreq_visit_notes_placeholder")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Motivo de Rejeição (se aplicável)</Label>
+                  <Label>{t("afrolocreq_rejection_reason_label")}</Label>
                   <Textarea
                     value={rejectionReason}
                     onChange={(e) => setRejectionReason(e.target.value)}
-                    placeholder="Explique o motivo da rejeição..."
+                    placeholder={t("afrolocreq_rejection_reason_placeholder")}
                   />
                 </div>
 
                 <DialogFooter className="flex gap-2">
                   <Button variant="outline" onClick={() => setProcessDialogOpen(false)}>
-                    Cancelar
+                    {t("afrolocreq_btn_cancel")}
                   </Button>
-                  <Button 
+                  <Button
                     variant="destructive"
                     onClick={() => handleProcess("reject")}
                     disabled={!rejectionReason || completeMutation.isPending}
                   >
                     <XCircle className="h-4 w-4 mr-1" />
-                    Rejeitar
+                    {t("afrolocreq_btn_reject")}
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => handleProcess("approve")}
                     disabled={completeMutation.isPending}
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
-                    {completeMutation.isPending ? "A processar..." : "Aprovar"}
+                    {completeMutation.isPending ? t("afrolocreq_btn_processing") : t("afrolocreq_btn_approve")}
                   </Button>
                 </DialogFooter>
               </div>

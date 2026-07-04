@@ -126,7 +126,7 @@ export default function AdminUserManagement() {
       const canPromote = await checkJurisdictionMutation.mutateAsync({ userId, newRole });
       
       if (!canPromote) {
-        throw new Error('Sem permissão para promover este usuário fora da sua jurisdição');
+        throw new Error(t('adminusers_err_no_jurisdiction'));
       }
 
       // Check if user already has this role
@@ -186,9 +186,9 @@ export default function AdminUserManagement() {
     },
     onSuccess: (data) => {
       if (data.approved) {
-        toast.success(`Papel atualizado para ${getRoleLabel([data.newRole])}`);
+        toast.success(`${t('adminusers_toast_role_updated')} ${getRoleLabel([data.newRole])}`);
       } else {
-        toast.success(`Solicitação de promoção enviada para aprovação superior`);
+        toast.success(t('adminusers_toast_promotion_sent'));
       }
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       setLoadingUserId(null);
@@ -196,7 +196,7 @@ export default function AdminUserManagement() {
       setJustification("");
     },
     onError: (error: any) => {
-      toast.error(error.message || "Erro ao atualizar papel do usuário");
+      toast.error(error.message || t('adminusers_toast_role_error'));
       console.error(error);
       setLoadingUserId(null);
       setConfirmDialogOpen(false);
@@ -211,19 +211,19 @@ export default function AdminUserManagement() {
       });
 
       if (error) throw new Error(error.message);
-      if (!data?.success) throw new Error(data?.error || 'Erro ao eliminar utilizador');
+      if (!data?.success) throw new Error(data?.error || t('adminusers_toast_delete_error'));
 
       return data;
     },
     onSuccess: () => {
-      toast.success('Utilizador eliminado com sucesso');
+      toast.success(t('adminusers_toast_delete_success'));
       queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       setDeleteDialogOpen(false);
       setUserToDelete(null);
       setDeleteReason("");
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Erro ao eliminar utilizador');
+      toast.error(error.message || t('adminusers_toast_delete_error'));
       console.error(error);
     }
   });
@@ -236,7 +236,7 @@ export default function AdminUserManagement() {
   const handleDeleteUser = (userProfile: UserWithRole) => {
     setUserToDelete({
       userId: userProfile.user_id,
-      userName: userProfile.full_name || 'Sem nome',
+      userName: userProfile.full_name || t('adminusers_no_name'),
       phone: userProfile.phone
     });
     setDeleteDialogOpen(true);
@@ -329,25 +329,25 @@ export default function AdminUserManagement() {
   };
 
   const getRoleLabel = (roles: UserRole[]) => {
-    if (roles.includes('admin')) return 'Administrador';
-    if (roles.includes('moderator')) return 'Funcionário';
-    return 'Usuário';
+    if (roles.includes('admin')) return t('adminusers_role_admin');
+    if (roles.includes('moderator')) return t('adminusers_role_moderator');
+    return t('adminusers_role_citizen');
   };
 
   const prepareExportData = () => {
     return (filteredUsers || []).map(u => ({
-      'Nome': u.full_name || 'Sem nome',
-      'Telefone': u.phone || '-',
-      'Papel': getRoleLabel(u.roles),
-      'Nível': u.current_level ? `Nível ${u.current_level}` : '-',
-      'Data de Cadastro': new Date(u.created_at).toLocaleDateString('pt-BR')
+      [t('adminusers_col_name')]: u.full_name || t('adminusers_no_name'),
+      [t('adminusers_col_phone')]: u.phone || '-',
+      [t('adminusers_col_role')]: getRoleLabel(u.roles),
+      [t('adminusers_col_level')]: u.current_level ? `${t('adminusers_level')} ${u.current_level}` : '-',
+      [t('adminusers_col_registered_at')]: new Date(u.created_at).toLocaleDateString('pt-BR')
     }));
   };
 
   const exportToCSV = () => {
     const data = prepareExportData();
     if (data.length === 0) {
-      toast.error('Nenhum utilizador para exportar');
+      toast.error(t('adminusers_toast_nothing_to_export'));
       return;
     }
     
@@ -364,21 +364,21 @@ export default function AdminUserManagement() {
     link.download = `utilizadores_afroloc_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    toast.success('Lista exportada em CSV');
+    toast.success(t('adminusers_toast_exported_csv'));
   };
 
   const exportToExcel = () => {
     const data = prepareExportData();
     if (data.length === 0) {
-      toast.error('Nenhum utilizador para exportar');
+      toast.error(t('adminusers_toast_nothing_to_export'));
       return;
     }
     
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Utilizadores');
+    XLSX.utils.book_append_sheet(workbook, worksheet, t('adminusers_sheet_name'));
     XLSX.writeFile(workbook, `utilizadores_afroloc_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('Lista exportada em Excel');
+    toast.success(t('adminusers_toast_exported_excel'));
   };
 
   return (
@@ -388,8 +388,8 @@ export default function AdminUserManagement() {
           <div className="flex items-center gap-2">
             <Shield className="h-8 w-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold">Gerenciamento de Usuários</h1>
-              <p className="text-muted-foreground">Gerencie papéis e permissões dos usuários</p>
+              <h1 className="text-3xl font-bold">{t('adminusers_page_title')}</h1>
+              <p className="text-muted-foreground">{t('adminusers_page_subtitle')}</p>
             </div>
           </div>
           <Button
@@ -398,7 +398,7 @@ export default function AdminUserManagement() {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Voltar
+            {t('adminusers_back')}
           </Button>
         </div>
 
@@ -408,10 +408,10 @@ export default function AdminUserManagement() {
               <div>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Todos os Usuários ({filteredUsers?.length || 0})
+                  {t('adminusers_all_users')} ({filteredUsers?.length || 0})
                 </CardTitle>
                 <CardDescription>
-                  Gerencie papéis, permissões e elimine utilizadores
+                  {t('adminusers_card_desc')}
                 </CardDescription>
               </div>
               <div className="flex flex-wrap gap-2 items-center">
@@ -438,7 +438,7 @@ export default function AdminUserManagement() {
                 <div className="relative w-full sm:w-48">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Pesquisar..."
+                    placeholder={t('adminusers_search_placeholder')}
                     value={searchQuery}
                     onChange={(e) => handleSearchChange(e.target.value)}
                     className="pl-9"
@@ -450,43 +450,43 @@ export default function AdminUserManagement() {
             {/* Advanced Filters */}
             <div className="flex flex-wrap gap-3 mt-4 pt-4 border-t items-end">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Papel</Label>
+                <Label className="text-xs text-muted-foreground">{t('adminusers_filter_role')}</Label>
                 <Select value={roleFilter} onValueChange={(v) => { setRoleFilter(v); handleFilterChange(); }}>
                   <SelectTrigger className="w-[130px]">
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder={t('adminusers_all')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="admin">Administrador</SelectItem>
-                    <SelectItem value="moderator">Funcionário</SelectItem>
-                    <SelectItem value="citizen">Usuário</SelectItem>
+                    <SelectItem value="all">{t('adminusers_all')}</SelectItem>
+                    <SelectItem value="admin">{t('adminusers_role_admin')}</SelectItem>
+                    <SelectItem value="moderator">{t('adminusers_role_moderator')}</SelectItem>
+                    <SelectItem value="citizen">{t('adminusers_role_citizen')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Nível</Label>
+                <Label className="text-xs text-muted-foreground">{t('adminusers_level')}</Label>
                 <Select value={levelFilter} onValueChange={(v) => { setLevelFilter(v); handleFilterChange(); }}>
                   <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder={t('adminusers_all')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="1">Nível 1</SelectItem>
-                    <SelectItem value="2">Nível 2</SelectItem>
-                    <SelectItem value="3">Nível 3</SelectItem>
-                    <SelectItem value="4">Nível 4</SelectItem>
-                    <SelectItem value="5">Nível 5</SelectItem>
+                    <SelectItem value="all">{t('adminusers_all')}</SelectItem>
+                    <SelectItem value="1">{t('adminusers_level')} 1</SelectItem>
+                    <SelectItem value="2">{t('adminusers_level')} 2</SelectItem>
+                    <SelectItem value="3">{t('adminusers_level')} 3</SelectItem>
+                    <SelectItem value="4">{t('adminusers_level')} 4</SelectItem>
+                    <SelectItem value="5">{t('adminusers_level')} 5</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Data de</Label>
+                <Label className="text-xs text-muted-foreground">{t('adminusers_date_from')}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="w-[120px] justify-start text-left font-normal">
-                      {dateFrom ? dateFrom.toLocaleDateString('pt-BR') : "Início"}
+                      {dateFrom ? dateFrom.toLocaleDateString('pt-BR') : t('adminusers_start')}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -501,11 +501,11 @@ export default function AdminUserManagement() {
               </div>
               
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">Até</Label>
+                <Label className="text-xs text-muted-foreground">{t('adminusers_date_to')}</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="w-[120px] justify-start text-left font-normal">
-                      {dateTo ? dateTo.toLocaleDateString('pt-BR') : "Fim"}
+                      {dateTo ? dateTo.toLocaleDateString('pt-BR') : t('adminusers_end')}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
@@ -527,7 +527,7 @@ export default function AdminUserManagement() {
                   className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
                 >
                   <X className="h-4 w-4" />
-                  Limpar filtros
+                  {t('adminusers_clear_filters')}
                 </Button>
               )}
             </div>
@@ -549,20 +549,20 @@ export default function AdminUserManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nome</TableHead>
-                      <TableHead>Telefone</TableHead>
-                      <TableHead>Papel Atual</TableHead>
-                      <TableHead>Nível</TableHead>
-                      <TableHead>Cadastrado em</TableHead>
-                      <TableHead>Papel</TableHead>
-                      <TableHead className="text-right">Ações</TableHead>
+                      <TableHead>{t('adminusers_col_name')}</TableHead>
+                      <TableHead>{t('adminusers_col_phone')}</TableHead>
+                      <TableHead>{t('adminusers_th_current_role')}</TableHead>
+                      <TableHead>{t('adminusers_level')}</TableHead>
+                      <TableHead>{t('adminusers_th_registered')}</TableHead>
+                      <TableHead>{t('adminusers_col_role')}</TableHead>
+                      <TableHead className="text-right">{t('adminusers_th_actions')}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {paginatedUsers?.map((userRow) => (
                       <TableRow key={userRow.user_id}>
                         <TableCell className="font-medium">
-                          {userRow.full_name || 'Sem nome'}
+                          {userRow.full_name || t('adminusers_no_name')}
                         </TableCell>
                         <TableCell>{userRow.phone || '-'}</TableCell>
                         <TableCell>
@@ -571,7 +571,7 @@ export default function AdminUserManagement() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          {userRow.current_level ? `Nível ${userRow.current_level}` : '-'}
+                          {userRow.current_level ? `${t('adminusers_level')} ${userRow.current_level}` : '-'}
                         </TableCell>
                         <TableCell>
                           {new Date(userRow.created_at).toLocaleDateString('pt-BR')}
@@ -580,7 +580,7 @@ export default function AdminUserManagement() {
                           <Select
                             value={userRow.roles[0] || 'citizen'}
                             onValueChange={(value: UserRole) => 
-                              handleRoleChange(userRow.user_id, value, userRow.full_name || 'Sem nome', userRow.roles)
+                              handleRoleChange(userRow.user_id, value, userRow.full_name || t('adminusers_no_name'), userRow.roles)
                             }
                             disabled={loadingUserId === userRow.user_id}
                           >
@@ -588,9 +588,9 @@ export default function AdminUserManagement() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="citizen">Usuário</SelectItem>
-                              <SelectItem value="moderator">Funcionário</SelectItem>
-                              <SelectItem value="admin">Administrador</SelectItem>
+                              <SelectItem value="citizen">{t('adminusers_role_citizen')}</SelectItem>
+                              <SelectItem value="moderator">{t('adminusers_role_moderator')}</SelectItem>
+                              <SelectItem value="admin">{t('adminusers_role_admin')}</SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -601,7 +601,7 @@ export default function AdminUserManagement() {
                             className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => handleDeleteUser(userRow)}
                             disabled={userRow.user_id === user?.id}
-                            title={userRow.user_id === user?.id ? 'Não pode eliminar a sua própria conta' : 'Eliminar utilizador'}
+                            title={userRow.user_id === user?.id ? t('adminusers_cannot_delete_self') : t('adminusers_delete_user')}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -616,7 +616,7 @@ export default function AdminUserManagement() {
               {totalPages > 1 && (
                 <div className="flex flex-col sm:flex-row items-center justify-between mt-4 pt-4 border-t gap-2">
                   <p className="text-sm text-muted-foreground">
-                    A mostrar {((currentPage - 1) * pageSize) + 1} a {Math.min(currentPage * pageSize, filteredUsers?.length || 0)} de {filteredUsers?.length || 0} utilizadores
+                    {t('adminusers_showing')} {((currentPage - 1) * pageSize) + 1} {t('adminusers_to')} {Math.min(currentPage * pageSize, filteredUsers?.length || 0)} {t('adminusers_of')} {filteredUsers?.length || 0} {t('adminusers_users_lower')}
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -626,10 +626,10 @@ export default function AdminUserManagement() {
                       disabled={currentPage === 1}
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Anterior
+                      {t('adminusers_previous')}
                     </Button>
                     <span className="text-sm px-2">
-                      Página {currentPage} de {totalPages}
+                      {t('adminusers_page')} {currentPage} {t('adminusers_of')} {totalPages}
                     </span>
                     <Button
                       variant="outline"
@@ -637,7 +637,7 @@ export default function AdminUserManagement() {
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
                     >
-                      Próxima
+                      {t('adminusers_next')}
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
@@ -653,20 +653,20 @@ export default function AdminUserManagement() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-warning" />
-                Confirmar Mudança de Papel
+                {t('adminusers_confirm_role_title')}
               </DialogTitle>
               <DialogDescription>
-                Você está prestes a alterar o papel de{" "}
-                <span className="font-semibold">{selectedUser?.userName}</span> para{" "}
+                {t('adminusers_confirm_role_prefix')}{" "}
+                <span className="font-semibold">{selectedUser?.userName}</span> {t('adminusers_confirm_role_to')}{" "}
                 <span className="font-semibold">{selectedUser && getRoleLabel([selectedUser.newRole])}</span>.
                 {selectedUser?.newRole === 'admin' && (
                   <span className="block mt-2 text-warning">
-                    ⚠️ Esta promoção requer aprovação de um administrador nacional.
+                    ⚠️ {t('adminusers_promo_national')}
                   </span>
                 )}
                 {selectedUser?.newRole === 'moderator' && (
                   <span className="block mt-2 text-warning">
-                    ⚠️ Esta promoção requer aprovação de um administrador regional (nível 3+).
+                    ⚠️ {t('adminusers_promo_regional')}
                   </span>
                 )}
               </DialogDescription>
@@ -674,10 +674,10 @@ export default function AdminUserManagement() {
             
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="justification">Justificativa *</Label>
+                <Label htmlFor="justification">{t('adminusers_justification_label')}</Label>
                 <Textarea
                   id="justification"
-                  placeholder="Explique o motivo desta mudança de papel..."
+                  placeholder={t('adminusers_justification_placeholder')}
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
                   rows={4}
@@ -686,12 +686,12 @@ export default function AdminUserManagement() {
               </div>
               
               <div className="rounded-md bg-muted/50 p-3 text-sm">
-                <p className="font-medium mb-1">Restrições aplicadas:</p>
+                <p className="font-medium mb-1">{t('adminusers_restrictions_title')}</p>
                 <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                  <li>Verificação de jurisdição geográfica</li>
-                  <li>Validação de nível de autorização</li>
-                  <li>Registro completo de auditoria</li>
-                  <li>Aprovação em cascata conforme hierarquia</li>
+                  <li>{t('adminusers_restriction_geo')}</li>
+                  <li>{t('adminusers_restriction_level')}</li>
+                  <li>{t('adminusers_restriction_audit')}</li>
+                  <li>{t('adminusers_restriction_cascade')}</li>
                 </ul>
               </div>
             </div>
@@ -704,14 +704,14 @@ export default function AdminUserManagement() {
                   setJustification("");
                 }}
               >
-                Cancelar
+                {t('adminusers_cancel')}
               </Button>
               <Button
                 onClick={confirmRoleChange}
                 disabled={!justification.trim() || createRoleRequestMutation.isPending}
               >
                 {createRoleRequestMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Confirmar
+                {t('adminusers_confirm')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -723,10 +723,10 @@ export default function AdminUserManagement() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-destructive">
                 <Trash2 className="h-5 w-5" />
-                Eliminar Utilizador
+                {t('adminusers_delete_user_title')}
               </DialogTitle>
               <DialogDescription>
-                Tem a certeza que deseja eliminar permanentemente o utilizador{" "}
+                {t('adminusers_delete_confirm_prefix')}{" "}
                 <span className="font-semibold">{userToDelete?.userName}</span>
                 {userToDelete?.phone && (
                   <span> ({userToDelete.phone})</span>
@@ -736,20 +736,20 @@ export default function AdminUserManagement() {
             
             <div className="space-y-4 py-4">
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                <p className="font-medium mb-1">⚠️ Atenção: Esta ação é irreversível!</p>
+                <p className="font-medium mb-1">⚠️ {t('adminusers_delete_warning')}</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>Todos os dados do utilizador serão eliminados</li>
-                  <li>Endereços AFROLOC associados serão removidos</li>
-                  <li>Testemunhos e validações serão apagados</li>
-                  <li>Dispositivos biométricos serão desregistados</li>
+                  <li>{t('adminusers_delete_item_data')}</li>
+                  <li>{t('adminusers_delete_item_addresses')}</li>
+                  <li>{t('adminusers_delete_item_testimonials')}</li>
+                  <li>{t('adminusers_delete_item_biometric')}</li>
                 </ul>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="deleteReason">Motivo da eliminação *</Label>
+                <Label htmlFor="deleteReason">{t('adminusers_delete_reason_label')}</Label>
                 <Textarea
                   id="deleteReason"
-                  placeholder="Indique o motivo para eliminar este utilizador..."
+                  placeholder={t('adminusers_delete_reason_placeholder')}
                   value={deleteReason}
                   onChange={(e) => setDeleteReason(e.target.value)}
                   rows={3}
@@ -767,7 +767,7 @@ export default function AdminUserManagement() {
                   setDeleteReason("");
                 }}
               >
-                Cancelar
+                {t('adminusers_cancel')}
               </Button>
               <Button
                 variant="destructive"
@@ -775,7 +775,7 @@ export default function AdminUserManagement() {
                 disabled={!deleteReason.trim() || deleteUserMutation.isPending}
               >
                 {deleteUserMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Eliminar Permanentemente
+                {t('adminusers_delete_permanently')}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -23,9 +23,11 @@ import { Badge } from "@/components/ui/badge";
 import { OfflineWitnessCapture } from "@/components/OfflineWitnessCapture";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function OfflineCreateIdentity() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const { coordinates, loading: gpsLoading, getCurrentPosition } = useGeolocation();
   const { isOnline, networkType } = useNetworkStatus();
@@ -107,16 +109,16 @@ export default function OfflineCreateIdentity() {
     setQuotaRemaining(config.daily_quota);
     
     toast({
-      title: "Modo Operador Activado",
-      description: `Quota diária: ${config.daily_quota} registos`,
+      title: t('offlineid_operator_activated_title'),
+      description: `${t('offlineid_daily_quota')}: ${config.daily_quota} ${t('offlineid_records')}`,
     });
   };
 
   const handleSave = async () => {
     if (!userId) {
       toast({
-        title: "Erro",
-        description: "É necessário estar autenticado",
+        title: t('offlineid_error'),
+        description: t('offlineid_auth_required'),
         variant: "destructive",
       });
       return;
@@ -124,8 +126,8 @@ export default function OfflineCreateIdentity() {
 
     if (!country || !level1Name) {
       toast({
-        title: "Campos Obrigatórios",
-        description: "País e Região são obrigatórios",
+        title: t('offlineid_required_fields'),
+        description: t('offlineid_country_region_required'),
         variant: "destructive",
       });
       return;
@@ -136,8 +138,8 @@ export default function OfflineCreateIdentity() {
       const { allowed, remaining } = await incrementOperatorCount(userId);
       if (!allowed) {
         toast({
-          title: "Quota Esgotada",
-          description: "Atingiu o limite diário de registos. Tente novamente amanhã.",
+          title: t('offlineid_quota_exhausted_title'),
+          description: t('offlineid_quota_exhausted_desc'),
           variant: "destructive",
         });
         return;
@@ -169,12 +171,12 @@ export default function OfflineCreateIdentity() {
       setOfflineCount(count);
 
       toast({
-        title: "Guardado Offline",
+        title: t('offlineid_saved_offline_title'),
         description: (
           <div className="space-y-1">
             <p className="font-mono text-sm font-bold">{code}</p>
             <p className="text-xs text-muted-foreground">
-              {count} registo{count !== 1 ? 's' : ''} pendente{count !== 1 ? 's' : ''} de sincronização
+              {count} {count !== 1 ? t('offlineid_records_pending_sync_plural') : t('offlineid_records_pending_sync_singular')}
             </p>
           </div>
         ),
@@ -194,7 +196,7 @@ export default function OfflineCreateIdentity() {
     } catch (error: any) {
       console.error("Save error:", error);
       toast({
-        title: "Erro ao Guardar",
+        title: t('offlineid_save_error_title'),
         description: error.message,
         variant: "destructive",
       });
@@ -220,18 +222,18 @@ export default function OfflineCreateIdentity() {
             {isOnline ? (
               <Badge variant="outline" className="gap-1">
                 <Wifi className="h-3 w-3" />
-                Online ({networkType})
+                {t('offlineid_online')} ({networkType})
               </Badge>
             ) : (
               <Badge variant="destructive" className="gap-1">
                 <WifiOff className="h-3 w-3" />
-                Offline
+                {t('offlineid_offline')}
               </Badge>
             )}
-            
+
             {offlineCount > 0 && (
               <Badge variant="secondary">
-                {offlineCount} pendente{offlineCount !== 1 ? 's' : ''}
+                {offlineCount} {offlineCount !== 1 ? t('offlineid_pending_plural') : t('offlineid_pending_singular')}
               </Badge>
             )}
           </div>
@@ -244,7 +246,7 @@ export default function OfflineCreateIdentity() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4 text-primary" />
-                  <span className="font-semibold text-sm">Modo Operador de Campo</span>
+                  <span className="font-semibold text-sm">{t('offlineid_field_operator_mode')}</span>
                 </div>
                 <Badge variant="outline">
                   {quotaRemaining}/{operatorConfig.daily_quota}
@@ -255,7 +257,7 @@ export default function OfflineCreateIdentity() {
                 className="h-2"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                {operatorConfig.records_today} de {operatorConfig.daily_quota} registos hoje
+                {operatorConfig.records_today} {t('offlineid_of')} {operatorConfig.daily_quota} {t('offlineid_records_today')}
               </p>
             </CardContent>
           </Card>
@@ -263,9 +265,9 @@ export default function OfflineCreateIdentity() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Criar Endereço AFROLOC (Modo Offline)</CardTitle>
+            <CardTitle>{t('offlineid_card_title')}</CardTitle>
             <CardDescription>
-              Capture dados de localização sem internet. Os registos sincronizam automaticamente quando conectar.
+              {t('offlineid_card_description')}
             </CardDescription>
           </CardHeader>
           
@@ -275,17 +277,17 @@ export default function OfflineCreateIdentity() {
               <MapPin className="h-4 w-4" />
               <AlertDescription className="flex items-center justify-between">
                 <span>
-                  Zona detectada: <strong>{detectedZone === 'urban' ? 'Urbana' : 'Rural'}</strong>
+                  {t('offlineid_detected_zone')}: <strong>{detectedZone === 'urban' ? t('offlineid_zone_urban') : t('offlineid_zone_rural')}</strong>
                 </span>
                 <Badge variant={detectedZone === 'urban' ? 'default' : 'secondary'}>
-                  Grelha {gridSize}m
+                  {t('offlineid_grid')} {gridSize}m
                 </Badge>
               </AlertDescription>
             </Alert>
 
             {/* GPS Location */}
             <div className="space-y-2">
-              <Label>Coordenadas GPS</Label>
+              <Label>{t('offlineid_gps_coordinates')}</Label>
               <div className="flex gap-2">
                 <Button
                   onClick={getCurrentPosition}
@@ -294,16 +296,16 @@ export default function OfflineCreateIdentity() {
                   className="flex-1"
                 >
                   <MapPin className={`h-4 w-4 mr-2 ${gpsLoading ? 'animate-pulse' : ''}`} />
-                  {gpsLoading ? 'A obter...' : coordinates ? 'Actualizar' : 'Capturar GPS'}
+                  {gpsLoading ? t('offlineid_getting') : coordinates ? t('offlineid_update') : t('offlineid_capture_gps')}
                 </Button>
               </div>
               
               {coordinates && (
                 <div className="text-sm bg-muted p-3 rounded-md space-y-1">
-                  <p><strong>Latitude:</strong> {coordinates.latitude.toFixed(6)}</p>
-                  <p><strong>Longitude:</strong> {coordinates.longitude.toFixed(6)}</p>
+                  <p><strong>{t('offlineid_latitude')}:</strong> {coordinates.latitude.toFixed(6)}</p>
+                  <p><strong>{t('offlineid_longitude')}:</strong> {coordinates.longitude.toFixed(6)}</p>
                   {coordinates.accuracy && (
-                    <p className="text-muted-foreground">Precisão: ±{coordinates.accuracy.toFixed(0)}m</p>
+                    <p className="text-muted-foreground">{t('offlineid_accuracy')}: ±{coordinates.accuracy.toFixed(0)}m</p>
                   )}
                 </div>
               )}
@@ -311,78 +313,78 @@ export default function OfflineCreateIdentity() {
 
             {/* Country */}
             <div className="space-y-2">
-              <Label htmlFor="country">País *</Label>
+              <Label htmlFor="country">{t('offlineid_country')} *</Label>
               <Select value={country} onValueChange={setCountry}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="AO">Angola</SelectItem>
-                  <SelectItem value="CD">República Democrática do Congo</SelectItem>
-                  <SelectItem value="CG">República do Congo</SelectItem>
-                  <SelectItem value="MZ">Moçambique</SelectItem>
-                  <SelectItem value="ZM">Zâmbia</SelectItem>
-                  <SelectItem value="ZW">Zimbabué</SelectItem>
+                  <SelectItem value="AO">{t('offlineid_country_ao')}</SelectItem>
+                  <SelectItem value="CD">{t('offlineid_country_cd')}</SelectItem>
+                  <SelectItem value="CG">{t('offlineid_country_cg')}</SelectItem>
+                  <SelectItem value="MZ">{t('offlineid_country_mz')}</SelectItem>
+                  <SelectItem value="ZM">{t('offlineid_country_zm')}</SelectItem>
+                  <SelectItem value="ZW">{t('offlineid_country_zw')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Administrative Levels */}
             <div className="space-y-2">
-              <Label htmlFor="level1">Província/Região *</Label>
+              <Label htmlFor="level1">{t('offlineid_level1_label')} *</Label>
               <Input
                 id="level1"
                 value={level1Name}
                 onChange={(e) => setLevel1Name(e.target.value)}
-                placeholder="ex: Luanda"
+                placeholder={t('offlineid_level1_placeholder')}
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="level2">Município/Distrito</Label>
+              <Label htmlFor="level2">{t('offlineid_level2_label')}</Label>
               <Input
                 id="level2"
                 value={level2Name}
                 onChange={(e) => setLevel2Name(e.target.value)}
-                placeholder="ex: Belas"
+                placeholder={t('offlineid_level2_placeholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="level3">Comuna/Sector</Label>
+              <Label htmlFor="level3">{t('offlineid_level3_label')}</Label>
               <Input
                 id="level3"
                 value={level3Name}
                 onChange={(e) => setLevel3Name(e.target.value)}
-                placeholder="ex: Talatona"
+                placeholder={t('offlineid_level3_placeholder')}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="level4">Bairro/Aldeia</Label>
+              <Label htmlFor="level4">{t('offlineid_level4_label')}</Label>
               <Input
                 id="level4"
                 value={level4Name}
                 onChange={(e) => setLevel4Name(e.target.value)}
-                placeholder="ex: Nova Vida"
+                placeholder={t('offlineid_level4_placeholder')}
               />
             </div>
 
             {/* Street Address */}
             <div className="space-y-2">
-              <Label htmlFor="street">Nome da Rua</Label>
+              <Label htmlFor="street">{t('offlineid_street_label')}</Label>
               <Input
                 id="street"
                 value={streetName}
                 onChange={(e) => setStreetName(e.target.value)}
-                placeholder="ex: Avenida 21 de Janeiro"
+                placeholder={t('offlineid_street_placeholder')}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="number">Número</Label>
+                <Label htmlFor="number">{t('offlineid_number_label')}</Label>
                 <Input
                   id="number"
                   value={number}
@@ -392,7 +394,7 @@ export default function OfflineCreateIdentity() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="unit">Unidade/Apt</Label>
+                <Label htmlFor="unit">{t('offlineid_unit_label')}</Label>
                 <Input
                   id="unit"
                   value={unit}
@@ -403,17 +405,17 @@ export default function OfflineCreateIdentity() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="property">Tipo de Propriedade</Label>
+              <Label htmlFor="property">{t('offlineid_property_type_label')}</Label>
               <Select value={propertyType} onValueChange={setPropertyType}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar tipo" />
+                  <SelectValue placeholder={t('offlineid_property_type_placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="residencia">Residência</SelectItem>
-                  <SelectItem value="comercial">Comercial</SelectItem>
-                  <SelectItem value="industrial">Industrial</SelectItem>
-                  <SelectItem value="terreno">Terreno</SelectItem>
-                  <SelectItem value="misto">Uso Misto</SelectItem>
+                  <SelectItem value="residencia">{t('offlineid_property_residencia')}</SelectItem>
+                  <SelectItem value="comercial">{t('offlineid_property_comercial')}</SelectItem>
+                  <SelectItem value="industrial">{t('offlineid_property_industrial')}</SelectItem>
+                  <SelectItem value="terreno">{t('offlineid_property_terreno')}</SelectItem>
+                  <SelectItem value="misto">{t('offlineid_property_misto')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -421,7 +423,7 @@ export default function OfflineCreateIdentity() {
             {/* Witnesses Section */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Testemunhas</Label>
+                <Label className="text-base font-semibold">{t('offlineid_witnesses')}</Label>
                 <Badge variant="secondary">
                   <Users className="h-3 w-3 mr-1" />
                   {witnesses.length}
@@ -439,10 +441,10 @@ export default function OfflineCreateIdentity() {
                             <p className="text-sm text-muted-foreground">{witness.witness_name}</p>
                           )}
                           <Badge variant="outline" className="mt-1 text-xs">
-                            {witness.validation_method === 'otp' && 'SMS OTP (na fila)'}
-                            {witness.validation_method === 'signature' && 'Assinatura capturada'}
-                            {witness.validation_method === 'photo' && 'Foto ID capturada'}
-                            {witness.validation_method === 'in_person' && 'Verificado presencialmente'}
+                            {witness.validation_method === 'otp' && t('offlineid_validation_otp')}
+                            {witness.validation_method === 'signature' && t('offlineid_validation_signature')}
+                            {witness.validation_method === 'photo' && t('offlineid_validation_photo')}
+                            {witness.validation_method === 'in_person' && t('offlineid_validation_in_person')}
                           </Badge>
                         </div>
                         <Button
@@ -470,7 +472,7 @@ export default function OfflineCreateIdentity() {
               <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  Atenção: Apenas {quotaRemaining} registo{quotaRemaining !== 1 ? 's' : ''} restante{quotaRemaining !== 1 ? 's' : ''} na quota diária.
+                  {t('offlineid_quota_warning_prefix')} {quotaRemaining} {quotaRemaining !== 1 ? t('offlineid_quota_warning_plural') : t('offlineid_quota_warning_singular')}
                 </AlertDescription>
               </Alert>
             )}
@@ -482,7 +484,7 @@ export default function OfflineCreateIdentity() {
               size="lg"
             >
               <Save className="h-4 w-4 mr-2" />
-              {saving ? 'A guardar...' : 'Guardar Offline'}
+              {saving ? t('offlineid_saving') : t('offlineid_save_offline')}
             </Button>
 
             <div className="flex gap-2">
@@ -491,7 +493,7 @@ export default function OfflineCreateIdentity() {
                 variant="outline"
                 className="flex-1"
               >
-                Ver Registos ({offlineCount})
+                {t('offlineid_view_records')} ({offlineCount})
               </Button>
               
               {!operatorMode && (
@@ -501,7 +503,7 @@ export default function OfflineCreateIdentity() {
                   className="flex-1"
                 >
                   <Shield className="h-4 w-4 mr-2" />
-                  Modo Operador
+                  {t('offlineid_operator_mode')}
                 </Button>
               )}
             </div>

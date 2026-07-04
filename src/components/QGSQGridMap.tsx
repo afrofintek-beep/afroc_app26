@@ -174,6 +174,7 @@ function generateCoveragePolygon(lat: number, lon: number, radiusMeters: number,
 
 // Time-series density trend chart component
 function CellDensityTrendChart({ records, cellCode }: { records: AfrolocRecord[]; cellCode: string }) {
+  const { t } = useLanguage();
   // Generate monthly trend data from records
   const trendData = useMemo(() => {
     const now = new Date();
@@ -236,7 +237,7 @@ function CellDensityTrendChart({ records, cellCode }: { records: AfrolocRecord[]
       <div className="mt-4 pt-4 border-t">
         <div className="flex items-center gap-2 text-muted-foreground">
           <TrendingUp className="h-4 w-4" />
-          <span className="text-sm">No certification data for trend analysis</span>
+          <span className="text-sm">{t('qgmap_no_cert_data_trend')}</span>
         </div>
       </div>
     );
@@ -247,11 +248,11 @@ function CellDensityTrendChart({ records, cellCode }: { records: AfrolocRecord[]
       <div className="flex items-center justify-between mb-3">
         <h4 className="font-medium flex items-center gap-2 text-sm">
           <TrendingUp className="h-4 w-4" />
-          Certification Trend (12 months)
+          {t('qgmap_cert_trend_12mo')}
         </h4>
         <div className="flex gap-2">
           <Badge variant={trendMetrics.growth > 0 ? 'default' : trendMetrics.growth < 0 ? 'destructive' : 'secondary'}>
-            {trendMetrics.growth > 0 ? '+' : ''}{trendMetrics.growth.toFixed(1)}% growth
+            {trendMetrics.growth > 0 ? '+' : ''}{trendMetrics.growth.toFixed(1)}% {t('qgmap_growth')}
           </Badge>
         </div>
       </div>
@@ -259,15 +260,15 @@ function CellDensityTrendChart({ records, cellCode }: { records: AfrolocRecord[]
       {/* Metrics row */}
       <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="text-center p-2 bg-muted/50 rounded">
-          <p className="text-xs text-muted-foreground">Avg/Month</p>
+          <p className="text-xs text-muted-foreground">{t('qgmap_avg_month')}</p>
           <p className="text-lg font-semibold">{trendMetrics.avgMonthly.toFixed(1)}</p>
         </div>
         <div className="text-center p-2 bg-muted/50 rounded">
-          <p className="text-xs text-muted-foreground">Peak Month</p>
+          <p className="text-xs text-muted-foreground">{t('qgmap_peak_month')}</p>
           <p className="text-lg font-semibold">{trendMetrics.peak}</p>
         </div>
         <div className="text-center p-2 bg-muted/50 rounded">
-          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-xs text-muted-foreground">{t('qgmap_total')}</p>
           <p className="text-lg font-semibold">{records.length}</p>
         </div>
       </div>
@@ -311,9 +312,9 @@ function CellDensityTrendChart({ records, cellCode }: { records: AfrolocRecord[]
             />
             <Area 
               type="monotone" 
-              dataKey="count" 
-              name="New Certifications"
-              stroke="hsl(var(--primary))" 
+              dataKey="count"
+              name={t('qgmap_new_certifications')}
+              stroke="hsl(var(--primary))"
               strokeWidth={2}
               fillOpacity={1} 
               fill="url(#colorCount)" 
@@ -349,9 +350,9 @@ function CellDensityTrendChart({ records, cellCode }: { records: AfrolocRecord[]
               }}
             />
             <Bar 
-              dataKey="count" 
-              name="Monthly"
-              fill="hsl(var(--primary))" 
+              dataKey="count"
+              name={t('qgmap_monthly')}
+              fill="hsl(var(--primary))"
               radius={[4, 4, 0, 0]}
               opacity={0.8}
             />
@@ -371,6 +372,7 @@ interface CellComparisonPanelProps {
 }
 
 function CellComparisonPanel({ comparisonCells, cellDensity, onRemoveCell, onClearAll }: CellComparisonPanelProps) {
+  const { t } = useLanguage();
   // Generate combined trend data for all cells
   const combinedTrendData = useMemo(() => {
     const now = new Date();
@@ -446,11 +448,11 @@ function CellComparisonPanel({ comparisonCells, cellDensity, onRemoveCell, onCle
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold flex items-center gap-2">
           <GitCompare className="h-4 w-4" />
-          Cell Comparison ({comparisonCells.length} cells)
+          {t('qgmap_cell_comparison')} ({comparisonCells.length} {t('qgmap_cells')})
         </h3>
         <Button variant="outline" size="sm" onClick={onClearAll}>
           <X className="h-3 w-3 mr-1" />
-          Clear All
+          {t('qgmap_clear_all')}
         </Button>
       </div>
 
@@ -491,19 +493,19 @@ function CellComparisonPanel({ comparisonCells, cellDensity, onRemoveCell, onCle
             </div>
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total:</span>
+                <span className="text-muted-foreground">{t('qgmap_total')}:</span>
                 <span className="font-semibold">{metric.total}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Recent (3mo):</span>
+                <span className="text-muted-foreground">{t('qgmap_recent_3mo')}:</span>
                 <span className="font-semibold">{metric.recentCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Avg/mo:</span>
+                <span className="text-muted-foreground">{t('qgmap_avg_mo')}:</span>
                 <span className="font-semibold">{metric.avgMonthly.toFixed(1)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Type:</span>
+                <span className="text-muted-foreground">{t('qgmap_type')}:</span>
                 <Badge variant="outline" className="text-[10px] px-1 py-0">
                   {metric.cellType}
                 </Badge>
@@ -517,7 +519,7 @@ function CellComparisonPanel({ comparisonCells, cellDensity, onRemoveCell, onCle
       <div className="mt-4">
         <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
           <TrendingUp className="h-4 w-4" />
-          Trend Comparison (12 months)
+          {t('qgmap_trend_comparison_12mo')}
         </h4>
         <div className="h-[250px] w-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -572,7 +574,7 @@ function CellComparisonPanel({ comparisonCells, cellDensity, onRemoveCell, onCle
 
       {/* Stacked area chart for cumulative view */}
       <div className="mt-4">
-        <h4 className="text-sm font-medium mb-2">Cumulative Distribution</h4>
+        <h4 className="text-sm font-medium mb-2">{t('qgmap_cumulative_distribution')}</h4>
         <div className="h-[180px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={combinedTrendData} margin={{ top: 5, right: 30, left: -10, bottom: 5 }}>
@@ -718,7 +720,7 @@ export default function QGSQGridMap({
   const copyCode = useCallback((code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    toast.success('Código AFROLOC copiado!');
+    toast.success(t('qgmap_toast_code_copied'));
     setTimeout(() => setCopiedCode(null), 2000);
   }, []);
 
@@ -809,8 +811,8 @@ export default function QGSQGridMap({
         // Clear selection panel - just show the highlighted cell on map
         setSelectedCell(null);
         
-        toast.success(`Código ${result.afroloc} localizado!`, {
-          description: `Célula destacada no mapa com ponto central`
+        toast.success(`${t('qgmap_toast_code_label')} ${result.afroloc} ${t('qgmap_toast_located')}`, {
+          description: t('qgmap_toast_cell_highlighted')
         });
         
         // Auto-remove pulsing marker and highlight after 90 seconds
@@ -823,8 +825,8 @@ export default function QGSQGridMap({
         }, 90000);
       }
     } catch (err) {
-      toast.error('Código AFROLOC inválido', {
-        description: 'Verifique o formato: CC-ZU-G10-XXXX-YYYY ou CC-ZR-G25-XXXX-YYYY'
+      toast.error(t('qgmap_toast_invalid_code'), {
+        description: t('qgmap_toast_check_format')
       });
     } finally {
       setIsDecoding(false);
@@ -1006,11 +1008,11 @@ export default function QGSQGridMap({
 
       setBatchCodes(cells);
       setShowBatchPanel(true);
-      toast.success(`${cells.length} códigos AFROLOC gerados para a área visível`);
-      
+      toast.success(`${cells.length} ${t('qgmap_toast_codes_generated')}`);
+
     } catch (err) {
       console.error('Error generating batch codes:', err);
-      toast.error('Erro ao gerar códigos em lote');
+      toast.error(t('qgmap_toast_batch_error'));
     } finally {
       setIsGeneratingBatch(false);
     }
@@ -1045,7 +1047,7 @@ export default function QGSQGridMap({
     link.click();
     URL.revokeObjectURL(url);
     
-    toast.success('Ficheiro CSV exportado com sucesso');
+    toast.success(t('qgmap_toast_csv_exported'));
   }, [batchCodes, countryCode]);
 
   // State for saving to database
@@ -1063,8 +1065,8 @@ export default function QGSQGridMap({
     
     // Authorization check
     if (!canPreRegister) {
-      toast.error('Nível de autorização insuficiente', {
-        description: `Nível ${MIN_LEVEL_CADASTRAL_PREREGISTER} (${LEVEL_NAMES[MIN_LEVEL_CADASTRAL_PREREGISTER as keyof typeof LEVEL_NAMES]}) ou superior é necessário para pré-registo cadastral`
+      toast.error(t('qgmap_toast_insufficient_auth'), {
+        description: `${t('qgmap_toast_level')} ${MIN_LEVEL_CADASTRAL_PREREGISTER} (${LEVEL_NAMES[MIN_LEVEL_CADASTRAL_PREREGISTER as keyof typeof LEVEL_NAMES]}) ${t('qgmap_toast_or_higher_required')}`
       });
       return;
     }
@@ -1075,7 +1077,7 @@ export default function QGSQGridMap({
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('É necessário estar autenticado para guardar na base de dados');
+        toast.error(t('qgmap_toast_auth_required'));
         return;
       }
       
@@ -1157,14 +1159,14 @@ export default function QGSQGridMap({
       
       if (cellsError) throw cellsError;
       
-      toast.success(`${batchCodes.length} células cadastrais pré-registadas`, {
-        description: `Aguardam aprovação superior. Geradas por utilizador Nível ${userLevel}`
+      toast.success(`${batchCodes.length} ${t('qgmap_toast_cells_preregistered')}`, {
+        description: `${t('qgmap_toast_await_approval')} ${userLevel}`
       });
       
     } catch (err: any) {
       console.error('Error saving batch to database:', err);
-      toast.error('Erro ao guardar na base de dados', {
-        description: err.message || 'Tente novamente'
+      toast.error(t('qgmap_toast_db_save_error'), {
+        description: err.message || t('qgmap_toast_try_again')
       });
     } finally {
       setIsSavingBatch(false);
@@ -1638,7 +1640,7 @@ export default function QGSQGridMap({
           } catch (err) {
             console.error('[Map Click] Error computing QG:', err);
             setClickProposal(null);
-            toast.error('Erro ao calcular código AFROLOC');
+            toast.error(t('qgmap_toast_compute_error'));
           }
         });
       });
@@ -1959,8 +1961,8 @@ export default function QGSQGridMap({
       <Card className="p-6">
         <div className="text-center text-muted-foreground">
           <Grid3X3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>WebGL is not supported in this browser.</p>
-          <p className="text-sm">Try using a modern browser with hardware acceleration enabled.</p>
+          <p>{t('qgmap_webgl_unsupported')}</p>
+          <p className="text-sm">{t('qgmap_webgl_hint')}</p>
         </div>
       </Card>
     );
@@ -1974,11 +1976,11 @@ export default function QGSQGridMap({
           <div className="flex-1 w-full">
             <Label className="text-sm font-medium mb-2 flex items-center gap-2">
               <Search className="h-4 w-4" />
-              Localizar Código AFROLOC
+              {t('qgmap_locate_code')}
             </Label>
             <div className="flex gap-2 mt-1">
               <Input
-                placeholder="Ex: AO-ZU-G10-3658-N2484"
+                placeholder={t('qgmap_locate_placeholder')}
                 value={decodeInput}
                 onChange={(e) => setDecodeInput(e.target.value.toUpperCase())}
                 onKeyDown={(e) => e.key === 'Enter' && handleDecode()}
@@ -1994,13 +1996,13 @@ export default function QGSQGridMap({
                 ) : (
                   <>
                     <Navigation className="h-4 w-4 mr-2" />
-                    Localizar
+                    {t('qgmap_locate')}
                   </>
                 )}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Formato: CC-ZU-G10-XXXX-NYYY (urbano 10m) ou CC-ZR-G25-XXXX-NYYY (rural 25m)
+              {t('qgmap_format_hint')}
             </p>
           </div>
         </div>
@@ -2017,7 +2019,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="show-qg" className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-blue-500 bg-blue-500/20 rounded" />
-              QG Grid
+              {t('qgmap_qg_grid')}
             </Label>
           </div>
 
@@ -2029,7 +2031,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="show-sq" className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-orange-500 bg-orange-500/20 rounded" />
-              SQ Subdivisions
+              {t('qgmap_sq_subdivisions')}
             </Label>
           </div>
 
@@ -2041,7 +2043,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="show-markers" className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              Addresses
+              {t('qgmap_addresses')}
             </Label>
           </div>
 
@@ -2053,7 +2055,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="show-towers" className="flex items-center gap-2">
               <Radio className="h-4 w-4 text-violet-500" />
-              Towers
+              {t('qgmap_towers')}
             </Label>
           </div>
 
@@ -2065,7 +2067,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="show-coverage" className="flex items-center gap-2">
               <Wifi className="h-4 w-4 text-pink-500" />
-              Coverage
+              {t('qgmap_coverage')}
             </Label>
           </div>
 
@@ -2077,7 +2079,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="show-density" className="flex items-center gap-2">
               <Thermometer className="h-4 w-4 text-red-500" />
-              Density Heatmap
+              {t('qgmap_density_heatmap')}
             </Label>
           </div>
 
@@ -2094,7 +2096,7 @@ export default function QGSQGridMap({
             />
             <Label htmlFor="comparison-mode" className="flex items-center gap-2">
               <GitCompare className="h-4 w-4 text-violet-500" />
-              Compare Cells
+              {t('qgmap_compare_cells')}
             </Label>
             {comparisonCells.length > 0 && (
               <Badge variant="outline" className="ml-1">
@@ -2117,7 +2119,7 @@ export default function QGSQGridMap({
               ) : (
                 <Square className="h-4 w-4" />
               )}
-              Gerar Lote
+              {t('qgmap_generate_batch')}
             </Button>
           </div>
 
@@ -2132,12 +2134,12 @@ export default function QGSQGridMap({
               {mapStyle === 'streets' ? (
                 <>
                   <Satellite className="h-4 w-4" />
-                  Satélite
+                  {t('qgmap_satellite')}
                 </>
               ) : (
                 <>
                   <MapIcon className="h-4 w-4" />
-                  Mapa
+                  {t('qgmap_map')}
                 </>
               )}
             </Button>
@@ -2146,7 +2148,7 @@ export default function QGSQGridMap({
           {(loading || isGeneratingGrid || isGeneratingBatch) && (
             <Badge variant="secondary" className="flex items-center gap-1">
               <Loader2 className="h-3 w-3 animate-spin" />
-              {isGeneratingBatch ? 'Gerando lote...' : 'Computing...'}
+              {isGeneratingBatch ? t('qgmap_generating_batch') : t('qgmap_computing')}
             </Badge>
           )}
 
@@ -2159,17 +2161,17 @@ export default function QGSQGridMap({
               </TooltipTrigger>
               <TooltipContent className="max-w-sm">
                 <p className="text-sm">
-                  <strong>QG Grid:</strong> National Geospatial Grid
+                  <strong>{t('qgmap_qg_grid')}:</strong> {t('qgmap_info_qg_grid')}
                   <br />
-                  <strong>SQ Subdivisions:</strong> Adaptive micro-areas
+                  <strong>{t('qgmap_sq_subdivisions')}:</strong> {t('qgmap_info_sq_subdivisions')}
                   <br />
-                  <strong>Towers:</strong> Cell tower positions (simulated)
+                  <strong>{t('qgmap_towers')}:</strong> {t('qgmap_info_towers')}
                   <br />
-                  <strong>Coverage:</strong> Signal coverage polygons
+                  <strong>{t('qgmap_coverage')}:</strong> {t('qgmap_info_coverage')}
                   <br />
-                  <strong>Density Heatmap:</strong> Certification count per cell
+                  <strong>{t('qgmap_density_heatmap')}:</strong> {t('qgmap_info_density_heatmap')}
                   <br />
-                  <strong>Gerar Lote:</strong> Gera códigos AFROLOC para toda a área visível
+                  <strong>{t('qgmap_generate_batch')}:</strong> {t('qgmap_info_generate_batch')}
                 </p>
               </TooltipContent>
             </Tooltip>
@@ -2184,10 +2186,10 @@ export default function QGSQGridMap({
             <div>
               <h3 className="font-semibold flex items-center gap-2">
                 <Square className="h-4 w-4 text-primary" />
-                Códigos Gerados em Lote
+                {t('qgmap_batch_generated_codes')}
               </h3>
               <p className="text-sm text-muted-foreground">
-                {batchCodes.length} códigos AFROLOC únicos para a área visível
+                {batchCodes.length} {t('qgmap_batch_unique_codes')}
               </p>
             </div>
             <div className="flex gap-2 flex-wrap items-center">
@@ -2200,13 +2202,13 @@ export default function QGSQGridMap({
                       className={`flex items-center gap-1 ${canPreRegister ? 'bg-green-500' : 'bg-orange-500'}`}
                     >
                       {canPreRegister ? <Shield className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                      Nível {userLevel}
+                      {t('qgmap_level')} {userLevel}
                     </Badge>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {canPreRegister 
-                      ? `Autorizado para pré-registo cadastral (Nível ${userLevel})`
-                      : `Nível ${MIN_LEVEL_CADASTRAL_PREREGISTER} necessário para registar na BD`
+                    {canPreRegister
+                      ? `${t('qgmap_auth_tooltip_authorized')} (${t('qgmap_level')} ${userLevel})`
+                      : `${t('qgmap_level')} ${MIN_LEVEL_CADASTRAL_PREREGISTER} ${t('qgmap_auth_tooltip_required')}`
                     }
                   </TooltipContent>
                 </Tooltip>
@@ -2226,7 +2228,7 @@ export default function QGSQGridMap({
                 ) : (
                   <Lock className="h-4 w-4" />
                 )}
-                {canPreRegister ? 'Registar na BD' : 'Nível Insuficiente'}
+                {canPreRegister ? t('qgmap_register_db') : t('qgmap_insufficient_level')}
               </Button>
               <Button
                 variant="outline"
@@ -2235,7 +2237,7 @@ export default function QGSQGridMap({
                 className="flex items-center gap-2"
               >
                 <Download className="h-4 w-4" />
-                Exportar CSV
+                {t('qgmap_export_csv')}
               </Button>
               <Button
                 variant="ghost"
@@ -2252,33 +2254,33 @@ export default function QGSQGridMap({
             <Alert className="mb-4 border-orange-200 bg-orange-50 dark:bg-orange-950">
               <Lock className="h-4 w-4" />
               <AlertDescription className="text-sm">
-                <strong>Pré-registo cadastral requer Nível {MIN_LEVEL_CADASTRAL_PREREGISTER} ({LEVEL_NAMES[MIN_LEVEL_CADASTRAL_PREREGISTER as keyof typeof LEVEL_NAMES]})</strong>
+                <strong>{t('qgmap_alert_prereg_requires')} {MIN_LEVEL_CADASTRAL_PREREGISTER} ({LEVEL_NAMES[MIN_LEVEL_CADASTRAL_PREREGISTER as keyof typeof LEVEL_NAMES]})</strong>
                 <br />
-                Seu nível atual: {userLevel} ({LEVEL_NAMES[userLevel as keyof typeof LEVEL_NAMES] || 'Básico'}). 
-                Pode exportar para CSV mas não registar na base de dados oficial.
+                {t('qgmap_alert_your_level')}: {userLevel} ({LEVEL_NAMES[userLevel as keyof typeof LEVEL_NAMES] || t('qgmap_level_basic')}).
+                {' '}{t('qgmap_alert_csv_only')}
               </AlertDescription>
             </Alert>
           )}
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
             <div className="bg-muted/50 p-2 rounded">
-              <p className="text-xs text-muted-foreground">Total Células</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_total_cells')}</p>
               <p className="font-semibold text-lg">{batchCodes.length}</p>
             </div>
             <div className="bg-blue-500/10 p-2 rounded">
-              <p className="text-xs text-muted-foreground">Urbanas</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_urban_cells')}</p>
               <p className="font-semibold text-lg text-blue-500">
                 {batchCodes.filter(c => (c.zone || c.cellType) === 'urban').length}
               </p>
             </div>
             <div className="bg-green-500/10 p-2 rounded">
-              <p className="text-xs text-muted-foreground">Rurais</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_rural_cells')}</p>
               <p className="font-semibold text-lg text-green-500">
                 {batchCodes.filter(c => (c.zone || c.cellType) === 'rural').length}
               </p>
             </div>
             <div className="bg-muted/50 p-2 rounded">
-              <p className="text-xs text-muted-foreground">Área Coberta</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_area_covered')}</p>
               <p className="font-semibold text-lg">
                 ~{(batchCodes.reduce((acc, c) => {
                   const size = c.grid_m || c.cellSize || 10;
@@ -2314,7 +2316,7 @@ export default function QGSQGridMap({
               ))}
               {batchCodes.length > 50 && (
                 <div className="col-span-full text-center text-xs text-muted-foreground py-2">
-                  ... e mais {batchCodes.length - 50} códigos (exportar para ver todos)
+                  {t('qgmap_and_more')} {batchCodes.length - 50} {t('qgmap_codes_export_all')}
                 </div>
               )}
             </div>
@@ -2331,7 +2333,7 @@ export default function QGSQGridMap({
         <Card 
           className="absolute bottom-4 left-4 p-3 bg-background/95 backdrop-blur max-w-xs cursor-pointer transition-opacity hover:opacity-90"
           onClick={() => setShowLegendPanel(false)}
-          title="Click to hide"
+          title={t('qgmap_click_to_hide')}
         >
           <div className="space-y-2 text-xs">
             {showDensity && (
@@ -2401,7 +2403,7 @@ export default function QGSQGridMap({
         <Card 
           className="absolute top-4 right-4 p-3 bg-background/95 backdrop-blur cursor-pointer transition-opacity hover:opacity-90"
           onClick={() => setShowStatsPanel(false)}
-          title="Click to hide"
+          title={t('qgmap_click_to_hide')}
         >
           <div className="space-y-1 text-xs">
             <div className="flex items-center justify-between gap-4">
@@ -2496,7 +2498,7 @@ export default function QGSQGridMap({
             <div>
               <h3 className="font-semibold flex items-center gap-2">
                 <Grid3X3 className="h-4 w-4" />
-                Célula Selecionada
+                {t('qgmap_selected_cell')}
               </h3>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setSelectedCell(null)}>
@@ -2506,7 +2508,7 @@ export default function QGSQGridMap({
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <div className="col-span-2">
-              <p className="text-xs text-muted-foreground">Código AFROLOC</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_afroloc_code')}</p>
               <div className="flex items-center gap-2 mt-1">
                 <code className="font-mono text-sm font-medium bg-muted px-2 py-1 rounded">
                   {selectedCell.qg.afroloc || selectedCell.qg.qgCode}
@@ -2526,31 +2528,31 @@ export default function QGSQGridMap({
               </div>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tipo de Zona</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_zone_type')}</p>
               <Badge variant={(selectedCell.qg.zone || selectedCell.qg.cellType) === 'urban' ? 'default' : 'secondary'}>
-                {(selectedCell.qg.zone || selectedCell.qg.cellType) === 'urban' ? 'Urbano' : 'Rural'}
+                {(selectedCell.qg.zone || selectedCell.qg.cellType) === 'urban' ? t('qgmap_urban') : t('qgmap_rural')}
               </Badge>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tamanho da Célula</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_cell_size')}</p>
               <p className="text-sm font-medium">{selectedCell.qg.grid_m || selectedCell.qg.cellSize}m</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Índice da Grelha</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_grid_index')}</p>
               <p className="text-sm font-medium">
                 ({selectedCell.qg.tile_ix || selectedCell.qg.cellX}, {selectedCell.qg.tile_iy || selectedCell.qg.cellY})
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Centróide</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_centroid')}</p>
               <p className="text-sm font-medium">
-                {selectedCell.qg.centroid 
+                {selectedCell.qg.centroid
                   ? `${selectedCell.qg.centroid.lat.toFixed(6)}, ${selectedCell.qg.centroid.lon.toFixed(6)}`
-                  : 'N/A'}
+                  : t('qgmap_na')}
               </p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Registos na Célula</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_records_in_cell')}</p>
               <Badge 
                 variant={
                   (() => {
@@ -2562,22 +2564,22 @@ export default function QGSQGridMap({
                   })()
                 }
               >
-                {cellDensity.get(selectedCell.qg.afroloc || selectedCell.qg.qgCode || '')?.count || 0} certificações
+                {cellDensity.get(selectedCell.qg.afroloc || selectedCell.qg.qgCode || '')?.count || 0} {t('qgmap_certifications_lc')}
               </Badge>
             </div>
 
             {selectedCell.sq && (
               <>
                 <div>
-                  <p className="text-xs text-muted-foreground">Full Code</p>
+                  <p className="text-xs text-muted-foreground">{t('qgmap_full_code')}</p>
                   <p className="font-mono text-sm font-medium">{selectedCell.sq.fullCode}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Subdivision</p>
+                  <p className="text-xs text-muted-foreground">{t('qgmap_subdivision')}</p>
                   <Badge variant="outline">{selectedCell.sq.subdivisionType}</Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Density</p>
+                  <p className="text-xs text-muted-foreground">{t('qgmap_density')}</p>
                   <Badge 
                     variant={
                       selectedCell.sq.densityMetrics.densityClass === 'high' ? 'destructive' :
@@ -2588,7 +2590,7 @@ export default function QGSQGridMap({
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Certifications</p>
+                  <p className="text-xs text-muted-foreground">{t('qgmap_certifications')}</p>
                   <p className="text-sm font-medium">{selectedCell.sq.densityMetrics.certificationCount}</p>
                 </div>
               </>
@@ -2610,7 +2612,7 @@ export default function QGSQGridMap({
             <div>
               <h3 className="font-semibold flex items-center gap-2">
                 <Radio className="h-4 w-4 text-violet-500" />
-                Selected Cell Tower
+                {t('qgmap_selected_tower')}
               </h3>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setSelectedTower(null)}>
@@ -2620,15 +2622,15 @@ export default function QGSQGridMap({
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
             <div>
-              <p className="text-xs text-muted-foreground">Name</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_name')}</p>
               <p className="text-sm font-medium">{selectedTower.name}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Operator</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_operator')}</p>
               <p className="text-sm font-medium">{selectedTower.operator}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Technology</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_technology')}</p>
               <Badge 
                 style={{ 
                   backgroundColor: GRID_COLORS.tower[selectedTower.type].fill,
@@ -2640,15 +2642,15 @@ export default function QGSQGridMap({
               </Badge>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Cell ID</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_cell_id')}</p>
               <p className="font-mono text-sm font-medium">{selectedTower.cellId}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Coverage Radius</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_coverage_radius')}</p>
               <p className="text-sm font-medium">{(selectedTower.coverageRadius / 1000).toFixed(1)} km</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Signal Strength</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_signal_strength')}</p>
               <Badge 
                 variant={
                   selectedTower.signalStrength === 'excellent' ? 'default' :
@@ -2665,7 +2667,7 @@ export default function QGSQGridMap({
               <p className="text-sm font-medium">{selectedTower.rsrp?.toFixed(1)} dBm</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Coordinates</p>
+              <p className="text-xs text-muted-foreground">{t('qgmap_coordinates')}</p>
               <p className="text-sm font-medium">{selectedTower.lat.toFixed(4)}, {selectedTower.lon.toFixed(4)}</p>
             </div>
           </div>
@@ -2698,8 +2700,8 @@ export default function QGSQGridMap({
         <Card className="p-4 border-dashed border-2 border-muted-foreground/30">
           <div className="text-center text-muted-foreground">
             <GitCompare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm font-medium">Comparison Mode Active</p>
-            <p className="text-xs">Click on grid cells to add them for comparison (max 5)</p>
+            <p className="text-sm font-medium">{t('qgmap_comparison_mode_active')}</p>
+            <p className="text-xs">{t('qgmap_comparison_instructions')}</p>
           </div>
         </Card>
       )}

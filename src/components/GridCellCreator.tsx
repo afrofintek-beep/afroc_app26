@@ -29,6 +29,7 @@ import { toast } from 'sonner';
 import { useQGSQEngine, QGResult } from '@/hooks/useQGSQEngine';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuthorizationLevel, LEVEL_NAMES } from '@/hooks/useAuthorizationLevel';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface CreationPermission {
   allowed: boolean;
@@ -76,6 +77,7 @@ export default function GridCellCreator({
   onCellSelected,
   mapBounds 
 }: GridCellCreatorProps) {
+  const { t } = useLanguage();
   const { computeQG, loading } = useQGSQEngine();
   const { data: authLevel, isLoading: isLoadingAuth } = useAuthorizationLevel();
   const userLevel = authLevel?.current_level || 1;
@@ -229,29 +231,29 @@ export default function GridCellCreator({
     const lon = parseFloat(pointLon);
     
     if (isNaN(lat) || isNaN(lon)) {
-      toast.error('Coordenadas inválidas');
+      toast.error(t('gridcreator_invalid_coords'));
       return;
     }
-    
+
     if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-      toast.error('Coordenadas fora do intervalo válido');
+      toast.error(t('gridcreator_coords_out_of_range'));
       return;
     }
-    
+
     // Check if in protected zone
     const protectedZone = isInProtectedZone(lat, lon);
     if (protectedZone) {
-      toast.error(`Zona protegida: ${protectedZone.name}`, {
-        description: `Tipo: ${protectedZone.zone_type} - Criação bloqueada`
+      toast.error(`${t('gridcreator_protected_zone')}: ${protectedZone.name}`, {
+        description: `${t('gridcreator_type')}: ${protectedZone.zone_type} - ${t('gridcreator_creation_blocked_short')}`
       });
       return;
     }
-    
+
     // Check permission
     if (permission && !permission.allowed) {
-      toast.error('Sem permissão para criar células', {
-        description: permission.reason === 'authorization_level_insufficient' 
-          ? `Nível ${permission.required_level} necessário`
+      toast.error(t('gridcreator_no_permission'), {
+        description: permission.reason === 'authorization_level_insufficient'
+          ? `${t('gridcreator_level')} ${permission.required_level} ${t('gridcreator_required')}`
           : permission.reason
       });
       return;
@@ -272,17 +274,17 @@ export default function GridCellCreator({
         });
         onCellSelected?.(cell);
         
-        const statusMsg = permission?.auto_approved 
-          ? '(auto-aprovada)' 
-          : permission?.requires_approval 
-            ? '(pendente aprovação)' 
+        const statusMsg = permission?.auto_approved
+          ? t('gridcreator_status_auto_approved')
+          : permission?.requires_approval
+            ? t('gridcreator_status_pending_approval')
             : '';
-        toast.success(`Célula ${cell.afroloc} gerada ${statusMsg}`);
+        toast.success(`${t('gridcreator_cell')} ${cell.afroloc} ${t('gridcreator_generated_fem')} ${statusMsg}`);
         setPointLat('');
         setPointLon('');
       }
     } catch (err) {
-      toast.error('Erro ao gerar célula');
+      toast.error(t('gridcreator_error_generating_cell'));
     } finally {
       setIsGenerating(false);
     }
@@ -296,12 +298,12 @@ export default function GridCellCreator({
     const maxLon = parseFloat(gpsMaxLon);
     
     if ([minLat, maxLat, minLon, maxLon].some(isNaN)) {
-      toast.error('Todas as coordenadas são obrigatórias');
+      toast.error(t('gridcreator_all_coords_required'));
       return;
     }
-    
+
     if (minLat >= maxLat || minLon >= maxLon) {
-      toast.error('Limites inválidos (min deve ser menor que max)');
+      toast.error(t('gridcreator_invalid_bounds'));
       return;
     }
     
@@ -349,9 +351,9 @@ export default function GridCellCreator({
       });
       
       onCellsGenerated?.(cells);
-      toast.success(`${cells.length} células geradas (temporárias)`);
+      toast.success(`${cells.length} ${t('gridcreator_cells_generated_temp')}`);
     } catch (err) {
-      toast.error('Erro ao gerar células');
+      toast.error(t('gridcreator_error_generating_cells'));
     } finally {
       setIsGenerating(false);
     }
@@ -360,7 +362,7 @@ export default function GridCellCreator({
   // Generate cells for selected administrative division
   const handleAdminDivisionGenerate = async () => {
     if (!selectedLevel1) {
-      toast.error('Selecione pelo menos uma província');
+      toast.error(t('gridcreator_select_province'));
       return;
     }
     
@@ -388,14 +390,14 @@ export default function GridCellCreator({
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
-    toast.success('Código copiado');
+    toast.success(t('gridcreator_code_copied'));
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
   // Export cells to CSV
   const exportToCSV = () => {
     if (generatedCells.length === 0) {
-      toast.error('Nenhuma célula para exportar');
+      toast.error(t('gridcreator_no_cells_to_export'));
       return;
     }
     
@@ -423,25 +425,25 @@ export default function GridCellCreator({
     link.download = `afroloc-cells-${countryCode}-${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    
-    toast.success('CSV exportado');
+
+    toast.success(t('gridcreator_csv_exported'));
   };
 
   // Clear generated cells
   const clearCells = () => {
     setGeneratedCells([]);
     setPointCells([]);
-    toast.info('Células temporárias limpas');
+    toast.info(t('gridcreator_temp_cells_cleared'));
   };
 
   // Permission denied state
   const isBlocked = permission && !permission.allowed;
   const reasonLabel: Record<string, string> = {
-    'authorization_level_insufficient': 'Nível de autorização insuficiente',
-    'protected_zone': 'Zona protegida',
-    'batch_limit_exceeded': 'Limite de lote excedido',
-    'daily_limit_exceeded': 'Limite diário excedido',
-    'monthly_limit_exceeded': 'Limite mensal excedido',
+    'authorization_level_insufficient': t('gridcreator_reason_auth_insufficient'),
+    'protected_zone': t('gridcreator_reason_protected_zone'),
+    'batch_limit_exceeded': t('gridcreator_reason_batch_limit'),
+    'daily_limit_exceeded': t('gridcreator_reason_daily_limit'),
+    'monthly_limit_exceeded': t('gridcreator_reason_monthly_limit'),
   };
 
   return (
@@ -450,17 +452,17 @@ export default function GridCellCreator({
       {checkingPermission ? (
         <div className="flex items-center gap-2 text-muted-foreground mb-4">
           <Loader2 className="h-4 w-4 animate-spin" />
-          <span className="text-sm">Verificando permissões...</span>
+          <span className="text-sm">{t('gridcreator_checking_permissions')}</span>
         </div>
       ) : isBlocked ? (
         <Alert className="mb-4 border-red-200 bg-red-50 dark:bg-red-950">
           <ShieldAlert className="h-4 w-4" />
           <AlertDescription>
-            <strong>Criação de células bloqueada:</strong>{' '}
+            <strong>{t('gridcreator_cell_creation_blocked')}:</strong>{' '}
             {reasonLabel[permission?.reason || ''] || permission?.reason}
             {permission?.required_level && (
               <span className="ml-1">
-                (Nível {permission.required_level} necessário, você tem Nível {permission.user_level})
+                ({t('gridcreator_level')} {permission.required_level} {t('gridcreator_required')}, {t('gridcreator_you_have_level')} {permission.user_level})
               </span>
             )}
           </AlertDescription>
@@ -470,9 +472,9 @@ export default function GridCellCreator({
           <Shield className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
             <span>
-              <strong>Autorizado:</strong> Nível {userLevel} ({LEVEL_NAMES[userLevel as keyof typeof LEVEL_NAMES] || 'Básico'})
-              {permission.auto_approved && <Badge variant="default" className="ml-2 bg-green-500">Auto-aprovado</Badge>}
-              {permission.requires_approval && <Badge variant="secondary" className="ml-2">Requer aprovação</Badge>}
+              <strong>{t('gridcreator_authorized')}:</strong> {t('gridcreator_level')} {userLevel} ({LEVEL_NAMES[userLevel as keyof typeof LEVEL_NAMES] || t('gridcreator_basic')})
+              {permission.auto_approved && <Badge variant="default" className="ml-2 bg-green-500">{t('gridcreator_badge_auto_approved')}</Badge>}
+              {permission.requires_approval && <Badge variant="secondary" className="ml-2">{t('gridcreator_badge_requires_approval')}</Badge>}
             </span>
           </AlertDescription>
         </Alert>
@@ -483,9 +485,9 @@ export default function GridCellCreator({
         <Alert className="mb-4 border-amber-200 bg-amber-50 dark:bg-amber-950">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription className="text-xs">
-            <strong>{protectedZones.length} zona(s) protegida(s)</strong> nesta região: 
+            <strong>{protectedZones.length} {t('gridcreator_protected_zones_count')}</strong> {t('gridcreator_in_this_region')}:
             {protectedZones.slice(0, 3).map(z => z.name).join(', ')}
-            {protectedZones.length > 3 && ` +${protectedZones.length - 3} mais`}
+            {protectedZones.length > 3 && ` +${protectedZones.length - 3} ${t('gridcreator_more')}`}
           </AlertDescription>
         </Alert>
       )}
@@ -494,21 +496,21 @@ export default function GridCellCreator({
         <div>
           <h3 className="font-semibold flex items-center gap-2">
             <Square className="h-4 w-4 text-primary" />
-            Criar Células de Grelha
+            {t('gridcreator_title')}
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Células são temporárias até serem associadas a uma propriedade
+            {t('gridcreator_cells_temp_until_property')}
           </p>
         </div>
         {generatedCells.length > 0 && (
           <div className="flex items-center gap-2">
-            <Badge variant="outline">{generatedCells.length} células</Badge>
+            <Badge variant="outline">{generatedCells.length} {t('gridcreator_cells')}</Badge>
             <Button variant="outline" size="sm" onClick={exportToCSV}>
               <Download className="h-3 w-3 mr-1" />
               CSV
             </Button>
             <Button variant="ghost" size="sm" onClick={clearCells}>
-              Limpar
+              {t('gridcreator_clear')}
             </Button>
           </div>
         )}
@@ -518,7 +520,7 @@ export default function GridCellCreator({
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="map" className="flex items-center gap-1.5">
             <Map className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Mapa</span>
+            <span className="hidden sm:inline">{t('gridcreator_tab_map')}</span>
           </TabsTrigger>
           <TabsTrigger value="gps" className="flex items-center gap-1.5">
             <Navigation className="h-3.5 w-3.5" />
@@ -526,11 +528,11 @@ export default function GridCellCreator({
           </TabsTrigger>
           <TabsTrigger value="admin" className="flex items-center gap-1.5" onClick={fetchDivisions}>
             <Globe className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Divisão</span>
+            <span className="hidden sm:inline">{t('gridcreator_tab_division')}</span>
           </TabsTrigger>
           <TabsTrigger value="point" className="flex items-center gap-1.5">
             <Crosshair className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Ponto</span>
+            <span className="hidden sm:inline">{t('gridcreator_tab_point')}</span>
           </TabsTrigger>
         </TabsList>
 
@@ -539,7 +541,7 @@ export default function GridCellCreator({
           <Alert>
             <Map className="h-4 w-4" />
             <AlertDescription>
-              <strong>Seleção no Mapa:</strong> Desenhe um retângulo no mapa para gerar todas as células dentro da área.
+              <strong>{t('gridcreator_map_selection')}:</strong> {t('gridcreator_map_selection_desc')}
             </AlertDescription>
           </Alert>
           
@@ -565,14 +567,14 @@ export default function GridCellCreator({
                 ) : (
                   <Square className="h-4 w-4 mr-2" />
                 )}
-                Gerar Células para Área Visível
+                {t('gridcreator_generate_visible_area')}
               </Button>
             </div>
           )}
-          
+
           {!mapBounds && (
             <p className="text-sm text-muted-foreground mt-4">
-              Use o botão "Gerar Lote" no painel de controlo do mapa para selecionar a área visível.
+              {t('gridcreator_use_batch_button_hint')}
             </p>
           )}
         </TabsContent>
@@ -581,7 +583,7 @@ export default function GridCellCreator({
         <TabsContent value="gps" className="mt-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs">Latitude Mínima</Label>
+              <Label className="text-xs">{t('gridcreator_min_latitude')}</Label>
               <Input
                 type="number"
                 step="0.0001"
@@ -591,7 +593,7 @@ export default function GridCellCreator({
               />
             </div>
             <div>
-              <Label className="text-xs">Latitude Máxima</Label>
+              <Label className="text-xs">{t('gridcreator_max_latitude')}</Label>
               <Input
                 type="number"
                 step="0.0001"
@@ -601,7 +603,7 @@ export default function GridCellCreator({
               />
             </div>
             <div>
-              <Label className="text-xs">Longitude Mínima</Label>
+              <Label className="text-xs">{t('gridcreator_min_longitude')}</Label>
               <Input
                 type="number"
                 step="0.0001"
@@ -611,7 +613,7 @@ export default function GridCellCreator({
               />
             </div>
             <div>
-              <Label className="text-xs">Longitude Máxima</Label>
+              <Label className="text-xs">{t('gridcreator_max_longitude')}</Label>
               <Input
                 type="number"
                 step="0.0001"
@@ -631,7 +633,7 @@ export default function GridCellCreator({
             ) : (
               <Navigation className="h-4 w-4 mr-2" />
             )}
-            Gerar Células por Coordenadas
+            {t('gridcreator_generate_by_coords')}
           </Button>
         </TabsContent>
 
@@ -639,10 +641,10 @@ export default function GridCellCreator({
         <TabsContent value="admin" className="mt-4 space-y-4">
           <div className="space-y-3">
             <div>
-              <Label className="text-xs">Província (Nível 1)</Label>
+              <Label className="text-xs">{t('gridcreator_province_level1')}</Label>
               <Select value={selectedLevel1} onValueChange={handleLevel1Change}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecionar província..." />
+                  <SelectValue placeholder={t('gridcreator_select_province_placeholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   {divisions.map((div) => (
@@ -656,10 +658,10 @@ export default function GridCellCreator({
             
             {level2Divisions.length > 0 && (
               <div>
-                <Label className="text-xs">Município (Nível 2)</Label>
+                <Label className="text-xs">{t('gridcreator_municipality_level2')}</Label>
                 <Select value={selectedLevel2} onValueChange={setSelectedLevel2}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Opcional - Selecionar município..." />
+                    <SelectValue placeholder={t('gridcreator_select_municipality_placeholder')} />
                   </SelectTrigger>
                   <SelectContent>
                     {level2Divisions.map((div) => (
@@ -683,12 +685,12 @@ export default function GridCellCreator({
             ) : (
               <Globe className="h-4 w-4 mr-2" />
             )}
-            Gerar Células para Divisão
+            {t('gridcreator_generate_for_division')}
           </Button>
-          
+
           <p className="text-xs text-muted-foreground">
             <Info className="h-3 w-3 inline mr-1" />
-            Gera células para a área aproximada da divisão administrativa selecionada.
+            {t('gridcreator_division_info')}
           </p>
         </TabsContent>
 
@@ -696,7 +698,7 @@ export default function GridCellCreator({
         <TabsContent value="point" className="mt-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs">Latitude</Label>
+              <Label className="text-xs">{t('gridcreator_latitude')}</Label>
               <Input
                 type="number"
                 step="0.000001"
@@ -706,7 +708,7 @@ export default function GridCellCreator({
               />
             </div>
             <div>
-              <Label className="text-xs">Longitude</Label>
+              <Label className="text-xs">{t('gridcreator_longitude')}</Label>
               <Input
                 type="number"
                 step="0.000001"
@@ -727,13 +729,13 @@ export default function GridCellCreator({
             ) : (
               <Crosshair className="h-4 w-4 mr-2" />
             )}
-            Adicionar Célula
+            {t('gridcreator_add_cell')}
           </Button>
-          
+
           {pointCells.length > 0 && (
             <div className="border rounded p-2 max-h-32 overflow-y-auto">
               <p className="text-xs text-muted-foreground mb-2">
-                {pointCells.length} célula(s) adicionada(s):
+                {pointCells.length} {t('gridcreator_cells_added')}:
               </p>
               <div className="space-y-1">
                 {pointCells.map((cell, idx) => (
@@ -763,16 +765,16 @@ export default function GridCellCreator({
       {generatedCells.length > 0 && (
         <div className="mt-4 pt-4 border-t">
           <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium">Células Geradas (Temporárias)</h4>
+            <h4 className="text-sm font-medium">{t('gridcreator_generated_cells_temp')}</h4>
             <Badge variant="secondary">
-              {generatedCells.filter(c => (c.zone || c.cellType) === 'urban').length} urbanas,{' '}
-              {generatedCells.filter(c => (c.zone || c.cellType) === 'rural').length} rurais
+              {generatedCells.filter(c => (c.zone || c.cellType) === 'urban').length} {t('gridcreator_urban')},{' '}
+              {generatedCells.filter(c => (c.zone || c.cellType) === 'rural').length} {t('gridcreator_rural')}
             </Badge>
           </div>
           <Alert className="bg-amber-50 dark:bg-amber-950 border-amber-200">
             <Info className="h-4 w-4" />
             <AlertDescription className="text-xs">
-              Estas células são <strong>temporárias</strong> e só serão persistidas na base de dados quando uma propriedade for registada com a célula associada.
+              {t('gridcreator_temp_cells_note_1')} <strong>{t('gridcreator_temporary')}</strong> {t('gridcreator_temp_cells_note_2')}
             </AlertDescription>
           </Alert>
         </div>

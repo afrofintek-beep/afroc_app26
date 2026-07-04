@@ -89,10 +89,10 @@ export default function GeospatialGrid() {
             <div>
               <h1 className="text-2xl font-bold flex items-center gap-2">
                 <Grid3X3 className="h-6 w-6 text-primary" />
-                Geospatial Grid Visualization
+                {t('geogrid_title')}
               </h1>
               <p className="text-sm text-muted-foreground">
-                QG/SQ National Grid Engine — View and explore geospatial cells
+                {t('geogrid_subtitle')}
               </p>
             </div>
           </div>
@@ -104,11 +104,11 @@ export default function GeospatialGrid() {
               onClick={() => setShowCreator(!showCreator)}
             >
               <Plus className="h-4 w-4 mr-1" />
-              Criar Células
+              {t('geogrid_create_cells')}
             </Button>
             <Select value={selectedCountry} onValueChange={setSelectedCountry}>
               <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select country" />
+                <SelectValue placeholder={t('geogrid_select_country')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="AO">🇦🇴 Angola</SelectItem>
@@ -141,13 +141,13 @@ export default function GeospatialGrid() {
                 <Grid3X3 className="h-5 w-5 text-blue-500" />
               </div>
               <div>
-                <h3 className="font-semibold">QG Engine</h3>
+                <h3 className="font-semibold">{t('geogrid_qg_engine')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  National Geospatial Grid using Web Mercator projection (EPSG:3857)
+                  {t('geogrid_qg_desc')}
                 </p>
                 <div className="flex gap-2 mt-2">
-                  <Badge variant="secondary">Urban: 10m</Badge>
-                  <Badge variant="secondary">Rural: 25m</Badge>
+                  <Badge variant="secondary">{t('geogrid_urban_badge')}</Badge>
+                  <Badge variant="secondary">{t('geogrid_rural_badge')}</Badge>
                 </div>
               </div>
             </div>
@@ -159,9 +159,9 @@ export default function GeospatialGrid() {
                 <Map className="h-5 w-5 text-orange-500" />
               </div>
               <div>
-                <h3 className="font-semibold">SQ Engine</h3>
+                <h3 className="font-semibold">{t('geogrid_sq_engine')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Adaptive subdivision based on density metrics
+                  {t('geogrid_sq_desc')}
                 </p>
                 <div className="flex gap-2 mt-2">
                   <Badge variant="outline">2×2</Badge>
@@ -178,9 +178,9 @@ export default function GeospatialGrid() {
                 <Info className="h-5 w-5 text-green-500" />
               </div>
               <div>
-                <h3 className="font-semibold">Persistência</h3>
+                <h3 className="font-semibold">{t('geogrid_persistence')}</h3>
                 <p className="text-sm text-muted-foreground">
-                  Células geradas são temporárias. Só são guardadas quando associadas a uma propriedade registada.
+                  {t('geogrid_persistence_desc')}
                 </p>
               </div>
             </div>
