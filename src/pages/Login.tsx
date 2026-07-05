@@ -66,19 +66,24 @@ export default function Login() {
     setTrustedDevice(null);
     
     try {
-      const { data, error } = await supabase
-        .from('biometric_devices')
-        .select('device_token, user_id, device_name')
-        .eq('phone_number', phoneNumber)
-        .eq('device_fingerprint', deviceInfo.fingerprint)
-        .gt('expires_at', new Date().toISOString())
-        .maybeSingle();
-      
-      if (!error && data) {
-        setTrustedDevice({ 
-          deviceToken: data.device_token, 
-          userId: data.user_id,
-          deviceName: data.device_name 
+      // O token do dispositivo de confiança vive APENAS no localStorage deste
+      // dispositivo. A tabela biometric_devices tem RLS (auth.uid() = user_id), por
+      // isso um utilizador ainda-não-autenticado NÃO a consegue ler aqui. A validação
+      // real (expiração/fingerprint) é feita no servidor na quick-login (edge function
+      // biometric-login, com service role).
+      const token = localStorage.getItem('afroloc_device_token');
+      const savedPhone = localStorage.getItem('afroloc_device_phone');
+      const savedFingerprint = localStorage.getItem('afroloc_device_fingerprint');
+
+      if (
+        token &&
+        savedPhone === phoneNumber &&
+        (!savedFingerprint || savedFingerprint === deviceInfo.fingerprint)
+      ) {
+        setTrustedDevice({
+          deviceToken: token,
+          userId: '',
+          deviceName: localStorage.getItem('afroloc_device_name'),
         });
       }
     } catch (err) {
@@ -186,8 +191,12 @@ export default function Login() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        // Token expired or invalid - clear trusted device
+        // Token expirado/inválido — limpar o dispositivo de confiança (estado + localStorage)
         setTrustedDevice(null);
+        localStorage.removeItem('afroloc_device_token');
+        localStorage.removeItem('afroloc_device_phone');
+        localStorage.removeItem('afroloc_device_fingerprint');
+        localStorage.removeItem('afroloc_device_name');
         throw new Error(data?.error || t('login_device_not_recognized'));
       }
 
@@ -523,6 +532,17 @@ export default function Login() {
           } else {
             console.error('Error inserting trusted device:', insertError);
           }
+        }
+
+        // Persistir o token NESTE dispositivo (localStorage) para o login rápido
+        // funcionar na próxima visita — antes de autenticar não há acesso à BD.
+        if (trustedDeviceRegistered) {
+          try {
+            localStorage.setItem('afroloc_device_token', deviceToken);
+            localStorage.setItem('afroloc_device_phone', phone);
+            if (deviceInfo.deviceName) localStorage.setItem('afroloc_device_name', deviceInfo.deviceName);
+            if (deviceInfo.fingerprint) localStorage.setItem('afroloc_device_fingerprint', deviceInfo.fingerprint);
+          } catch { /* localStorage indisponível — ignora */ }
         }
       }
     } catch (error) {
