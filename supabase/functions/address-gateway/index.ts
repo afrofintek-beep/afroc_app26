@@ -287,6 +287,7 @@ async function handleCreate(
     number: request.number,
     unit: request.unit,
     propertyType: request.propertyType,
+    addressType: request.address_type ?? request.addressType,
   };
   
   // Validate African country
@@ -338,6 +339,8 @@ async function handleCreate(
       number: addressDetails.number,
       unit: addressDetails.unit,
       property_type: addressDetails.propertyType,
+      // Tipo indicado pelo utilizador; se ausente, o trigger da BD deriva.
+      ...(addressDetails.addressType ? { address_type: addressDetails.addressType } : {}),
       photo_exif_gps_lat: photoMetadata?.exifLat,
       photo_exif_gps_lon: photoMetadata?.exifLon,
       photo_exif_timestamp: photoMetadata?.exifTimestamp,

@@ -68,6 +68,7 @@ interface SyncItem {
   notes?: string;
   captured_at: string;
   property_type?: string;
+  address_type?: string;
   street_name?: string;
   number?: string;
   unit?: string;
@@ -273,6 +274,8 @@ serve(async (req) => {
             number: item.number,
             unit: item.unit,
             property_type: item.property_type || item.kind,
+            // Tipo indicado pelo utilizador; se ausente, o trigger da BD deriva.
+            ...(item.address_type ? { address_type: item.address_type } : {}),
             status: "draft",
             metadata: {
               idempotency_key: item.idempotency_key,

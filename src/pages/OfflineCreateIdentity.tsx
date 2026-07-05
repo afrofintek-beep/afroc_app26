@@ -52,6 +52,7 @@ export default function OfflineCreateIdentity() {
   const [level2Name, setLevel2Name] = useState("");
   const [level3Name, setLevel3Name] = useState("");
   const [level4Name, setLevel4Name] = useState("");
+  const [addressType, setAddressType] = useState<'formal' | 'informal'>('informal');
   const [streetName, setStreetName] = useState("");
   const [number, setNumber] = useState("");
   const [unit, setUnit] = useState("");
@@ -159,6 +160,7 @@ export default function OfflineCreateIdentity() {
         street_name: streetName || undefined,
         number: number || undefined,
         unit: unit || undefined,
+        address_type: addressType,
         property_type: propertyType || undefined,
         geo_lat: coordinates?.latitude,
         geo_lon: coordinates?.longitude,
@@ -369,6 +371,21 @@ export default function OfflineCreateIdentity() {
                 onChange={(e) => setLevel4Name(e.target.value)}
                 placeholder={t('offlineid_level4_placeholder')}
               />
+            </div>
+
+            {/* Tipo de endereço — INDICADO pelo utilizador (o sistema não o deteta) */}
+            <div className="space-y-2">
+              <Label htmlFor="addressType">{t('createid_address_type_label')} <span className="text-destructive">*</span></Label>
+              <Select value={addressType} onValueChange={(v) => setAddressType(v as 'formal' | 'informal')}>
+                <SelectTrigger id="addressType">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="informal">{t('createid_addrtype_informal')}</SelectItem>
+                  <SelectItem value="formal">{t('createid_addrtype_formal')}</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{t('createid_address_type_hint')}</p>
             </div>
 
             {/* Street Address */}

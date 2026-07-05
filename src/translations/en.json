@@ -1852,7 +1852,7 @@
   "createid_country": "Country",
   "createid_country_placeholder": "Select the country",
   "createid_address_types": "Address Types",
-  "createid_address_types_intro": "The system automatically distinguishes between three types of addresses:",
+  "createid_address_types_intro": "There are three address types — select which one you are registering below:",
   "createid_type_formal_label": "Formal:",
   "createid_type_formal_desc": "Addresses with streets and numbers officially assigned by government administrations",
   "createid_type_informal_label": "Informal:",
@@ -1875,7 +1875,7 @@
   "createid_number": "Number",
   "createid_number_placeholder": "e.g. 123",
   "createid_number_placeholder_assigned": "Will be assigned by the Administration",
-  "createid_digital_address_label": "Digital Address:",
+  "createid_digital_address_label": "Informal Address:",
   "createid_digital_address_note": "The number will be assigned by the State Administration after scheduling and confirming your registration.",
   "createid_unit": "Unit / Apartment",
   "createid_property_name": "Property Name",
@@ -4628,5 +4628,11 @@
   "witnessphoto_download": "Download Photo",
   "createid_geo_permission_denied": "Location permission denied. Enable it in your browser settings (on Mac: System Settings → Privacy & Security → Location Services → enable for your browser).",
   "createid_geo_unavailable": "Location unavailable. Check that Location Services are enabled for your browser, or pick the location directly on the map.",
-  "createid_geo_timeout": "The location request timed out. Try again or pick the location on the map."
+  "createid_geo_timeout": "The location request timed out. Try again or pick the location on the map.",
+  "createid_address_type_label": "Address Type",
+  "createid_addrtype_informal": "📍 Informal — no official street or number",
+  "createid_addrtype_formal": "🏛️ Formal — has an official street and number",
+  "createid_address_type_hint": "Indicate the type of address you are registering. The \"Digital\" type is assigned automatically after certification by an authority.",
+  "createid_street_required_title": "Street name required",
+  "createid_street_required_desc": "For formal addresses, please provide the street name."
 }

@@ -30,6 +30,7 @@ export interface OfflineAfroloc {
   street_code?: string;
   number?: string;
   unit?: string;
+  address_type?: 'formal' | 'informal'; // Tipo indicado pelo utilizador (Digital vem da certificação)
   property_type?: string;
   geo_lat?: number;
   geo_lon?: number;

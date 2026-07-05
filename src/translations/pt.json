@@ -2023,7 +2023,7 @@
   "createid_country": "País",
   "createid_country_placeholder": "Seleccione o país",
   "createid_address_types": "Tipos de Endereço",
-  "createid_address_types_intro": "O sistema distingue automaticamente entre três tipos de endereços:",
+  "createid_address_types_intro": "Existem três tipos de endereços — indique abaixo qual está a registar:",
   "createid_type_formal_label": "Formal:",
   "createid_type_formal_desc": "Endereços com ruas e números oficialmente atribuídos pelas administrações governamentais",
   "createid_type_informal_label": "Informal:",
@@ -2046,7 +2046,7 @@
   "createid_number": "Número",
   "createid_number_placeholder": "Ex: 123",
   "createid_number_placeholder_assigned": "Será atribuído pela Administração",
-  "createid_digital_address_label": "Endereço Digital:",
+  "createid_digital_address_label": "Endereço Informal:",
   "createid_digital_address_note": "O número será atribuído pela Administração do Estado após o agendamento e confirmação do seu registo.",
   "createid_unit": "Unidade / Apartamento",
   "createid_property_name": "Nome da Propriedade",
@@ -4799,5 +4799,11 @@
   "witnessphoto_download": "Descarregar Foto",
   "createid_geo_permission_denied": "Permissão de localização negada. Ative-a nas definições do navegador (no Mac: Definições do Sistema → Privacidade e Segurança → Serviços de Localização → ativar para o navegador).",
   "createid_geo_unavailable": "Localização indisponível. Verifique se os Serviços de Localização estão ativados para o navegador, ou marque a localização diretamente no mapa.",
-  "createid_geo_timeout": "O pedido de localização demorou demasiado. Tente novamente ou marque a localização no mapa."
+  "createid_geo_timeout": "O pedido de localização demorou demasiado. Tente novamente ou marque a localização no mapa.",
+  "createid_address_type_label": "Tipo de Endereço",
+  "createid_addrtype_informal": "📍 Informal — sem rua ou número oficial",
+  "createid_addrtype_formal": "🏛️ Formal — tem rua e número oficiais",
+  "createid_address_type_hint": "Indique o tipo do endereço que está a registar. O tipo \"Digital\" é atribuído automaticamente após a certificação por uma autoridade.",
+  "createid_street_required_title": "Nome da rua obrigatório",
+  "createid_street_required_desc": "Para endereços formais, indique o nome da rua."
 }

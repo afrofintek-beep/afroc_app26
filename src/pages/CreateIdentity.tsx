@@ -34,6 +34,9 @@ export default function CreateIdentity() {
   const [level3Name, setLevel3Name] = useState("");
   const [level4Name, setLevel4Name] = useState("");
   const [streetName, setStreetName] = useState("");
+  // Tipo de endereço ESCOLHIDO pelo utilizador (Formal/Informal). O "Digital" é
+  // atribuído automaticamente após certificação por uma autoridade — não é opção aqui.
+  const [addressType, setAddressType] = useState<'formal' | 'informal'>('informal');
   const [number, setNumber] = useState("");
   const [unit, setUnit] = useState("");
   const [propertyName, setPropertyName] = useState("");
@@ -227,8 +230,9 @@ export default function CreateIdentity() {
     setIsYamiooAgent(!!agentRecord);
   };
 
-  // Determinar se é endereço digital (sem rua/número formal)
-  const isDigitalAddress = !streetName;
+  // O tipo é ESCOLHIDO pelo utilizador. "Informal" usa o caminho de código sem
+  // rua (bairro 'DIG'); "Formal" usa a rua/número indicados.
+  const isDigitalAddress = addressType !== 'formal';
   
   // Extract municipality short code from full code (e.g., "LUA-ING" -> "ING")
   const getMunicipalityShortCode = (fullCode: string): string => {
@@ -392,8 +396,8 @@ export default function CreateIdentity() {
       return;
     }
     
-    // For formal addresses (with street name), number is required
-    const isDigitalAddress = !streetName;
+    // Tipo escolhido pelo utilizador: endereço Formal exige rua + número.
+    const isDigitalAddress = addressType !== 'formal';
     const numberRequired = !isDigitalAddress;
     
     if (!country || !level1Code || !level2Code || !geoLat || !geoLon) {
@@ -405,6 +409,15 @@ export default function CreateIdentity() {
       return;
     }
     
+    if (addressType === 'formal' && !streetName) {
+      toast({
+        title: t('createid_street_required_title'),
+        description: t('createid_street_required_desc'),
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (numberRequired && !number) {
       toast({
         title: t('createid_number_required_title'),
@@ -507,6 +520,8 @@ export default function CreateIdentity() {
         street_name: streetName || null,
         number: number || null,
         unit: unit || null,
+        // Tipo indicado pelo utilizador (o trigger da BD respeita este valor).
+        address_type: addressType,
         property_type: propertyType,
         property_name: propertyName || null,
         geo_lat: latitude,
@@ -747,6 +762,21 @@ export default function CreateIdentity() {
                       </div>
                     </div>
 
+                    {/* Tipo de endereço — INDICADO pelo utilizador (o sistema não o deteta) */}
+                    <div>
+                      <Label htmlFor="addressType">{t('createid_address_type_label')} <span className="text-destructive">*</span></Label>
+                      <Select value={addressType} onValueChange={(v) => setAddressType(v as 'formal' | 'informal')}>
+                        <SelectTrigger id="addressType">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="informal">{t('createid_addrtype_informal')}</SelectItem>
+                          <SelectItem value="formal">{t('createid_addrtype_formal')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">{t('createid_address_type_hint')}</p>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="level1">{t('createid_province')} <span className="text-destructive">*</span></Label>
@@ -838,6 +868,7 @@ export default function CreateIdentity() {
                       <div>
                         <Label htmlFor="street">
                           {t('createid_street_name')}
+                          {addressType === 'formal' && <span className="text-destructive ml-1">*</span>}
                           <span className="text-xs text-muted-foreground ml-1">{t('createid_street_name_hint')}</span>
                         </Label>
                         <Input
@@ -853,9 +884,9 @@ export default function CreateIdentity() {
                       <div>
                         <Label htmlFor="number">
                           {t('createid_number')}
-                          {streetName && <span className="text-destructive ml-1">*</span>}
+                          {addressType === 'formal' && <span className="text-destructive ml-1">*</span>}
                         </Label>
-                        {streetName ? (
+                        {addressType === 'formal' ? (
                           <Input
                             id="number"
                             value={number}
