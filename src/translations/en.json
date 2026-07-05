@@ -4625,5 +4625,8 @@
   "witnessphoto_afroloc_label": "Witness AFROLOC:",
   "witnessphoto_name_label": "Name:",
   "witnessphoto_img_alt": "Witness ID Document",
-  "witnessphoto_download": "Download Photo"
+  "witnessphoto_download": "Download Photo",
+  "createid_geo_permission_denied": "Location permission denied. Enable it in your browser settings (on Mac: System Settings → Privacy & Security → Location Services → enable for your browser).",
+  "createid_geo_unavailable": "Location unavailable. Check that Location Services are enabled for your browser, or pick the location directly on the map.",
+  "createid_geo_timeout": "The location request timed out. Try again or pick the location on the map."
 }

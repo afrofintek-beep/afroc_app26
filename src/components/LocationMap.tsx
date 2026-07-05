@@ -103,6 +103,12 @@ export default function LocationMap({
     
     map.current.addControl(geolocateControl, 'top-right');
 
+    // O Mapbox pode desenhar um canvas 0×0 (mapa "preto") quando o contentor
+    // ainda não tinha tamanho no arranque — forçar resize no load resolve.
+    map.current.on('load', () => {
+      map.current?.resize();
+    });
+
     // Create marker
     marker.current = new mapboxgl.Marker({
       draggable: true,

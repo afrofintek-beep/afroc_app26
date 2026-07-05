@@ -4796,5 +4796,8 @@
   "witnessphoto_afroloc_label": "AFROLOC da Testemunha:",
   "witnessphoto_name_label": "Nome:",
   "witnessphoto_img_alt": "Documento de Identificação da Testemunha",
-  "witnessphoto_download": "Descarregar Foto"
+  "witnessphoto_download": "Descarregar Foto",
+  "createid_geo_permission_denied": "Permissão de localização negada. Ative-a nas definições do navegador (no Mac: Definições do Sistema → Privacidade e Segurança → Serviços de Localização → ativar para o navegador).",
+  "createid_geo_unavailable": "Localização indisponível. Verifique se os Serviços de Localização estão ativados para o navegador, ou marque a localização diretamente no mapa.",
+  "createid_geo_timeout": "O pedido de localização demorou demasiado. Tente novamente ou marque a localização no mapa."
 }

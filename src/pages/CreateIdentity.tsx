@@ -304,24 +304,42 @@ export default function CreateIdentity() {
   };
 
   const getCurrentLocation = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          
-          // Use handleLocationSelect to also resolve admin hierarchy
-          await handleLocationSelect(lat, lon);
-        },
-        (error) => {
-          toast({
-            title: t('createid_error'),
-            description: t('createid_error_location_unavailable'),
-            variant: "destructive",
-          });
-        }
-      );
+    if (!navigator.geolocation) {
+      toast({
+        title: t('createid_error'),
+        description: t('createid_error_location_unavailable'),
+        variant: "destructive",
+      });
+      return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        // Use handleLocationSelect to also resolve admin hierarchy
+        await handleLocationSelect(lat, lon);
+      },
+      (error) => {
+        // Mensagem específica por tipo de erro — ajuda o utilizador a resolver
+        // (a causa nº1 no Mac é a permissão negada / Serviços de Localização off).
+        let description = t('createid_error_location_unavailable');
+        if (error.code === error.PERMISSION_DENIED) {
+          description = t('createid_geo_permission_denied');
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          description = t('createid_geo_unavailable');
+        } else if (error.code === error.TIMEOUT) {
+          description = t('createid_geo_timeout');
+        }
+        console.error('Geolocation error:', error.code, error.message);
+        toast({
+          title: t('createid_error'),
+          description,
+          variant: "destructive",
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   const handlePhotoCapture = async (
