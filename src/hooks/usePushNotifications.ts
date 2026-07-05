@@ -142,7 +142,7 @@ export const usePushNotifications = () => {
 
         if (error) {
           console.error('[Push] Error saving subscription:', error);
-          toast.error('Erro ao salvar inscrição');
+          toast.error('Erro ao guardar inscrição');
           setLoading(false);
           return false;
         }

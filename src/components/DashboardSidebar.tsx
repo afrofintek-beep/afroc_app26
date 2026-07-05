@@ -71,7 +71,7 @@ const DashboardSidebar = () => {
       { to: "/admin/fraud-flags", icon: AlertTriangle, label: t("fraud_flags_management") || "Flags de Fraude", adminOnly: true },
       { to: "/admin/import-divisions", icon: FileText, label: t("nav_import_divisions"), adminOnly: true },
       { to: "/admin/telecom-operators", icon: Users, label: t("nav_telecom_operators"), adminOnly: true },
-      { to: "/admin/cell-towers", icon: Radio, label: "Torres de Celular", adminOnly: true },
+      { to: "/admin/cell-towers", icon: Radio, label: "Torres de Rede Móvel", adminOnly: true },
       { to: "/admin/validation-numbers", icon: Shield, label: t("nav_validation_numbers"), adminOnly: true },
       { to: "/manual-download", icon: BookOpen, label: "Manual de Apoio", adminOnly: true },
       { to: "/app-download", icon: Smartphone, label: "Download App", adminOnly: true },

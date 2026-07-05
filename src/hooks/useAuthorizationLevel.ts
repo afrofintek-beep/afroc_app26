@@ -56,10 +56,10 @@ export const LEVEL_COLORS = {
 export const LEVEL_REQUIREMENTS = {
   1: {
     name: "Quarteirão",
-    description: "Funcionário de quarteirão. Registra moradores localmente.",
+    description: "Funcionário de quarteirão. Regista moradores localmente.",
     requirements: [
-      "Registrar AFROLOCs no quarteirão designado",
-      "Criar pacotes de registros",
+      "Registar AFROLOCs no quarteirão designado",
+      "Criar pacotes de registos",
       "Submeter pacotes ao supervisor do bairro"
     ]
   },
@@ -68,7 +68,7 @@ export const LEVEL_REQUIREMENTS = {
     description: "Supervisor de bairro. Valida pacotes do quarteirão.",
     requirements: [
       "Aprovar/rejeitar pacotes do Nível 1",
-      "Consolidar registros do bairro",
+      "Consolidar registos do bairro",
       "Submeter pacotes ao chefe de distrito"
     ]
   },
@@ -77,7 +77,7 @@ export const LEVEL_REQUIREMENTS = {
     description: "Chefe de distrito. Valida pacotes do bairro.",
     requirements: [
       "Aprovar/rejeitar pacotes do Nível 2",
-      "Supervisionar registros do distrito",
+      "Supervisionar registos do distrito",
       "Submeter pacotes ao diretor municipal"
     ]
   },
@@ -86,7 +86,7 @@ export const LEVEL_REQUIREMENTS = {
     description: "Diretor municipal. Valida pacotes do distrito.",
     requirements: [
       "Aprovar/rejeitar pacotes do Nível 3",
-      "Gerir registros municipais",
+      "Gerir registos municipais",
       "Submeter pacotes ao coordenador provincial"
     ]
   },

@@ -372,7 +372,7 @@ export const importTranslationsFromExcel = async (file: File): Promise<ImportVal
     
     if (jsonData.length < 2) {
       result.isValid = false;
-      result.errors.push('Arquivo Excel vazio ou inválido');
+      result.errors.push('Ficheiro Excel vazio ou inválido');
       return result;
     }
     
@@ -462,12 +462,12 @@ export const importTranslationsFromExcel = async (file: File): Promise<ImportVal
     // Check for missing keys
     const missingKeys = Array.from(currentKeys).filter(k => !processedKeys.has(k));
     if (missingKeys.length > 0) {
-      result.warnings.push(`${missingKeys.length} chaves existentes não encontradas no arquivo importado`);
+      result.warnings.push(`${missingKeys.length} chaves existentes não encontradas no ficheiro importado`);
     }
     
   } catch (error) {
     result.isValid = false;
-    result.errors.push(`Erro ao processar arquivo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    result.errors.push(`Erro ao processar ficheiro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
   }
   
   return result;

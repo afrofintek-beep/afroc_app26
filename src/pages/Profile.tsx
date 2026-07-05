@@ -700,7 +700,7 @@ const Profile = () => {
               <div>
                 <CardTitle className="text-xl">{t("trusted_devices_title") || "Dispositivos Confiáveis"}</CardTitle>
                 <CardDescription>
-                  {t("trusted_devices_description") || "Gerencie os dispositivos autorizados para login rápido"}
+                  {t("trusted_devices_description") || "Faça a gestão dos dispositivos autorizados para início de sessão rápido"}
                 </CardDescription>
               </div>
             </div>
