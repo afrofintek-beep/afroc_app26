@@ -283,13 +283,15 @@ const handler = async (req: Request): Promise<Response> => {
       timestamp: new Date().toISOString(),
     });
 
-    // Send SMS via Twilio
+    // Send SMS via Infobip
+    let smsProviderStatus: Record<string, unknown> | undefined;
     try {
       const smsMessage =
         `Seu código de verificação AFROLOC: ${otpCode}. Válido por 10 minutos. Não compartilhe este código.`;
 
       // Envio via Infobip (helper partilhado _shared/sms.ts).
       const smsResult = await sendSms(phone, smsMessage);
+      smsProviderStatus = smsResult.providerStatus;
 
       if (!smsResult.ok) {
         console.error("SMS send failed (Infobip)", {
@@ -324,6 +326,7 @@ const handler = async (req: Request): Promise<Response> => {
       JSON.stringify({
         success: true,
         message: "OTP sent successfully",
+        sms_provider_status: smsProviderStatus,
         expires_at: expiresAt.toISOString(),
         operator: {
           name: operator.operator_name,

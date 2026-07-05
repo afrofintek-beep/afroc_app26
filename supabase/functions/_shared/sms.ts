@@ -14,6 +14,8 @@ export interface SmsResult {
   status?: number;
   messageId?: string;
   error?: string;
+  /** Diagnóstico do fornecedor: status da mensagem devolvido no envio. */
+  providerStatus?: { groupName?: string; name?: string; description?: string };
 }
 
 type Provider = "infobip"; // futuros: "termii" | "clickatell" | "africastalking"
@@ -52,7 +54,15 @@ async function sendViaInfobip(toE164: string, text: string): Promise<SmsResult> 
       return { ok: false, status: res.status, error: `Infobip ${res.status}: ${body}` };
     }
     const data = await res.json().catch(() => ({}));
-    return { ok: true, messageId: data?.messages?.[0]?.messageId };
+    const msg = data?.messages?.[0];
+    const st = msg?.status;
+    // Log do status para diagnóstico (visível nos logs da função).
+    console.log("[infobip] enviado:", JSON.stringify({ to, from: sender, messageId: msg?.messageId, status: st }));
+    return {
+      ok: true,
+      messageId: msg?.messageId,
+      providerStatus: st ? { groupName: st.groupName, name: st.name, description: st.description } : undefined,
+    };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : String(e) };
   }
