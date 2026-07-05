@@ -226,9 +226,11 @@ export default function LocationMap({
   }
 
   return (
-    <div className="relative w-full h-[400px] rounded-lg overflow-hidden border">
-      <div ref={mapContainer} className="absolute inset-0" />
-      <div className="absolute top-4 left-4 bg-background/95 p-2 rounded-lg shadow-lg text-sm">
+    <div className="relative w-full rounded-lg overflow-hidden border">
+      {/* Altura EXPLÍCITA no próprio contentor do mapa. Antes era `absolute inset-0`
+          sobre um pai h-[400px] que colapsava para 0 → mapa "preto" (sem tiles). */}
+      <div ref={mapContainer} className="w-full h-[400px]" />
+      <div className="absolute top-4 left-4 z-10 bg-background/95 p-2 rounded-lg shadow-lg text-sm">
         <p className="font-medium">{t('locationmap_instruction_title')}</p>
         <p className="text-muted-foreground text-xs">{t('locationmap_instruction_subtitle')}</p>
       </div>
