@@ -282,16 +282,19 @@ export default function Login() {
           : t('otp_sent_desc'),
       });
     } catch (error: any) {
-      const status = (error as any)?.context?.status as number | undefined;
-      const body = (error as any)?.context?.body;
-
+      // Em supabase-js, num FunctionsHttpError o error.context É o objeto Response.
+      // O corpo (JSON com a mensagem real, ex.: "Muitas solicitações... 1 hora")
+      // tem de ser lido com .json() — não existe .context.body. Por isso antes
+      // aparecia o genérico "Edge Function returned a non-2xx status code".
+      const ctx = (error as any)?.context;
+      const status = typeof ctx?.status === 'number' ? (ctx.status as number) : undefined;
       let message = error?.message || "";
-      if (body) {
+      if (ctx && typeof ctx.json === 'function') {
         try {
-          const parsed = typeof body === 'string' ? JSON.parse(body) : body;
+          const parsed = await ctx.json();
           if (parsed?.error) message = parsed.error;
         } catch {
-          // ignore
+          // corpo não-JSON — mantém a mensagem por defeito
         }
       }
 
