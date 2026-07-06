@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, ArrowLeft, User, Fingerprint, Shield, Trash2, Clock, Monitor, Languages, Smartphone, Tablet, MonitorSmartphone, Star } from "lucide-react";
 import { useCountries } from "@/hooks/useCountries";
 import { useBiometricAuth } from "@/hooks/useBiometricAuth";
+import { useWebAuthn } from "@/hooks/useWebAuthn";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
@@ -51,11 +52,19 @@ const Profile = () => {
   const [trustedDevices, setTrustedDevices] = useState<any[]>([]);
   const [loadingTrustedDevices, setLoadingTrustedDevices] = useState(false);
   const [revokingDeviceId, setRevokingDeviceId] = useState<string | null>(null);
-  const { 
-    capabilities: biometricCapabilities, 
+  const {
+    capabilities: biometricCapabilities,
     deleteCredentials,
-    getBiometricLabel 
+    getBiometricLabel
   } = useBiometricAuth();
+  // Passkeys / biometria no browser (WebAuthn) — funciona sem app nativa.
+  const {
+    isSupported: passkeySupported,
+    busy: passkeyBusy,
+    passkeys,
+    register: registerPasskey,
+    removePasskey,
+  } = useWebAuthn();
   const [profile, setProfile] = useState({
     full_name: "",
     phone: "",
@@ -617,6 +626,74 @@ const Profile = () => {
                 </div>
               )}
             </div>
+
+            {/* Passkey / biometria no browser (WebAuthn) — funciona sem app nativa */}
+            {passkeySupported && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Fingerprint className="h-5 w-5 text-muted-foreground" />
+                        <Label className="text-base font-semibold">
+                          Biometria neste dispositivo (passkey)
+                        </Label>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {passkeys.length > 0
+                          ? `Ativa — ${passkeys.length} ${passkeys.length === 1 ? "passkey registado" : "passkeys registados"}.`
+                          : "Use o Face ID / impressão digital deste telemóvel para entrar mais rápido."}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      disabled={passkeyBusy}
+                      onClick={async () => {
+                        try {
+                          await registerPasskey(navigator.platform || "Dispositivo");
+                          toast({ title: "Biometria ativada", description: "Passkey registado com sucesso neste dispositivo." });
+                        } catch (e: any) {
+                          toast({ title: "Não foi possível ativar", description: e?.message || "Tente novamente.", variant: "destructive" });
+                        }
+                      }}
+                    >
+                      {passkeyBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Fingerprint className="h-4 w-4 mr-2" />}
+                      {passkeys.length > 0 ? "Adicionar" : "Ativar"}
+                    </Button>
+                  </div>
+
+                  {passkeys.length > 0 && (
+                    <div className="space-y-2">
+                      {passkeys.map((pk) => (
+                        <div key={pk.id} className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border">
+                          <div className="text-sm">
+                            <p className="font-medium">{pk.device_name || "Passkey"}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Registado em {new Date(pk.created_at).toLocaleDateString("pt-PT")}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                await removePasskey(pk.id);
+                                toast({ title: "Passkey removido" });
+                              } catch (e: any) {
+                                toast({ title: "Erro ao remover", description: e?.message, variant: "destructive" });
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             <Separator />
 
