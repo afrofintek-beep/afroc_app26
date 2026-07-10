@@ -235,16 +235,18 @@ export default function CreateIdentity() {
   const isDigitalAddress = addressType !== 'formal';
   
   // Extract municipality short code from full code (e.g., "LUA-ING" -> "ING")
-  const getMunicipalityShortCode = (fullCode: string): string => {
-    const parts = fullCode.split('-');
-    return parts.length > 1 ? parts[1] : fullCode.substring(0, 3);
+  // Os códigos administrativos são hierárquicos: "CC-PROV" (nível 1),
+  // "CC-PROV-MUN" (nível 2), "CC-PROV-COM" (nível 3). O código curto (3 letras)
+  // é SEMPRE o último segmento — ex.: "AO-LUA-TALATONA" → "TAL", "AO-LUA" → "LUA".
+  const shortCodeFromDivision = (fullCode: string): string => {
+    const parts = (fullCode || '').split('-').filter(Boolean);
+    const last = parts.length ? parts[parts.length - 1] : fullCode;
+    return (last || '').substring(0, 3).toUpperCase();
   };
 
-  // Extract commune short code
-  const getCommuneShortCode = (fullCode: string): string => {
-    const parts = fullCode.split('-');
-    return parts.length > 2 ? parts[2] : parts.length > 1 ? parts[1] : fullCode.substring(0, 3);
-  };
+  const getProvinceShortCode = (fullCode: string): string => shortCodeFromDivision(fullCode);
+  const getMunicipalityShortCode = (fullCode: string): string => shortCodeFromDivision(fullCode);
+  const getCommuneShortCode = (fullCode: string): string => shortCodeFromDivision(fullCode);
   
   // Gerar preview do código (síncrono, para UI)
   const generateCodePreview = (): string => {
@@ -253,14 +255,16 @@ export default function CreateIdentity() {
     }
     
     const cc = country.toUpperCase();
+    const provShort = getProvinceShortCode(level1Code);
     const munShort = getMunicipalityShortCode(level2Code);
-    const baiCode = isDigitalAddress ? 'DIG' : (level4Name?.substring(0, 3).toUpperCase() || 'XXX');
-    
+    const comShort = level3Code ? getCommuneShortCode(level3Code) : munShort;
+    const baiCode = isDigitalAddress ? 'DIG' : (level4Name?.substring(0, 3).toUpperCase() || comShort);
+
     if (geoLat && geoLon) {
       // Formato oficial: CC-PROV-MUN-COM-BAI-G10-X-Y
-      return `${cc}-${level1Code}-${munShort}-${level3Code || 'XXX'}-${baiCode}-G10-...`;
+      return `${cc}-${provShort}-${munShort}-${comShort}-${baiCode}-G10-...`;
     }
-    return `${cc}-${level1Code}-${munShort}-GPS_REQUIRED`;
+    return `${cc}-${provShort}-${munShort}-GPS_REQUIRED`;
   };
   
   // Gerar código oficial via qg-engine (async, para submit)
@@ -284,7 +288,7 @@ export default function CreateIdentity() {
           latitude: parseFloat(geoLat),
           longitude: parseFloat(geoLon),
           countryCode: country,
-          provinceCode: level1Code,
+          provinceCode: getProvinceShortCode(level1Code),
           municipalityCode: munShort,
           communeCode: comShort,
           neighborhoodCode: baiCode,
@@ -303,7 +307,7 @@ export default function CreateIdentity() {
       const munShort = getMunicipalityShortCode(level2Code);
       const comShort = level3Code ? getCommuneShortCode(level3Code) : munShort;
       const baiCode = isDigitalAddress ? 'DIG' : (level4Name?.substring(0, 3).toUpperCase() || comShort);
-      return `${cc}-${level1Code}-${munShort}-${comShort}-${baiCode}-G10-LOCAL-LOCAL`;
+      return `${cc}-${getProvinceShortCode(level1Code)}-${munShort}-${comShort}-${baiCode}-G10-LOCAL-LOCAL`;
     }
   };
 
