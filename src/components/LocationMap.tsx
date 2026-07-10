@@ -69,6 +69,10 @@ export default function LocationMap({
       return;
     }
 
+    // Observador de tamanho — redesenha o mapa quando o contentor muda de
+    // dimensão (resolve o mapa "preto" por canvas 0×0 em qualquer timing).
+    let resizeObserver: ResizeObserver | null = null;
+
     // Initialize map with error handling
     try {
       mapboxgl.accessToken = mapboxToken;
@@ -109,6 +113,10 @@ export default function LocationMap({
       map.current?.resize();
     });
 
+    // Redesenha sempre que o contentor ganha/altera tamanho.
+    resizeObserver = new ResizeObserver(() => map.current?.resize());
+    resizeObserver.observe(mapContainer.current);
+
     // Create marker
     marker.current = new mapboxgl.Marker({
       draggable: true,
@@ -148,6 +156,7 @@ export default function LocationMap({
     // Cleanup
     return () => {
       try {
+        resizeObserver?.disconnect();
         map.current?.remove();
       } catch (e) {
         console.error('Error removing map:', e);
@@ -229,7 +238,7 @@ export default function LocationMap({
     <div className="relative w-full rounded-lg overflow-hidden border">
       {/* Altura EXPLÍCITA no próprio contentor do mapa. Antes era `absolute inset-0`
           sobre um pai h-[400px] que colapsava para 0 → mapa "preto" (sem tiles). */}
-      <div ref={mapContainer} className="w-full h-[400px]" />
+      <div ref={mapContainer} className="w-full h-[400px]" style={{ minHeight: '400px' }} />
       <div className="absolute top-4 left-4 z-10 bg-background/95 p-2 rounded-lg shadow-lg text-sm">
         <p className="font-medium">{t('locationmap_instruction_title')}</p>
         <p className="text-muted-foreground text-xs">{t('locationmap_instruction_subtitle')}</p>
