@@ -271,8 +271,115 @@ Deno.serve(async (req) => {
         }, 201);
       }
 
+      // ── PRIVACIDADE · SHARE (o dono cria um token de acesso a um endereço privado) ──
+      case 'share': {
+        if (req.method !== 'POST') return error('POST required', 405);
+        const { code, lat, lng, owner_ref, app: appOrigin, scope, ttl_minutes, label } = await req.json();
+        if (!code || lat == null || lng == null || !owner_ref) return error('code, lat, lng, owner_ref required', 400);
+        const v = normalizeAfrolocCode(code);
+        if (!v.valid) return error(v.error || 'invalid AFROLOC code', 400);
+        // Clamp autoritário da duração pelo PLANO. O AFROLOC é a AUTORIDADE: o tier é
+        // lido do registo central (afl_owner_plans) pelo owner_ref, NÃO da alegação do
+        // cliente. Assim o mesmo tier vale em qualquer app. Ver docs/planos.md.
+        const PLAN_MAX_TTL: Record<string, number | null> = { gratis: 1440, pro: 43200, negocio: null };
+        const { data: planRow } = await supabase.from('afl_owner_plans')
+          .select('plan').eq('owner_ref', owner_ref).maybeSingle();
+        const plan = planRow?.plan ?? 'gratis';
+        const maxTtl = plan in PLAN_MAX_TTL ? PLAN_MAX_TTL[plan] : PLAN_MAX_TTL.gratis;
+        const reqTtl = ttl_minutes ?? null;
+        const effTtl = maxTtl == null ? reqTtl : (reqTtl == null ? maxTtl : Math.min(reqTtl, maxTtl));
+        const { data: addr, error: aErr } = await supabase.from('afl_addresses')
+          .upsert({ code: v.normalized, owner_ref, app: appOrigin ?? null, lat, lng, label: label ?? null }, { onConflict: 'owner_ref,code' })
+          .select('id').single();
+        if (aErr || !addr) { console.error('[afl] share addr', aErr); return error('failed to register address', 500); }
+        const token = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+        const expires_at = effTtl ? new Date(Date.now() + effTtl * 60000).toISOString() : null;
+        const scp = scope === 'zone' ? 'zone' : 'coordinate';
+        const { error: gErr } = await supabase.from('afl_grants')
+          .insert({ address_id: addr.id, token, scope: scp, label: label ?? null, expires_at });
+        if (gErr) { console.error('[afl] share grant', gErr); return error('failed to create grant', 500); }
+        return json({ token, scope: scp, expires_at });
+      }
+
+      // ── PRIVACIDADE · RESOLVE (por token = capacidade; app-agnóstico; auditado) ──
+      case 'resolve': {
+        if (req.method !== 'POST') return error('POST required', 405);
+        const { token, caller_ref } = await req.json();
+        if (!token) return error('token required', 400);
+        const { data: g } = await supabase.from('afl_grants')
+          .select('id, address_id, scope, revoked, expires_at').eq('token', token).maybeSingle();
+        if (!g || g.revoked || (g.expires_at && new Date(g.expires_at) < new Date())) return json({ granted: false });
+        const { data: addr } = await supabase.from('afl_addresses')
+          .select('lat, lng, code, privacy').eq('id', g.address_id).maybeSingle();
+        if (!addr) return json({ granted: false });
+        await supabase.from('afl_resolutions').insert({ address_id: g.address_id, via: 'token', caller_ref: caller_ref ?? null });
+        if (g.scope === 'zone') return json({ granted: true, scope: 'zone', code: addr.code });
+        return json({ granted: true, scope: 'coordinate', lat: addr.lat, lng: addr.lng, code: addr.code });
+      }
+
+      // ── PRIVACIDADE · REVOKE (o dono revoga um token) ──
+      case 'revoke': {
+        if (req.method !== 'POST') return error('POST required', 405);
+        const { token, owner_ref } = await req.json();
+        if (!token || !owner_ref) return error('token, owner_ref required', 400);
+        const { data: g } = await supabase.from('afl_grants').select('id, address_id').eq('token', token).maybeSingle();
+        if (!g) return json({ revoked: false });
+        const { data: addr } = await supabase.from('afl_addresses').select('owner_ref').eq('id', g.address_id).maybeSingle();
+        if (!addr || addr.owner_ref !== owner_ref) return error('not owner', 403);
+        await supabase.from('afl_grants').update({ revoked: true }).eq('id', g.id);
+        return json({ revoked: true });
+      }
+
+      // ── PRIVACIDADE · HISTORY (o dono vê a auditoria dos seus endereços) ──
+      case 'history': {
+        if (req.method !== 'POST') return error('POST required', 405);
+        const { owner_ref } = await req.json();
+        if (!owner_ref) return error('owner_ref required', 400);
+        const { data: addrs } = await supabase.from('afl_addresses').select('id, code, label').eq('owner_ref', owner_ref);
+        const ids = (addrs ?? []).map((a: any) => a.id);
+        let resolutions: any[] = [];
+        let grants: any[] = [];
+        if (ids.length) {
+          const { data: rs } = await supabase.from('afl_resolutions')
+            .select('address_id, via, caller_ref, created_at').in('address_id', ids)
+            .order('created_at', { ascending: false }).limit(100);
+          resolutions = rs ?? [];
+          const { data: gs } = await supabase.from('afl_grants')
+            .select('id, address_id, token, scope, label, expires_at, revoked, created_at').in('address_id', ids)
+            .order('created_at', { ascending: false });
+          grants = gs ?? [];
+        }
+        return json({ addresses: addrs ?? [], resolutions, grants });
+      }
+
+      // ── PLANOS · GET (o tier central do owner_ref; leitura pública, não sensível) ──
+      case 'plan_get': {
+        if (req.method !== 'POST') return error('POST required', 405);
+        const { owner_ref } = await req.json();
+        if (!owner_ref) return error('owner_ref required', 400);
+        const { data } = await supabase.from('afl_owner_plans')
+          .select('plan').eq('owner_ref', owner_ref).maybeSingle();
+        return json({ owner_ref, plan: data?.plan ?? 'gratis' });
+      }
+
+      // ── PLANOS · SET (autoridade central; SÓ via segredo de servidor, nunca do browser) ──
+      case 'plan_set': {
+        if (req.method !== 'POST') return error('POST required', 405);
+        const adminSecret = Deno.env.get('AFROLOC_ADMIN_SECRET');
+        const provided = req.headers.get('x-admin-secret');
+        if (!adminSecret || provided !== adminSecret) return error('unauthorized', 401);
+        const { owner_ref, plan, updated_by } = await req.json();
+        if (!owner_ref || !['gratis', 'pro', 'negocio'].includes(plan)) {
+          return error('owner_ref + valid plan (gratis|pro|negocio) required', 400);
+        }
+        const { error: uErr } = await supabase.from('afl_owner_plans')
+          .upsert({ owner_ref, plan, updated_at: new Date().toISOString(), updated_by: updated_by ?? null }, { onConflict: 'owner_ref' });
+        if (uErr) { console.error('[afl] plan_set', uErr); return error('failed to set plan', 500); }
+        return json({ owner_ref, plan });
+      }
+
       default:
-        return error(`Unknown action: ${action}. Valid actions: lookup, verify, subscribe, status`, 400);
+        return error(`Unknown action: ${action}. Valid actions: lookup, verify, subscribe, status, share, resolve, revoke, history, plan_get, plan_set`, 400);
     }
   } catch (err) {
     console.error('[yamioo] Error:', err);
