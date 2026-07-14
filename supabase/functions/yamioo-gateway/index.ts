@@ -274,7 +274,7 @@ Deno.serve(async (req) => {
       // ── PRIVACIDADE · SHARE (o dono cria um token de acesso a um endereço privado) ──
       case 'share': {
         if (req.method !== 'POST') return error('POST required', 405);
-        const { code, lat, lng, owner_ref, app: appOrigin, scope, ttl_minutes, label } = await req.json();
+        const { code, lat, lng, owner_ref, app: appOrigin, scope, ttl_minutes, label, purpose } = await req.json();
         if (!code || lat == null || lng == null || !owner_ref) return error('code, lat, lng, owner_ref required', 400);
         const v = normalizeAfrolocCode(code);
         if (!v.valid) return error(v.error || 'invalid AFROLOC code', 400);
@@ -296,7 +296,7 @@ Deno.serve(async (req) => {
         const expires_at = effTtl ? new Date(Date.now() + effTtl * 60000).toISOString() : null;
         const scp = scope === 'zone' ? 'zone' : 'coordinate';
         const { error: gErr } = await supabase.from('afl_grants')
-          .insert({ address_id: addr.id, token, scope: scp, label: label ?? null, expires_at });
+          .insert({ address_id: addr.id, token, scope: scp, label: label ?? null, purpose: purpose ?? null, expires_at });
         if (gErr) { console.error('[afl] share grant', gErr); return error('failed to create grant', 500); }
         return json({ token, scope: scp, expires_at });
       }
@@ -345,7 +345,7 @@ Deno.serve(async (req) => {
             .order('created_at', { ascending: false }).limit(100);
           resolutions = rs ?? [];
           const { data: gs } = await supabase.from('afl_grants')
-            .select('id, address_id, token, scope, label, expires_at, revoked, created_at').in('address_id', ids)
+            .select('id, address_id, token, scope, label, purpose, expires_at, revoked, created_at').in('address_id', ids)
             .order('created_at', { ascending: false });
           grants = gs ?? [];
         }
