@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { MapPin, CheckCircle2, Clock, Award, Users, ArrowLeft, UserPlus, Shield, FileText, CheckCircle, Download, AlertCircle, Star, Camera, ImageIcon, History, Trash2, Home } from "lucide-react";
+import { MapPin, CheckCircle2, Clock, Award, Users, ArrowLeft, UserPlus, Shield, FileText, CheckCircle, Download, AlertCircle, Star, Camera, ImageIcon, History, Trash2, Home, Mailbox } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +34,7 @@ import { GPSHistoryTimeline } from "@/components/GPSHistoryTimeline";
 import { ResidentsTab } from "@/components/ResidentsTab";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuthorizationLevel } from "@/hooks/useAuthorizationLevel";
+import { postalFrom } from "@/lib/postal";
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 type AfrolocWitness = Database["public"]["Tables"]["afroloc_witnesses"]["Row"];
@@ -47,6 +48,7 @@ export default function IdentityDetail() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
   const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [postalBox, setPostalBox] = useState<{ station: string; box_number: string; tier: string } | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
@@ -151,6 +153,15 @@ export default function IdentityDetail() {
 
       if (documentsError) throw documentsError;
       setDocuments(documentsData || []);
+
+      // Load Caixa Postal (se atribuída a este endereço). RLS: só o dono vê a sua.
+      // (Tabela recente — ainda fora dos tipos gerados; consulta sem tipar.)
+      const { data: boxData } = await (supabase as any)
+        .from("postal_boxes")
+        .select("station, box_number, tier")
+        .eq("entity_id", id)
+        .maybeSingle();
+      setPostalBox(boxData ?? null);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -727,6 +738,39 @@ export default function IdentityDetail() {
                           <p className="text-lg">{record.unit}</p>
                         </div>
                       )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Correios — Código Postal (CEP) + Caixa Postal */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Mailbox className="h-5 w-5" />
+                      {t('postal_card_title')}
+                    </CardTitle>
+                    <CardDescription>{t('postal_card_desc')}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">{t('postal_cep_label')}</label>
+                        <p className="text-lg font-mono">{postalFrom(record.level1_code || "", record.level2_code || "", record.code).cep}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{t('postal_cep_hint')}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-muted-foreground">{t('postal_box_label')}</label>
+                        {postalBox ? (
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <p className="text-lg font-mono">{postalBox.station}-{postalBox.box_number}</p>
+                            <Badge variant={postalBox.tier === "premium" ? "default" : "secondary"} className="text-[10px]">
+                              {postalBox.tier === "premium" ? t('postal_tier_premium') : t('postal_tier_standard')}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <p className="text-lg text-muted-foreground italic">{t('postal_box_none')}</p>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
