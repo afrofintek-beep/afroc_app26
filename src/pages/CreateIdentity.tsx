@@ -1124,22 +1124,14 @@ export default function CreateIdentity() {
                     );
                   })()}
 
+                  {/* Georreferência MASCARADA: não expomos lat/lng — o endereço é a
+                      Identidade Digital Territorial (célula ~10 m), não as coordenadas. */}
                   {geoLat && geoLon && (
-                    <div className="space-y-3 animate-fade-in">
-                      <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        {t('createid_gps_coordinates')}
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="p-3 rounded-xl glass border border-border/50">
-                          <p className="text-xs text-muted-foreground mb-1">{t('createid_latitude')}</p>
-                          <p className="font-mono text-sm font-semibold">{geoLat}</p>
-                        </div>
-                        <div className="p-3 rounded-xl glass border border-border/50">
-                          <p className="text-xs text-muted-foreground mb-1">{t('createid_longitude')}</p>
-                          <p className="font-mono text-sm font-semibold">{geoLon}</p>
-                        </div>
-                      </div>
+                    <div className="flex items-start gap-2 text-sm animate-fade-in p-3 rounded-xl glass border border-border/50">
+                      <MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span className="text-muted-foreground">
+                        Posição marcada — o teu endereço nasce da <b className="text-foreground/90">célula do território</b>, não das coordenadas. A posição exata nunca é exposta.
+                      </span>
                     </div>
                   )}
 
