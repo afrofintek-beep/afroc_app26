@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Config local do Claude Code (não versionar)
+.claude/
