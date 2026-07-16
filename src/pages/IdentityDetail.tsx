@@ -780,20 +780,14 @@ export default function IdentityDetail() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <MapPin className="h-5 w-5" />
-                        {t('gps_coordinates')}
+                        {t('position_card_title')}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="grid gap-4 sm:grid-cols-2">
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">{t('latitude')}</label>
-                            <p className="text-lg font-mono">{Number(record.geo_lat).toFixed(6)}</p>
-                          </div>
-                          <div>
-                            <label className="text-sm font-medium text-muted-foreground">{t('longitude')}</label>
-                            <p className="text-lg font-mono">{Number(record.geo_lon).toFixed(6)}</p>
-                          </div>
+                        <div className="rounded-lg border border-border bg-muted/40 px-3 py-2.5">
+                          <p className="text-sm font-medium text-foreground">{t('position_cell_masked_title')}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{t('position_cell_masked_hint')}</p>
                         </div>
 
                         {/* Property Photo for GPS Validation */}
@@ -811,7 +805,7 @@ export default function IdentityDetail() {
                             />
                           </div>
                           <p className="text-xs text-muted-foreground">
-                            {t('photo_used_gps_validation') || 'Esta foto foi usada para validação das coordenadas GPS'}
+                            {t('photo_used_position_validation')}
                           </p>
                         </div>
                         
@@ -831,13 +825,14 @@ export default function IdentityDetail() {
                           contactInfo="+244 923 456 789"
                         />
                         
+                        {/* Abre a ZONA (célula ~10 m), não a posição exata: coordenadas coarsened p/ 4 casas. */}
                         <Button
                           variant="outline"
                           className="w-full"
-                          onClick={() => window.open(`https://www.google.com/maps?q=${record.geo_lat},${record.geo_lon}`, "_blank")}
+                          onClick={() => window.open(`https://www.google.com/maps?q=${Number(record.geo_lat).toFixed(4)},${Number(record.geo_lon).toFixed(4)}`, "_blank")}
                         >
                           <MapPin className="mr-2 h-4 w-4" />
-                          {t('view_on_google_maps')}
+                          {t('view_zone_on_map')}
                         </Button>
                       </div>
                     </CardContent>
