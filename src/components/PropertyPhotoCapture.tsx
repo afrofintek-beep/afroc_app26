@@ -233,10 +233,10 @@ export default function PropertyPhotoCapture({
                   <div>📱 {t('photocapture_exif_device_label')} {photoExif.deviceMake} {photoExif.deviceModel}</div>
                 )}
                 {photoExif.latitude && photoExif.longitude && (
-                  <div>📍 GPS EXIF: {photoExif.latitude.toFixed(6)}, {photoExif.longitude.toFixed(6)}</div>
+                  <div>📍 GPS EXIF: registado (posição exata não exposta)</div>
                 )}
                 {capturedGPS && (
-                  <div>📍 {t('photocapture_exif_device_gps_label')} {capturedGPS.lat.toFixed(6)}, {capturedGPS.lon.toFixed(6)}</div>
+                  <div>📍 {t('photocapture_exif_device_gps_label')} célula ~10 m</div>
                 )}
                 {photoExif.timestamp && (
                   <div>🕒 {t('photocapture_exif_captured_at_label')} {new Date(photoExif.timestamp).toLocaleString('pt-BR')}</div>

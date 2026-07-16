@@ -176,7 +176,7 @@ function GPSHistoryItem({
               <div className="mt-2 flex items-center gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span className="font-mono text-xs">
-                  {entry.new_lat.toFixed(6)}, {entry.new_lon.toFixed(6)}
+                  célula ~10 m · posição exata não exposta
                 </span>
               </div>
 
@@ -269,7 +269,7 @@ function GPSHistoryItem({
                   {format(new Date(entry.created_at), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: pt })}
                 </p>
                 <p className="text-white/80 text-xs font-mono">
-                  {entry.new_lat.toFixed(6)}, {entry.new_lon.toFixed(6)}
+                  célula ~10 m · posição exata não exposta
                 </p>
               </div>
             </div>

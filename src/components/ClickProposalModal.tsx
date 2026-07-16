@@ -349,13 +349,9 @@ export function ClickProposalModal({
           
           {/* Coordinates and Cell Info */}
           <div className="grid grid-cols-4 gap-2 text-xs">
-            <div className="bg-muted/30 rounded p-2">
-              <p className="text-muted-foreground">{t('clickprop_lat')}</p>
-              <p className="font-mono font-medium text-[11px]">{clickProposal.lat.toFixed(5)}</p>
-            </div>
-            <div className="bg-muted/30 rounded p-2">
-              <p className="text-muted-foreground">{t('clickprop_lon')}</p>
-              <p className="font-mono font-medium text-[11px]">{clickProposal.lon.toFixed(5)}</p>
+            <div className="bg-muted/30 rounded p-2 col-span-2">
+              <p className="text-muted-foreground">Território</p>
+              <p className="font-medium text-[11px]">célula ~10 m · sem coordenadas</p>
             </div>
             <div className="bg-muted/30 rounded p-2">
               <p className="text-muted-foreground">{t('clickprop_zone')}</p>
