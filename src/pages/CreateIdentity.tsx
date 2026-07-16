@@ -16,7 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { COUNTRIES, getCountryByCode } from "@/utils/countryConfig";
 import { useGPSValidation } from "@/hooks/useGPSValidation";
 import { useAdminDivisionResolver } from "@/hooks/useAdminDivisionResolver";
-import { postalFrom } from "@/lib/postal";
+import { postalFrom, stationFrom } from "@/lib/postal";
 import PropertyPhotoCapture from "@/components/PropertyPhotoCapture";
 import RequesterLookup, { RequesterProfile } from "@/components/RequesterLookup";
 import { ExifData } from "@/hooks/useExifExtractor";
@@ -51,6 +51,8 @@ export default function CreateIdentity() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([13.2344, -8.8383]);
   const [mapZoom, setMapZoom] = useState(6);
   
+  // Nível da Caixa Postal (Standard/Premium) — alocada ao gravar.
+  const [postalTier, setPostalTier] = useState<'standard' | 'premium'>('standard');
   // Administrative divisions from database
   const [provinces, setProvinces] = useState<Array<{code: string, name: string}>>([]);
   const [municipalities, setMunicipalities] = useState<Array<{code: string, name: string}>>([]);
@@ -551,6 +553,18 @@ export default function CreateIdentity() {
 
       if (error) throw error;
 
+      // Caixa Postal — alocação SEQUENCIAL ATÓMICA por estação (RPC no gateway).
+      let allocatedCP: string | null = null;
+      try {
+        const station = stationFrom(level1Code, level2Code);
+        if (station !== "0000" && insertedRecord?.id) {
+          const { data: box } = await supabase.rpc("allocate_postal_box", {
+            p_station: station, p_tier: postalTier, p_entity: insertedRecord.id,
+          });
+          if (box) allocatedCP = `${station}-${box as string}`;
+        }
+      } catch (e) { console.error("allocate_postal_box:", e); }
+
       // Upload property photo to storage if captured
       if (propertyPhotoUrl && insertedRecord?.id) {
         try {
@@ -592,7 +606,9 @@ export default function CreateIdentity() {
 
       toast({
         title: t('createid_success_title'),
-        description: t('createid_success_desc'),
+        description: allocatedCP
+          ? `${t('createid_success_desc')} · Caixa Postal ${allocatedCP}`
+          : t('createid_success_desc'),
       });
       navigate("/identities");
     } catch (error: any) {
@@ -1114,12 +1130,28 @@ export default function CreateIdentity() {
                   {level1Code && level2Code && (() => {
                     const p = postalFrom(level1Code, level2Code, generateCodePreview());
                     return (
-                      <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/5 to-primary/5 border border-border/50">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">Código Postal</p>
-                        <p className="font-mono text-lg font-semibold text-foreground/90">{p.cep}</p>
-                        <p className="text-[11px] text-muted-foreground mt-1">
-                          Estação {p.station} · Caixa Postal atribuída ao registar
-                        </p>
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/5 to-primary/5 border border-border/50 space-y-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1 font-medium">Código Postal</p>
+                          <p className="font-mono text-lg font-semibold text-foreground/90">{p.cep}</p>
+                          <p className="text-[11px] text-muted-foreground mt-1">Estação {p.station}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1.5 font-medium">Caixa Postal</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button type="button" onClick={() => setPostalTier('standard')}
+                              className={`rounded-xl border p-2 text-xs transition-colors ${postalTier === 'standard' ? 'border-primary bg-primary/10 text-foreground font-medium' : 'border-border/50 text-muted-foreground'}`}>
+                              📦 Standard
+                            </button>
+                            <button type="button" onClick={() => setPostalTier('premium')}
+                              className={`rounded-xl border p-2 text-xs transition-colors ${postalTier === 'premium' ? 'border-primary bg-primary/10 text-foreground font-medium' : 'border-border/50 text-muted-foreground'}`}>
+                              ⭐ Premium
+                            </button>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-1.5">
+                            {postalTier === 'premium' ? 'Número baixo e memorável (00100–09999).' : 'Número sequencial (10000–99999).'} Atribuído ao registar.
+                          </p>
+                        </div>
                       </div>
                     );
                   })()}
