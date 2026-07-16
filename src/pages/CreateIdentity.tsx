@@ -16,6 +16,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { COUNTRIES, getCountryByCode } from "@/utils/countryConfig";
 import { useGPSValidation } from "@/hooks/useGPSValidation";
 import { useAdminDivisionResolver } from "@/hooks/useAdminDivisionResolver";
+import { postalFrom } from "@/lib/postal";
 import PropertyPhotoCapture from "@/components/PropertyPhotoCapture";
 import RequesterLookup, { RequesterProfile } from "@/components/RequesterLookup";
 import { ExifData } from "@/hooks/useExifExtractor";
@@ -1107,6 +1108,21 @@ export default function CreateIdentity() {
                       {generateCodePreview()}
                     </p>
                   </div>
+
+                  {/* Código Postal (CEP) derivado da divisão + código AFROLOC. A Caixa
+                      Postal (nº sequencial por estação) é atribuída no registo (Parte B). */}
+                  {level1Code && level2Code && (() => {
+                    const p = postalFrom(level1Code, level2Code, generateCodePreview());
+                    return (
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/5 to-primary/5 border border-border/50">
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">Código Postal</p>
+                        <p className="font-mono text-lg font-semibold text-foreground/90">{p.cep}</p>
+                        <p className="text-[11px] text-muted-foreground mt-1">
+                          Estação {p.station} · Caixa Postal atribuída ao registar
+                        </p>
+                      </div>
+                    );
+                  })()}
 
                   {geoLat && geoLon && (
                     <div className="space-y-3 animate-fade-in">
