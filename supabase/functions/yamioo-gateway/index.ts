@@ -1,47 +1,22 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { normalizeAfrolocCode, codeForms, encodeAfroloc } from "../_shared/afroloc_code.ts";
 
 /**
  * Yamioo Integration Gateway
- * 
- * AFROLOC code format: CC-ZT-Gnn-Xxxxx-Yyyyy
- *   Standard:      AO-ZU-G10-X35O8-YN247T
- *   Nomenclature:  AO-LUA-BEL-TAL-G10-X35O8-YN247T
- * 
+ *
+ * AFROLOC code format (canónico, SEM prefixos X/Y — formas com prefixo
+ * são aceites e normalizadas; validação ÚNICA em _shared/afroloc_code.ts):
+ *   Standard:      AO-ZU-G10-35O8-N247T
+ *   Nomenclature:  AO-LUA-BEL-TAL-G10-35O8-N247T
+ *
  * Endpoints:
- * - POST ?action=lookup    → Lookup by AFROLOC code or GPS
- * - POST ?action=verify    → Verify delivery proximity
- * - POST ?action=subscribe → Subscribe to webhook events
- * - GET  ?action=status    → Health check
+ * - POST ?action=lookup       → Lookup by AFROLOC code or GPS
+ * - POST ?action=lookup_batch → Batch encode (requer x-partner-key)
+ * - POST ?action=verify       → Verify delivery proximity
+ * - POST ?action=subscribe    → Subscribe to webhook events
+ * - GET  ?action=status       → Health check
  */
-
-// ── AFROLOC Code Patterns ──
-const STANDARD_PATTERN = /^([A-Z]{2})-(Z[UR])-(G\d+)-X([A-Z0-9N]+)-Y([A-Z0-9N]+)$/;
-const NOMENCLATURE_PATTERN = /^([A-Z]{2})-([A-Z]{2,4})-([A-Z]{2,4})-([A-Z]{2,4})-(?:([A-Z]{2,4})-)?(G\d+)-X?([A-Z0-9N]+)-Y?([A-Z0-9N]+)$/;
-
-function normalizeAfrolocCode(code: string): { valid: boolean; normalized: string; error?: string } {
-  if (!code || typeof code !== 'string') {
-    return { valid: false, normalized: '', error: 'Code is required' };
-  }
-  const trimmed = code.trim().toUpperCase();
-
-  if (STANDARD_PATTERN.test(trimmed)) {
-    return { valid: true, normalized: trimmed };
-  }
-  if (NOMENCLATURE_PATTERN.test(trimmed)) {
-    return { valid: true, normalized: trimmed };
-  }
-
-  // Legacy: old zone tags (URBAN/RURAL)
-  const oldZone = trimmed.match(/^([A-Z]{2})-(URBAN|RURAL)-(G\d+)-X([A-Z0-9N]+)-Y([A-Z0-9N]+)$/);
-  if (oldZone) {
-    const [, cc, zone, gt, x, y] = oldZone;
-    const zt = zone === 'URBAN' ? 'ZU' : 'ZR';
-    return { valid: true, normalized: `${cc}-${zt}-${gt}-X${x}-Y${y}` };
-  }
-
-  return { valid: false, normalized: '', error: `Unrecognized AFROLOC code format: ${code}. Expected: CC-ZU-G10-Xxxxx-Yyyyy or CC-PROV-MUN-COM-G10-Xxxxx-Yyyyy` };
-}
 
 // ── Haversine distance ──
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -97,16 +72,18 @@ Deno.serve(async (req) => {
         return json({
           status: 'operational',
           partner: 'yamioo',
-          version: '2.0.0',
+          version: '2.1.0',
           code_format: {
-            standard: 'CC-ZT-Gnn-Xxxxx-Yyyyy',
-            nomenclature: 'CC-PROV-MUN-COM-BAI-Gnn-Xxxxx-Yyyyy',
+            standard: 'CC-ZT-Gnn-xxxx-yyyy',
+            nomenclature: 'CC-PROV-MUN[-COM[-BAI]]-Gnn-xxxx-yyyy',
+            coordinate_codec: 'base36 uppercase, prefixo N para negativos; prefixos X/Y tolerados na entrada',
             examples: [
-              'AO-ZU-G10-X35O8-YN247T',
-              'AO-LUA-BEL-TAL-CAM-G10-X35O8-YN247T',
+              'AO-ZU-G10-35O8-N247T',
+              'AO-LUA-BEL-TAL-CAM-G10-35O8-N247T',
+              'AO-ZU-G10-X35O8-YN247T (aceite, normalizado sem prefixos)',
             ],
           },
-          endpoints: ['lookup', 'verify', 'subscribe', 'status'],
+          endpoints: ['lookup', 'lookup_batch', 'verify', 'subscribe', 'status', 'share', 'resolve', 'revoke', 'history', 'plan_get', 'plan_set'],
           timestamp: new Date().toISOString(),
         });
       }
@@ -125,16 +102,19 @@ Deno.serve(async (req) => {
             return error(validation.error || 'Invalid AFROLOC code format', 400);
           }
 
-          const { data, error: dbError } = await supabase
+          // Registos históricos podem ter sido gravados com prefixos X/Y —
+          // procurar por ambas as formas equivalentes do código.
+          const { data: rows, error: dbError } = await supabase
             .from('afroloc_records')
             .select('code, country, status, geo_lat, geo_lon, level1_name, level2_name, level3_name, level4_name, street_name, number, address_type, property_type')
-            .eq('code', validation.normalized)
-            .maybeSingle();
+            .in('code', codeForms(validation.normalized))
+            .limit(1);
 
           if (dbError) {
             console.error('[yamioo] lookup db error:', dbError);
             return error('Database error', 500);
           }
+          const data = rows?.[0];
           if (!data) return error('Address not found', 404);
 
           return json({
@@ -176,7 +156,82 @@ Deno.serve(async (req) => {
           return json({ found: true, resolved });
         }
 
-        return error('Provide "code" (format: CC-ZU-G10-Xxxxx-Yyyyy) or "latitude"+"longitude"', 400);
+        return error('Provide "code" (format: CC-ZU-G10-xxxx-yyyy) or "latitude"+"longitude"', 400);
+      }
+
+      // ── LOOKUP BATCH (pipeline de importação: gera códigos em lote, em processo) ──
+      // Requer chave de parceiro: header x-partner-key ∈ env AFROLOC_PARTNER_KEYS
+      // (lista separada por vírgulas). Sem a env definida, a ação fica desativada.
+      // Ao contrário do lookup 1:1, NÃO faz fetch ao qg-engine — codifica em
+      // processo via _shared/afroloc_code.ts (mesma implementação). A SQ fica
+      // deliberadamente fora deste caminho (COUNT+escritas por ponto não escala).
+      case 'lookup_batch': {
+        if (req.method !== 'POST') return error('POST required', 405);
+
+        const partnerKeys = (Deno.env.get('AFROLOC_PARTNER_KEYS') ?? '')
+          .split(',').map((k) => k.trim()).filter(Boolean);
+        if (partnerKeys.length === 0) {
+          return error('lookup_batch is not enabled (AFROLOC_PARTNER_KEYS not configured)', 503);
+        }
+        const providedKey = req.headers.get('x-partner-key') ?? '';
+        if (!providedKey || !partnerKeys.includes(providedKey)) {
+          return error('unauthorized: valid x-partner-key required', 401);
+        }
+
+        const body = await req.json();
+        const points = body?.points;
+        if (!Array.isArray(points) || points.length === 0) {
+          return error('Provide "points": [{latitude, longitude, countryCode, ...}]', 400);
+        }
+        const MAX_BATCH = 500;
+        if (points.length > MAX_BATCH) {
+          return error(`Batch too large: max ${MAX_BATCH} points per request`, 413);
+        }
+
+        const results = points.map((p: any) => {
+          const ref = p?.ref ?? null;
+          try {
+            const lat = Number(p?.latitude);
+            const lon = Number(p?.longitude);
+            if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
+              return { ref, ok: false, error: 'Invalid latitude' };
+            }
+            if (!Number.isFinite(lon) || lon < -180 || lon > 180) {
+              return { ref, ok: false, error: 'Invalid longitude' };
+            }
+            const cc = String(p?.countryCode ?? body?.countryCode ?? '').toUpperCase();
+            if (!/^[A-Z]{2}$/.test(cc)) {
+              return { ref, ok: false, error: 'Invalid countryCode' };
+            }
+            const r = encodeAfroloc({
+              latitude: lat,
+              longitude: lon,
+              countryCode: cc,
+              cellType: p?.cellType,
+              adminPath: p?.adminPath,
+              provinceCode: p?.provinceCode,
+              municipalityCode: p?.municipalityCode,
+              communeCode: p?.communeCode,
+              neighborhoodCode: p?.neighborhoodCode,
+              registrationType: p?.registrationType,
+            });
+            return {
+              ref,
+              ok: true,
+              afroloc: r.afroloc,
+              afrolocLegacy: r.afrolocLegacy,
+              zone: r.zone,
+              grid_m: r.grid_m,
+              centroid: r.centroid,
+              bbox: r.bbox,
+            };
+          } catch (e) {
+            return { ref, ok: false, error: (e as Error)?.message ?? 'encode failed' };
+          }
+        });
+
+        const okCount = results.filter((r: { ok: boolean }) => r.ok).length;
+        return json({ count: results.length, ok: okCount, failed: results.length - okCount, results });
       }
 
       // ── VERIFY ──
@@ -196,16 +251,17 @@ Deno.serve(async (req) => {
           return error(validation.error || 'Invalid AFROLOC code format', 400);
         }
 
-        const { data: record, error: dbError } = await supabase
+        const { data: vRows, error: dbError } = await supabase
           .from('afroloc_records')
           .select('id, geo_lat, geo_lon, status, address_type')
-          .eq('code', validation.normalized)
-          .maybeSingle();
+          .in('code', codeForms(validation.normalized))
+          .limit(1);
 
         if (dbError) {
           console.error('[yamioo] verify db error:', dbError);
           return error('Database error', 500);
         }
+        const record = vRows?.[0];
         if (!record) return error('Address not found', 404);
 
         if (record.geo_lat == null || record.geo_lon == null) {
@@ -379,7 +435,7 @@ Deno.serve(async (req) => {
       }
 
       default:
-        return error(`Unknown action: ${action}. Valid actions: lookup, verify, subscribe, status, share, resolve, revoke, history, plan_get, plan_set`, 400);
+        return error(`Unknown action: ${action}. Valid actions: lookup, lookup_batch, verify, subscribe, status, share, resolve, revoke, history, plan_get, plan_set`, 400);
     }
   } catch (err) {
     console.error('[yamioo] Error:', err);

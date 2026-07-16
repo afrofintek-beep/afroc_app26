@@ -5,12 +5,20 @@
 
 | Campo | Valor |
 |---|---|
-| **Versão do documento** | 1.0.0 |
-| **Data** | 2026-07-08 |
+| **Versão do documento** | 2.0.0 |
+| **Data** | 2026-07-16 |
 | **Aplica-se a** | AFROLOC app `1.0.0` (`src/lib/version.ts`) |
-| **Fonte da verdade** | `src/lib/afroloc/{geo,sdk,engines,createAddress}.ts` + edge functions `qg-engine`, `sq-engine` |
+| **Fonte da verdade** | **`supabase/functions/_shared/afroloc_code.ts`** (implementação única, importada por `qg-engine` e `yamioo-gateway`) + `sq-engine` |
 | **Estado** | Estável — algoritmo determinístico, cliente ↔ servidor idêntico |
 | **Classificação** | Confidencial (IP) |
+
+> **v2.0.0 — correção face à produção:** a v1.0.0 documentava um codec de
+> coordenada **zig-zag** que existia no cliente antigo mas **nunca chegou à BD
+> canónica** (a base nasceu depois da Fase A de proteção de IP, já com o
+> `qg-engine`). O codec canónico real — em produção nos `afroloc_records`, no
+> codec offline do cliente e nos ~243 mil códigos do Yamioo — é **base36 com
+> prefixo `N` para negativos** (§4). Os testes vivem em
+> `_shared/afroloc_code.test.ts` (executáveis com `npx tsx`).
 
 ---
 
@@ -63,25 +71,34 @@ lat = (2 · atan(exp(y / R)) − π/2) · (180/π)
 
 ---
 
-## 4. Codec de coordenada — base36 zig-zag
+## 4. Codec de coordenada — base36 com prefixo `N`
 
-Os índices de célula (`ix`, `iy`) podem ser **negativos** (hemisférios sul/oeste). Aplica-se um mapeamento **zig-zag** (inteiro com sinal → inteiro sem sinal) antes do base36, para os tokens ficarem sem sinal e reversíveis.
+Os índices de célula (`ix`, `iy`) podem ser **negativos** (hemisférios sul/oeste). O sinal é representado pelo **prefixo `N`** no token base36 (maiúsculo).
 
-**Encode** (`encodeCoord`):
-
-```
-u = (n ≥ 0) ? n·2 : (−n·2 − 1)
-token = base36(u).toUpperCase()
-```
-
-**Decode** (`decodeCoord`):
+**Encode** (`toBase36`):
 
 ```
-u = parseInt(token, 36)
-n = (u % 2 === 0) ? u/2 : −(u+1)/2
+token = (n < 0 ? "N" : "") + base36(|trunc(n)|).toUpperCase()
+// toBase36(0) === "0"
 ```
 
-Propriedade: `decodeCoord(encodeCoord(n)) === n` para todo o inteiro `n`.
+**Decode** (`fromBase36`):
+
+```
+n = token.startsWith("N") ? −parseInt(token.slice(1), 36)
+                          : parseInt(token, 36)
+// "-" inicial também é aceite como sinal
+```
+
+Propriedade: `fromBase36(toBase36(n)) === n` para todo o inteiro `n`.
+
+> **Histórico (zig-zag):** o cliente antigo (`sdk.ts`, removido na Fase A)
+> usava um mapeamento zig-zag (`u = n≥0 ? 2n : −2n−1`) documentado na v1.0.0
+> desta spec. Códigos zig-zag **não são descodificáveis** pelo motor atual e
+> não existem na BD canónica; aparecem apenas em artefactos antigos (demo,
+> PDFs de design). Um código zig-zag com prefixos X/Y é sintaticamente
+> indistinguível de um N-prefix prefixado — por definição, a interpretação
+> canónica é sempre N-prefix.
 
 ---
 
@@ -94,11 +111,18 @@ ix = floor(x / gridSize)
 iy = floor(y / gridSize)
 ```
 
-O par de tokens da coordenada:
+O par de tokens da coordenada (forma **canónica, sem prefixos**):
 
 ```
-XY = "X" + encodeCoord(ix) + "-Y" + encodeCoord(iy)
+XY = toBase36(ix) + "-" + toBase36(iy)
 ```
+
+> **Prefixos `X`/`Y` (tolerados na entrada):** o codec offline do cliente e
+> integrações antigas produzem `...-X<ix>-Y<iy>`. A normalização
+> (`detectAndConvertLegacy`) remove os prefixos quando **ambos** os últimos
+> segmentos os têm; a forma canónica é sempre sem prefixo. Sem esta remoção,
+> `X`/`Y` seriam lidos como dígitos base36 (X=33, Y=34) e a célula
+> descodificada seria outra — bug corrigido na v2.0.0.
 
 ---
 
@@ -107,30 +131,32 @@ XY = "X" + encodeCoord(ix) + "-Y" + encodeCoord(iy)
 ### 6.1 Standard (compacto / legado)
 
 ```
-CC-ZU-G10-Xxxxx-Yyyyy        (urbano)
-CC-ZR-G25-Xxxxx-Yyyyy        (rural)
-```
-
-Regex (`sdk.ts` `STANDARD_PATTERN`):
-
-```
-/^([A-Z]{2})-(ZU|ZR)-(G10|G25)-X([0-9A-Z]+)-Y([0-9A-Z]+)$/
+CC-ZU-G10-xxxx-yyyy        (urbano)
+CC-ZR-G25-xxxx-yyyy        (rural)
 ```
 
 - `CC` — ISO-3166-1 alpha-2 (ver §8).
-- `ZU`/`ZR` — Zona Urbana / Zona Rural.
+- `ZU`/`ZR` — Zona Urbana / Zona Rural (`URBAN`/`RURAL` por extenso são convertidos).
+- `xxxx`/`yyyy` — tokens §4 (prefixos `X`/`Y` tolerados e removidos).
 
 ### 6.2 Nomenclatura (com divisões administrativas)
 
 ```
-CC-PROV-MUN-COM-BAI-G10-Xxxxx-Yyyyy[-NNNN]
+CC-PROV-MUN-COM-BAI-G10-xxxx-yyyy[-NNNN]     (oficial, 7 partes + seq.)
+CC-PROV-MUN-COM-G10-xxxx-yyyy                (sem bairro)
+CC-PROV-MUN-G10-xxxx-yyyy                    (parcial, 6 partes)
+CC-MUN-G10-xxxx-yyyy                         (mínimo, 5 partes)
 ```
 
-Regex (`NOMENCLATURE_PATTERN`):
+A validação é feita por **contagem de partes + regras por segmento** em
+`_shared/afroloc_code.ts` (`validateAfrolocCode`) — **não** por uma regex
+única. Segmentos administrativos: `[A-Z0-9]{2,4}` (alfanuméricos — códigos
+com dígitos são válidos); grelha: `G10` ou `G25`; coordenadas: `N?[0-9A-Z]+`.
 
-```
-/^([A-Z]{2})-([A-Z]{2,3})-([A-Z]{2,3})-([A-Z]{2,3})-([A-Z]{2,3})-(G10|G25)-X([0-9A-Z]+)-Y([0-9A-Z]+)(?:-\d{4})?$/
-```
+> A v1 documentava regexes com segmentos só-letras `[A-Z]{2,3}` e o gateway
+> tinha regexes próprias que exigiam prefixos `X`/`Y` e rejeitavam as formas
+> de 5/6 partes — era por isso que um código devolvido pelo `lookup` era
+> rejeitado pelo `share`. Na v2 há **um único validador** partilhado.
 
 | Segmento | Significado | Origem |
 |---|---|---|
@@ -143,7 +169,7 @@ Regex (`NOMENCLATURE_PATTERN`):
 | `X`,`Y` | Coordenada de célula | §4–§5 |
 | `-NNNN` | Sequência local (opcional) | contador por sub-célula SQ |
 
-> **Regra do `BAI`** (`engines.ts` `qgEncode`): a nomenclatura só é construída quando existem `PROV` **e** `MUN` **e** `COM`. `BAI = registrationType === 'formal' ? (neighborhoodCode || 'GEN') : 'DIG'`. Sem os três níveis administrativos, cai-se no formato **standard** (§6.1).
+> **Regra do `BAI`** (`_shared/afroloc_code.ts` `encodeAfroloc`): o formato mais completo possível é construído com os níveis presentes (oficial → sem bairro → parcial → mínimo → standard). `BAI = registrationType === 'digital' ? 'DIG' : neighborhoodCode`. Códigos administrativos são normalizados para 3 caracteres maiúsculos (`slice(0,3)`).
 
 **Importante:** os dois formatos codificam **exatamente o mesmo ponto** — `G10-X-Y` é idêntico; a nomenclatura apenas antepõe rótulos administrativos. Ambos decodificam para os mesmos `ix/iy`.
 
@@ -151,24 +177,22 @@ Regex (`NOMENCLATURE_PATTERN`):
 
 ## 7. Encode / Decode / Validate
 
-### 7.1 Encode (standard) — `sdk.ts` `encode(lat, lon, cc, zone)`
+Todas as funções vivem em **`supabase/functions/_shared/afroloc_code.ts`**.
 
-1. Validar `cc` (§8), `lat ∈ [−MAX_LAT, +MAX_LAT]`, `lon ∈ [−180, 180]`.
-2. `gridSize`, `zoneTag`, `gridTag` por zona.
+### 7.1 Encode — `encodeAfroloc(request)`
+
+1. Zona: `cellType` explícito ou `resolveZone(lat, lon, cc, adminPath)` (keywords de cidades + proximidade a centros urbanos; fallback rural).
+2. `gridSize`, `zoneTag`, `gridTag` por zona; `lat` limitado a `±MAX_LAT`.
 3. `ix`, `iy` (§5).
-4. `code = CC-ZoneTag-GridTag-XencodeCoord(ix)-YencodeCoord(iy)`.
-5. Devolve `{ code, zone, gridSize, ix, iy }`.
+4. Código no formato mais completo possível (§6.2 → §6.1) com tokens §4 **sem prefixos**.
+5. Devolve `{ afroloc, afrolocLegacy, country, zone, grid_m, tile_ix, tile_iy, códigos admin, bbox, centroid, webMercator }` — `afrolocLegacy` é sempre a forma standard.
 
-### 7.2 Nomenclatura — `engines.ts` `qgEncode(...)`
+### 7.2 Decode — `decodeAfroloc(code)`
 
-Envolve `encode()` e, havendo `admin = {provinceCode, municipalityCode, communeCode, neighborhoodCode}`, produz o formato §6.2 (com a regra do `BAI`). Devolve também `bbox` e `centroid` (§7.4).
-
-### 7.3 Decode — `sdk.ts` `decode(code)`
-
-1. `validate(code)` → normaliza (uppercase/trim) e identifica o formato.
-2. Extrai `CC`, grelha, `X`, `Y`.
-3. `ix = decodeCoord(X)`, `iy = decodeCoord(Y)`, `gridSize = parseInt(grid)`.
-4. Devolve `{ countryCode, zone, gridSize, ix, iy, centroid, bbox }`.
+1. `validateAfrolocCode(code)` → normaliza (uppercase/trim, conversões legadas, remoção de prefixos X/Y) e identifica o formato (`official|partial|minimal|legacy`).
+2. Extrai `CC`, códigos admin, grelha, tokens.
+3. `ix = fromBase36(x)`, `iy = fromBase36(y)`, `gridSize = parseInt(grid)`.
+4. Devolve o mesmo shape do encode (sem `webMercator`) + `wasConverted`/`originalFormat`.
 
 ### 7.4 Geometria da célula — `cellGeometry(ix, iy, gridSize)`
 
@@ -183,13 +207,13 @@ bbox = {
 
 O **centróide** é o ponto público do endereço (centro da célula), não o GPS bruto.
 
-### 7.5 Validate — `sdk.ts` `validate(code)`
+### 7.5 Validate — `validateAfrolocCode(code)` / `normalizeAfrolocCode(code)`
 
-Aceita **standard** e **nomenclatura**; devolve `{ valid, normalizedCode, format: 'standard'|'nomenclature', error? }`.
+Aceita todos os formatos §6 (+ conversões legadas: `URBAN/RURAL`, prefixo `QG`, XY combinado, negativos com hífen, prefixos X/Y, formato com pontos+`@coords`); devolve `{ valid, normalizedCode, format, wasConverted, originalFormat, extractedAdmin, error? }`. O adaptador `normalizeAfrolocCode` devolve a assinatura histórica do gateway `{ valid, normalized, error? }`.
 
-### 7.6 Distância entre códigos — `distance(a, b)`
+### 7.6 Formas equivalentes — `codeForms(normalized)`
 
-Haversine (R = 6 371 000 m) entre os centróides de dois códigos.
+Devolve `[canónica, prefixada-X/Y]` para lookups em BD onde registos históricos possam ter sido gravados com prefixos.
 
 ---
 
@@ -237,20 +261,22 @@ Entrada: `lat = −8.93311`, `lon = 13.18261`, `cc = AO`, zona urbana.
 
 ```
 ix = 146748 ; iy = −99849
-standard      : AO-ZU-G10-X6AGO-Y4A35
-nomenclatura  : AO-LUA-TAL-TAL-GEN-G10-X6AGO-Y4A35
+standard      : AO-ZU-G10-358C-N251L
+nomenclatura  : AO-LUA-TAL-TAL-GEN-G10-358C-N251L
 centro célula : −8.933130, 13.182642   (célula ~10 m)
 ```
 
-Decodificação inversa (código real gerado pelo Yamioo, mesmo bairro):
+(Valores verificados por `_shared/afroloc_code.test.ts`. Na v1, a mesma
+célula era rendida em zig-zag como `X6AGO-Y4A35` — os índices `ix`/`iy` e o
+centróide são idênticos; só a codificação do token mudou.)
+
+Decodificação inversa (código real de produção do Yamioo, Ingombota):
 
 ```
-AO-LUA-TAL-TAL-GEN-G10-X6AGM-Y4A33
-  → ix = 146747 ; iy = −99848
-  → −8.933041, 13.182552
+AO-LUA-LUA-ING-G10-35MZ-N240O
+  → forma prefixada equivalente (aceite): AO-LUA-LUA-ING-G10-X35MZ-YN240O
+  → decodifica para o centróide da célula em Luanda
 ```
-
-Os dois pontos distam **~14 m** — 1 célula em cada eixo — o que ilustra a resolução de 10 m: um passo de ~14 m salta para a célula vizinha, refletido no último caractere de `X` e `Y`.
 
 ---
 
@@ -267,4 +293,5 @@ Os dois pontos distam **~14 m** — 1 célula em cada eixo — o que ilustra a r
 
 | Versão | Data | Alteração |
 |---|---|---|
+| 2.0.0 | 2026-07-16 | **Correção do codec de coordenada: base36 com prefixo `N` (não zig-zag)** — a v1 descrevia o cliente antigo, não a produção. Fonte da verdade passa a ser `_shared/afroloc_code.ts` (implementação única importada por `qg-engine` e `yamioo-gateway`; elimina os 3 validadores divergentes). Forma canónica sem prefixos `X`/`Y` (prefixos tolerados e removidos na entrada — corrige decode errado de códigos offline). Formatos de 5/6 partes documentados. Testes em `_shared/afroloc_code.test.ts`. |
 | 1.0.0 | 2026-07-08 | Versão inicial, extraída do código canónico (`geo/sdk/engines/createAddress`). |
