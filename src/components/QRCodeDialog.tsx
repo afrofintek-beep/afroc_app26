@@ -42,10 +42,8 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
           level3: record.level3_name,
           level4: record.level4_name,
         },
-        coordinates: {
-          lat: record.geo_lat,
-          lon: record.geo_lon,
-        },
+        // Sem coordenadas: o endereço é a célula/código (Identidade Digital
+        // Territorial). Expor lat/lon no QR partilhado violaria a privacidade.
         property_type: record.property_type,
         status: record.status,
       };

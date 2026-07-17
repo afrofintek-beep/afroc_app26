@@ -20,6 +20,16 @@ const MIN_LEVEL_AUTO_APPROVE = 3; // Level 3+ can auto-approve their own creatio
 // Address types: Formal or Informal - both become Digital when assigned AFROLOC code
 type AddressCategory = 'formal' | 'informal';
 
+// Property types — devem bater a CHECK constraint (house|apartment|commercial|land|other)
+type PropertyType = 'house' | 'apartment' | 'commercial' | 'land' | 'other';
+const PROPERTY_TYPES: { value: PropertyType; labelKey: string; fallback: string }[] = [
+  { value: 'house', labelKey: 'clickprop_ptype_house', fallback: 'Residência' },
+  { value: 'apartment', labelKey: 'clickprop_ptype_apartment', fallback: 'Apartamento' },
+  { value: 'commercial', labelKey: 'clickprop_ptype_commercial', fallback: 'Comercial' },
+  { value: 'land', labelKey: 'clickprop_ptype_land', fallback: 'Terreno' },
+  { value: 'other', labelKey: 'clickprop_ptype_other', fallback: 'Outro' },
+];
+
 const ADDRESS_CATEGORIES = {
   formal: {
     label: 'Formal',
@@ -67,6 +77,7 @@ export function ClickProposalModal({
   const { data: authLevel, isLoading: authLoading } = useAuthorizationLevel();
   const [isCreating, setIsCreating] = useState(false);
   const [addressCategory, setAddressCategory] = useState<AddressCategory>('informal');
+  const [propertyType, setPropertyType] = useState<PropertyType>('house');
   const [streetName, setStreetName] = useState('');
   const [houseNumber, setHouseNumber] = useState('');
   
@@ -84,6 +95,7 @@ export function ClickProposalModal({
     setStreetName('');
     setHouseNumber('');
     setAddressCategory('informal');
+    setPropertyType('house');
     if (pulsingMarkerRef.current) {
       pulsingMarkerRef.current.remove();
       pulsingMarkerRef.current = null;
@@ -126,7 +138,7 @@ export function ClickProposalModal({
         registered_by_user_id: user.id,
         status: canAutoApprove ? 'approved' : 'pending_validation',
         address_type: addressCategory, // 'formal' or 'informal' - both are now digital addresses
-        property_type: 'house', // valor válido da CHECK constraint (house|apartment|commercial|land|other)
+        property_type: propertyType, // escolhido pelo utilizador (house|apartment|commercial|land|other)
         // Add street and number for formal addresses
         ...(addressCategory === 'formal' && {
           street_name: streetName.trim(),
@@ -203,7 +215,7 @@ export function ClickProposalModal({
     } finally {
       setIsCreating(false);
     }
-  }, [clickProposal, countryCode, userLevel, canAutoApprove, closeModal, addressCategory, streetName, houseNumber, isFormalValid]);
+  }, [clickProposal, countryCode, userLevel, canAutoApprove, closeModal, addressCategory, propertyType, streetName, houseNumber, isFormalValid]);
   
   if (!clickProposal) return null;
   
@@ -293,7 +305,22 @@ export function ClickProposalModal({
               })}
             </RadioGroup>
           </div>
-          
+
+          {/* Tipo de propriedade (escolhido pelo utilizador) */}
+          <div className="space-y-1">
+            <Label htmlFor="propertyType" className="text-xs font-medium">{t('clickprop_property_type')}</Label>
+            <select
+              id="propertyType"
+              value={propertyType}
+              onChange={(e) => setPropertyType(e.target.value as PropertyType)}
+              className="w-full h-8 text-sm rounded-md border border-input bg-background px-2 focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              {PROPERTY_TYPES.map((pt) => (
+                <option key={pt.value} value={pt.value}>{t(pt.labelKey)}</option>
+              ))}
+            </select>
+          </div>
+
           {/* Street Name and Number for Formal Addresses */}
           {addressCategory === 'formal' && (
             <div className="space-y-2 p-3 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200">
