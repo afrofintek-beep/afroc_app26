@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LocationMap from "@/components/LocationMap";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -54,6 +55,7 @@ export default function IdentityDetail() {
   const { t } = useLanguage();
   const { data: authLevel } = useAuthorizationLevel();
   const [deleting, setDeleting] = useState(false);
+  const [showZoneMap, setShowZoneMap] = useState(false);
   
   // Only show technical GPS details to high-level admins (level 4+) for auditing
   const userLevel = authLevel?.current_level || 1;
@@ -825,15 +827,30 @@ export default function IdentityDetail() {
                           contactInfo="+244 923 456 789"
                         />
                         
-                        {/* Abre a ZONA (célula ~10 m), não a posição exata: coordenadas coarsened p/ 4 casas. */}
+                        {/* Ver a ZONA no mapa Mapbox da própria app (não sai para o Google
+                            nem expõe as coordenadas a terceiros). Centrado na célula. */}
                         <Button
                           variant="outline"
                           className="w-full"
-                          onClick={() => window.open(`https://www.google.com/maps?q=${Number(record.geo_lat).toFixed(4)},${Number(record.geo_lon).toFixed(4)}`, "_blank")}
+                          onClick={() => setShowZoneMap((v) => !v)}
                         >
                           <MapPin className="mr-2 h-4 w-4" />
                           {t('view_zone_on_map')}
                         </Button>
+                        {showZoneMap && record.geo_lat != null && record.geo_lon != null && (
+                          <div className="mt-2 pointer-events-none">
+                            <LocationMap
+                              latitude={Number(Number(record.geo_lat).toFixed(4))}
+                              longitude={Number(Number(record.geo_lon).toFixed(4))}
+                              onLocationSelect={() => {}}
+                              initialCenter={[
+                                Number(Number(record.geo_lon).toFixed(4)),
+                                Number(Number(record.geo_lat).toFixed(4)),
+                              ]}
+                              initialZoom={16}
+                            />
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
