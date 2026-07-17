@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import QRCode from "qrcode";
+import jsPDF from "jspdf";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { QrCode, Download, Share2 } from "lucide-react";
+import { QrCode, Download, Share2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Database } from "@/integrations/supabase/types";
@@ -122,41 +123,74 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
     }
   };
 
+  // Monta um cartão A6 (105×148 mm): marca + QR + código AFROLOC + endereço.
+  const buildCardPdf = (): jsPDF => {
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a6" });
+    const pageW = doc.internal.pageSize.getWidth();
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(245, 158, 11); // AFROLOC amber
+    doc.text("AFROLOC", pageW / 2, 16, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(t("qrdialog_pdf_subtitle"), pageW / 2, 21, { align: "center" });
+
+    const qrSize = 64;
+    doc.addImage(qrCodeUrl, "PNG", (pageW - qrSize) / 2, 27, qrSize, qrSize);
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(17, 17, 17);
+    doc.text(record.code, pageW / 2, 27 + qrSize + 9, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    const addrLines = doc.splitTextToSize(getFullAddress(), pageW - 20);
+    doc.text(addrLines, pageW / 2, 27 + qrSize + 16, { align: "center" });
+
+    return doc;
+  };
+
+  const handleDownloadPdf = () => {
+    if (!qrCodeUrl) return;
+    try {
+      buildCardPdf().save(`afroloc-${record.code}.pdf`);
+      toast({ title: t("qrdialog_success"), description: t("qrdialog_download_success") });
+    } catch (error) {
+      console.error("Error generating PDF card:", error);
+      toast({ title: t("error"), description: t("qrdialog_error_download"), variant: "destructive" });
+    }
+  };
+
   const handleShare = async () => {
     if (!qrCodeUrl) return;
 
     try {
-      // Converter data URL para blob
-      const response = await fetch(qrCodeUrl);
-      const blob = await response.blob();
-      const file = new File([blob], `afroloc-${record.code}.png`, { type: "image/png" });
+      const doc = buildCardPdf();
+      const fileName = `afroloc-${record.code}.pdf`;
+      const file = new File([doc.output("blob")], fileName, { type: "application/pdf" });
 
-      if (navigator.share && navigator.canShare({ files: [file] })) {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: `AFROLOC: ${record.code}`,
           text: `${t("qrdialog_share_text_prefix")} ${record.code}`,
           files: [file],
         });
-
-        toast({
-          title: t("qrdialog_success"),
-          description: t("qrdialog_share_success"),
-        });
+        toast({ title: t("qrdialog_success"), description: t("qrdialog_share_success") });
       } else {
-        // Fallback: copiar para clipboard
-        await navigator.clipboard.writeText(qrCodeUrl);
-        toast({
-          title: t("qrdialog_copied"),
-          description: t("qrdialog_copy_success"),
-        });
+        // Sem partilha de ficheiros (ex.: desktop) — descarrega o PDF em vez de falhar.
+        doc.save(fileName);
+        toast({ title: t("qrdialog_success"), description: t("qrdialog_download_success") });
       }
     } catch (error) {
-      console.error("Error sharing QR code:", error);
-      toast({
-        title: t("error"),
-        description: t("qrdialog_error_share"),
-        variant: "destructive",
-      });
+      // Utilizador cancelou a partilha nativa — não é erro.
+      if ((error as Error)?.name === "AbortError") return;
+      console.error("Error sharing card:", error);
+      toast({ title: t("error"), description: t("qrdialog_error_share"), variant: "destructive" });
     }
   };
 
@@ -220,11 +254,15 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
 
           {/* Action Buttons */}
           <div className="flex gap-2">
-            <Button onClick={handleDownload} className="flex-1 gap-2" variant="outline">
+            <Button onClick={handleDownload} className="flex-1 gap-2" variant="outline" size="sm">
               <Download className="h-4 w-4" />
-              {t("qrdialog_download")}
+              PNG
             </Button>
-            <Button onClick={handleShare} className="flex-1 gap-2">
+            <Button onClick={handleDownloadPdf} className="flex-1 gap-2" variant="outline" size="sm">
+              <FileText className="h-4 w-4" />
+              PDF
+            </Button>
+            <Button onClick={handleShare} className="flex-1 gap-2" size="sm">
               <Share2 className="h-4 w-4" />
               {t("qrdialog_share")}
             </Button>

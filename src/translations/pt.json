@@ -4820,5 +4820,6 @@
   "createid_street_required_title": "Nome da rua obrigatório",
   "createid_street_required_desc": "Para endereços formais, indique o nome da rua.",
   "createid_position_marked_short": "Localização marcada no mapa.",
-  "offlineid_position_captured": "Localização captada"
+  "offlineid_position_captured": "Localização captada",
+  "qrdialog_pdf_subtitle": "Identidade Digital Territorial"
 }

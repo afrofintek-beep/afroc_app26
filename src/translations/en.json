@@ -4649,5 +4649,6 @@
   "createid_street_required_title": "Street name required",
   "createid_street_required_desc": "For formal addresses, please provide the street name.",
   "createid_position_marked_short": "Location marked on the map.",
-  "offlineid_position_captured": "Location captured"
+  "offlineid_position_captured": "Location captured",
+  "qrdialog_pdf_subtitle": "Territorial Digital Identity"
 }
