@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -154,9 +155,7 @@ export default function DeliveryChannels({
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const { data, error } = await supabase.functions.invoke("delivery-list", {
-        body: { afroloc_record_id: afrolocRecordId },
-      });
+      const { data, error } = await authedInvoke("delivery-list", { afroloc_record_id: afrolocRecordId });
 
       if (error) throw error;
       setDeliveryPoints(data.delivery_points || []);
@@ -192,15 +191,13 @@ export default function DeliveryChannels({
 
     setIsSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("delivery-register", {
-        body: {
-          afroloc_record_id: afrolocRecordId,
-          operator_id: selectedOperator,
-          point_type: pointType,
-          point_code: pointCode,
-          point_name: pointName || undefined,
-          point_address: pointAddress || undefined,
-        },
+      const { data, error } = await authedInvoke("delivery-register", {
+        afroloc_record_id: afrolocRecordId,
+        operator_id: selectedOperator,
+        point_type: pointType,
+        point_code: pointCode,
+        point_name: pointName || undefined,
+        point_address: pointAddress || undefined,
       });
 
       if (error) throw error;
@@ -242,11 +239,9 @@ export default function DeliveryChannels({
 
     setIsConfirming(true);
     try {
-      const { data, error } = await supabase.functions.invoke("delivery-confirm", {
-        body: {
-          delivery_point_id: pendingDeliveryPointId,
-          otp: otpValue,
-        },
+      const { data, error } = await authedInvoke("delivery-confirm", {
+        delivery_point_id: pendingDeliveryPointId,
+        otp: otpValue,
       });
 
       if (error) throw error;
@@ -284,9 +279,7 @@ export default function DeliveryChannels({
 
   const handleSetPrimary = async (deliveryPointId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke("delivery-set-primary", {
-        body: { delivery_point_id: deliveryPointId },
-      });
+      const { data, error } = await authedInvoke("delivery-set-primary", { delivery_point_id: deliveryPointId });
 
       if (error) throw error;
 
@@ -308,11 +301,9 @@ export default function DeliveryChannels({
 
   const handleRevoke = async (deliveryPointId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke("delivery-revoke", {
-        body: { 
-          delivery_point_id: deliveryPointId,
-          reason: "Revogado pelo utilizador",
-        },
+      const { data, error } = await authedInvoke("delivery-revoke", {
+        delivery_point_id: deliveryPointId,
+        reason: "Revogado pelo utilizador",
       });
 
       if (error) throw error;

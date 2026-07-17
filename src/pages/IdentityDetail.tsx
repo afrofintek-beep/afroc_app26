@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import LocationMap from "@/components/LocationMap";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -81,11 +82,9 @@ export default function IdentityDetail() {
     
     setDeleting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('address-gateway', {
-        body: {
-          action: 'delete',
-          recordId: id,
-        },
+      const { data, error } = await authedInvoke('address-gateway', {
+        action: 'delete',
+        recordId: id,
       });
 
       if (error) throw error;
@@ -414,11 +413,9 @@ export default function IdentityDetail() {
 
     // Send notification to witness
     try {
-      const { error } = await supabase.functions.invoke("notify-witness-contract-download", {
-        body: {
-          witness_id: witness.id,
-          afroloc_code: record?.code || "N/A",
-        },
+      const { error } = await authedInvoke("notify-witness-contract-download", {
+        witness_id: witness.id,
+        afroloc_code: record?.code || "N/A",
       });
 
       if (error) {
