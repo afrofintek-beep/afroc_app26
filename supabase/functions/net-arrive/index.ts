@@ -13,6 +13,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
 import { sendSms } from "../_shared/sms.ts";
+import { sendWhatsAppOtp } from "../_shared/whatsapp.ts";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -61,7 +62,7 @@ serve(async (req) => {
     const text = `Olá ${parcel?.recipient_name ?? ""}, a sua encomenda ${parcel?.tracking_code ?? ""} chegou ${where}. `
       + `Código de recolha: ${otp}. Apresente-o no levantamento. — Imbamba · Correios de Angola`;
 
-    let channel: "email" | "sms" | "none" = "none";
+    let channel: "email" | "whatsapp" | "sms" | "none" = "none";
     let sent = false;
     let sendError: string | null = null;
 
@@ -91,11 +92,22 @@ serve(async (req) => {
         if (r.error) sendError = r.error.message; else sent = true;
       } catch (e) { sendError = e instanceof Error ? e.message : String(e); }
     } else if (/^[+0-9][0-9\s]{6,}$/.test(contact)) {
-      channel = "sms";
-      try {
-        const r = await sendSms(contact.replace(/\s+/g, ""), text);
-        sent = r.ok; if (!r.ok) sendError = r.error ?? "SMS não entregue";
-      } catch (e) { sendError = e instanceof Error ? e.message : String(e); }
+      // Telefone: WhatsApp primeiro (melhor custo/fiabilidade em Angola — Unitel/
+      // Africell), SMS (Infobip) só como último recurso.
+      channel = "whatsapp";
+      const wa = await sendWhatsAppOtp(contact, otp ?? "");
+      if (wa.ok) {
+        sent = true;
+      } else {
+        sendError = wa.error ?? "WhatsApp não entregue";
+        try {
+          const r = await sendSms(contact.replace(/\s+/g, ""), text);
+          if (r.ok) { sent = true; channel = "sms"; sendError = null; }
+          else { sendError = `WhatsApp: ${wa.error}; SMS: ${r.error ?? "falhou"}`; }
+        } catch (e) {
+          sendError = `WhatsApp: ${wa.error}; SMS: ${e instanceof Error ? e.message : String(e)}`;
+        }
+      }
     } else {
       sendError = "Sem contacto válido (e-mail ou telefone) para notificar.";
     }
