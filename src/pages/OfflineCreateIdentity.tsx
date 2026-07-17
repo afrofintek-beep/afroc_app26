@@ -303,9 +303,12 @@ export default function OfflineCreateIdentity() {
               </div>
               
               {coordinates && (
+                /* NÃO expomos lat/lng — só confirmamos a captação (a precisão não é coordenada). */
                 <div className="text-sm bg-muted p-3 rounded-md space-y-1">
-                  <p><strong>{t('offlineid_latitude')}:</strong> {coordinates.latitude.toFixed(6)}</p>
-                  <p><strong>{t('offlineid_longitude')}:</strong> {coordinates.longitude.toFixed(6)}</p>
+                  <p className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                    <strong>{t('offlineid_position_captured')}</strong>
+                  </p>
                   {coordinates.accuracy && (
                     <p className="text-muted-foreground">{t('offlineid_accuracy')}: ±{coordinates.accuracy.toFixed(0)}m</p>
                   )}

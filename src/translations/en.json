@@ -1909,7 +1909,7 @@
   "createid_days": "days",
   "createid_temporary_note_prefix": "This address will become inactive after",
   "createid_temporary_note_suffix": "days if it is not verified and certified.",
-  "createid_gps_location": "GPS Location",
+  "createid_gps_location": "Map location",
   "createid_identifying_location": "Identifying location...",
   "createid_use_current_location": "Use Current Location",
   "createid_latitude": "Latitude",
@@ -2020,10 +2020,10 @@
   "offlineid_zone_urban": "Urban",
   "offlineid_zone_rural": "Rural",
   "offlineid_grid": "Grid",
-  "offlineid_gps_coordinates": "GPS Coordinates",
+  "offlineid_gps_coordinates": "Location",
   "offlineid_getting": "Getting...",
   "offlineid_update": "Update",
-  "offlineid_capture_gps": "Capture GPS",
+  "offlineid_capture_gps": "Mark location",
   "offlineid_latitude": "Latitude",
   "offlineid_longitude": "Longitude",
   "offlineid_accuracy": "Accuracy",
@@ -4647,5 +4647,7 @@
   "createid_addrtype_formal": "🏛️ Formal — has an official street and number",
   "createid_address_type_hint": "Indicate the type of address you are registering. The \"Digital\" type is assigned automatically after certification by an authority.",
   "createid_street_required_title": "Street name required",
-  "createid_street_required_desc": "For formal addresses, please provide the street name."
+  "createid_street_required_desc": "For formal addresses, please provide the street name.",
+  "createid_position_marked_short": "Location marked on the map.",
+  "offlineid_position_captured": "Location captured"
 }

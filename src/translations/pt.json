@@ -2080,7 +2080,7 @@
   "createid_days": "dias",
   "createid_temporary_note_prefix": "Este endereço ficará inativo após",
   "createid_temporary_note_suffix": "dias se não for verificado e certificado.",
-  "createid_gps_location": "Localização GPS",
+  "createid_gps_location": "Localização no mapa",
   "createid_identifying_location": "Identificando localização...",
   "createid_use_current_location": "Usar Localização Atual",
   "createid_latitude": "Latitude",
@@ -2191,10 +2191,10 @@
   "offlineid_zone_urban": "Urbana",
   "offlineid_zone_rural": "Rural",
   "offlineid_grid": "Grelha",
-  "offlineid_gps_coordinates": "Coordenadas GPS",
+  "offlineid_gps_coordinates": "Localização",
   "offlineid_getting": "A obter...",
   "offlineid_update": "Actualizar",
-  "offlineid_capture_gps": "Capturar GPS",
+  "offlineid_capture_gps": "Marcar localização",
   "offlineid_latitude": "Latitude",
   "offlineid_longitude": "Longitude",
   "offlineid_accuracy": "Precisão",
@@ -4818,5 +4818,7 @@
   "createid_addrtype_formal": "🏛️ Formal — tem rua e número oficiais",
   "createid_address_type_hint": "Indique o tipo do endereço que está a registar. O tipo \"Digital\" é atribuído automaticamente após a certificação por uma autoridade.",
   "createid_street_required_title": "Nome da rua obrigatório",
-  "createid_street_required_desc": "Para endereços formais, indique o nome da rua."
+  "createid_street_required_desc": "Para endereços formais, indique o nome da rua.",
+  "createid_position_marked_short": "Localização marcada no mapa.",
+  "offlineid_position_captured": "Localização captada"
 }

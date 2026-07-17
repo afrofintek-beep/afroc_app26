@@ -1044,28 +1044,15 @@ export default function CreateIdentity() {
                         initialZoom={mapZoom}
                       />
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="lat">{t('createid_latitude')}</Label>
-                          <Input
-                            id="lat"
-                            value={geoLat}
-                            onChange={(e) => setGeoLat(e.target.value)}
-                            placeholder="e.g., -8.912345"
-                            readOnly
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="lon">{t('createid_longitude')}</Label>
-                          <Input
-                            id="lon"
-                            value={geoLon}
-                            onChange={(e) => setGeoLon(e.target.value)}
-                            placeholder="e.g., 13.123456"
-                            readOnly
-                          />
-                      </div>
-                    </div>
+                      {/* NÃO expomos coordenadas (lat/lng) na UI — o endereço é a
+                          Identidade Digital Territorial (célula), não as coordenadas.
+                          O mapa acima marca a posição; guardamos geoLat/geoLon só em estado. */}
+                      {geoLat && geoLon && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                          {t('createid_position_marked_short')}
+                        </p>
+                      )}
 
                     {/* Property Photo Capture */}
                     <div className="border-t pt-4">
