@@ -321,7 +321,7 @@ export const exportTranslationsToExcel = async (): Promise<void> => {
   
   // Generate filename with timestamp
   const timestamp = new Date().toISOString().split('T')[0];
-  const filename = `AFRO-ID-Translations-Manual-${timestamp}.xlsx`;
+  const filename = `AFROLOC-Translations-Manual-${timestamp}.xlsx`;
   
   // Download file
   writeFile(wb, filename);

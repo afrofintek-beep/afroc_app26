@@ -402,7 +402,7 @@ export default function IdentityDetail() {
     doc.text(`Generated on: ${new Date().toLocaleString()}`, pageWidth / 2, 290, { align: "center" });
 
     // Save the PDF
-    const fileName = `AFROID_Witness_Contract_${witness.witness_afro_id}_${new Date().toISOString().split('T')[0]}.pdf`;
+    const fileName = `AFROLOC_Witness_Contract_${witness.witness_afro_id}_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
 
     toast({

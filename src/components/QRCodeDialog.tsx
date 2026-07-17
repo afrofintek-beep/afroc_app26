@@ -99,7 +99,7 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
-          link.download = `afroid-${record.code}.png`;
+          link.download = `afroloc-${record.code}.png`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
@@ -129,7 +129,7 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
       // Converter data URL para blob
       const response = await fetch(qrCodeUrl);
       const blob = await response.blob();
-      const file = new File([blob], `afroid-${record.code}.png`, { type: "image/png" });
+      const file = new File([blob], `afroloc-${record.code}.png`, { type: "image/png" });
 
       if (navigator.share && navigator.canShare({ files: [file] })) {
         await navigator.share({
