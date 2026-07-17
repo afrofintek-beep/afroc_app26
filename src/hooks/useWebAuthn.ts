@@ -79,10 +79,16 @@ export function useWebAuthn() {
   const register = useCallback(async (deviceName?: string) => {
     setBusy(true);
     try {
+      // Forçar o JWT do utilizador no header — o functions.invoke pode enviar a
+      // anon key em vez do token da sessão, o que faria a edge function devolver 401.
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error("Sessão não encontrada. Inicie sessão novamente.");
+      const authHeaders = { Authorization: `Bearer ${session.access_token}` };
+
       // 1) Opções + challenge do servidor.
       const { data: options, error: optErr } = await supabase.functions.invoke(
         "webauthn-register-options",
-        { body: {} },
+        { body: {}, headers: authHeaders },
       );
       if (optErr) throw new Error(await invokeError(optErr));
 
@@ -119,7 +125,7 @@ export function useWebAuthn() {
       // 3) Verificar e guardar no servidor.
       const { data: result, error: vErr } = await supabase.functions.invoke(
         "webauthn-register-verify",
-        { body: { credential, device_name: deviceName } },
+        { body: { credential, device_name: deviceName }, headers: authHeaders },
       );
       if (vErr) throw new Error(await invokeError(vErr));
 
