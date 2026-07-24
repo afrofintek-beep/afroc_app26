@@ -286,7 +286,8 @@ export default function OfflineSync() {
                           {(record.geo_lat && record.geo_lon) && (
                             <p className="text-xs text-muted-foreground flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              {record.geo_lat.toFixed(6)}, {record.geo_lon.toFixed(6)}
+                              {/* Sem coordenadas nas UIs de utilizador — só indicamos que há localização. */}
+                              Localização registada
                             </p>
                           )}
 

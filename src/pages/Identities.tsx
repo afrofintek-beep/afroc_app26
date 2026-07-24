@@ -629,11 +629,8 @@ export default function Identities() {
                                     </Badge>
                                   </div>
                                 )}
-                                {record.geo_lat && record.geo_lon && (
-                                  <div className="text-xs text-muted-foreground font-mono">
-                                    GPS: {Number(record.geo_lat).toFixed(5)}, {Number(record.geo_lon).toFixed(5)}
-                                  </div>
-                                )}
+                                {/* Sem coordenadas nas UIs de utilizador: o endereço é o
+                                    CÓDIGO AFROLOC (forma IP-protegida), não a coordenada nua. */}
 
                                 {/* Verification Cycle Status Bar - Semáforo (apenas para endereços validados) */}
                                 <VerificationStatusBar
