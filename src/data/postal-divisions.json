@@ -1,0 +1,2496 @@
+{
+ "_comment": "Fonte: administrative_divisions (BD ljcx) p/ CÓDIGOS REAIS + Quadro DPA 2024.08 p/ comuna→município. Validado 21/326/378. Chaves = códigos que os registos carregam.",
+ "provinces": [
+  {
+   "code": "AO-BGO",
+   "name": "Bengo"
+  },
+  {
+   "code": "AO-BIE",
+   "name": "Bié"
+  },
+  {
+   "code": "AO-CNO",
+   "name": "Cuanza Norte"
+  },
+  {
+   "code": "AO-LNO",
+   "name": "Lunda Norte"
+  },
+  {
+   "code": "AO-LSU",
+   "name": "Lunda Sul"
+  },
+  {
+   "code": "AO-CDA",
+   "name": "Cabinda"
+  },
+  {
+   "code": "AO-ZRE",
+   "name": "Zaire"
+  },
+  {
+   "code": "AO-UGE",
+   "name": "Uíge"
+  },
+  {
+   "code": "AO-LDA",
+   "name": "Luanda"
+  },
+  {
+   "code": "AO-IBE",
+   "name": "Icolo e Bengo"
+  },
+  {
+   "code": "AO-CSU",
+   "name": "Cuanza Sul"
+  },
+  {
+   "code": "AO-MJE",
+   "name": "Malanje"
+  },
+  {
+   "code": "AO-MCO",
+   "name": "Moxico"
+  },
+  {
+   "code": "AO-MLE",
+   "name": "Moxico Leste"
+  },
+  {
+   "code": "AO-HBO",
+   "name": "Huambo"
+  },
+  {
+   "code": "AO-BLA",
+   "name": "Benguela"
+  },
+  {
+   "code": "AO-NBE",
+   "name": "Namibe"
+  },
+  {
+   "code": "AO-HLA",
+   "name": "Huíla"
+  },
+  {
+   "code": "AO-CNE",
+   "name": "Cunene"
+  },
+  {
+   "code": "AO-CGO",
+   "name": "Cubango"
+  },
+  {
+   "code": "AO-CDO",
+   "name": "Cuando"
+  }
+ ],
+ "municipios": [
+  {
+   "code": "AO-BGO-AMBRIZ",
+   "name": "Ambriz",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-NAMBUANGO",
+   "name": "Nambuangongo",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-MUXALUAND",
+   "name": "Muxaluando",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-QUICUNZO",
+   "name": "Quicunzo",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-BULAATUMB",
+   "name": "Bula Atumba",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-DANDE",
+   "name": "Dande",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-PIRI",
+   "name": "Piri",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-QUIBAXE",
+   "name": "Quibaxe",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-PANGUILA",
+   "name": "Panguila",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-BARRADODA",
+   "name": "Barra do Dande",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-UCUA",
+   "name": "Úcua",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-BGO-PANGOALUQ",
+   "name": "Pango Aluquém",
+   "parent": "AO-BGO"
+  },
+  {
+   "code": "AO-CNO-BOLONGONG",
+   "name": "Bolongongo",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-QUICULUNG",
+   "name": "Quiculungo",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-BANGA",
+   "name": "Banga",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-AMBACA",
+   "name": "Ambaca",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-TANGO",
+   "name": "Tango",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-TERREIRO",
+   "name": "Terreiro",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-LUINGA",
+   "name": "Luinga",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-ALDEIANOV",
+   "name": "Aldeia Nova",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-SAMBACAJU",
+   "name": "Samba Cajú",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-NGONGUEMB",
+   "name": "Ngonguembo",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-CERCA",
+   "name": "Cêrca",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-GOLUNGOAL",
+   "name": "Golungo Alto",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-LUCALA",
+   "name": "Lucala",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-CACULOCAB",
+   "name": "Caculo Cabaça",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-MASSANGAN",
+   "name": "Massangano",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-CAZENGO",
+   "name": "Cazengo",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-CNO-CAMBAMBE",
+   "name": "Cambambe",
+   "parent": "AO-CNO"
+  },
+  {
+   "code": "AO-LNO-CHITATO",
+   "name": "Chitato",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-LOVUA",
+   "name": "Lóvua",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-MUSSUNGUE",
+   "name": "Mussungue",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-DUNDO",
+   "name": "Dundo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CANZAR",
+   "name": "Canzar",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-LUREMO",
+   "name": "Luremo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CAUNGULA",
+   "name": "Caungula",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CAMAXILO",
+   "name": "Camaxilo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CUILO",
+   "name": "Cuilo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-LUCAPA",
+   "name": "Lucapa",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-XACASSAU",
+   "name": "Xá Cassau",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CAMBULO",
+   "name": "Cambulo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CAFUNFO",
+   "name": "Cafunfo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CASSANJEC",
+   "name": "Cassanje Calucala",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CUANGO",
+   "name": "Cuango",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-LUBALO",
+   "name": "Lubalo",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-XAMUTEBA",
+   "name": "Xá Muteba",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-CAPENDACA",
+   "name": "Capenda Camulemba",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LNO-LUANGUE",
+   "name": "Luangue",
+   "parent": "AO-LNO"
+  },
+  {
+   "code": "AO-LSU-SOMBO",
+   "name": "Sombo",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-MUANGUEJI",
+   "name": "Muangueji",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-CHILUAGE",
+   "name": "Chiluage",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-MURIEGE",
+   "name": "Muriege",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-SAURIMO",
+   "name": "Saurimo",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-CACOLO",
+   "name": "Cacolo",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-CASSENGO",
+   "name": "Cassengo",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-CASSAISUL",
+   "name": "Cassai-Sul",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-XASSENGUE",
+   "name": "Xassengue",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-ALTOCHICA",
+   "name": "Alto Chicapa",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-LUMACASSA",
+   "name": "Luma Cassai",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-DALA",
+   "name": "Dala",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-CAZAGE",
+   "name": "Cazage",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-LSU-MUCONDA",
+   "name": "Muconda",
+   "parent": "AO-LSU"
+  },
+  {
+   "code": "AO-BIE-CUITO",
+   "name": "Cuíto",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-ANDULO",
+   "name": "Andulo",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CAMACUPA",
+   "name": "Camacupa",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CATABOLA",
+   "name": "Catabola",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CHINGUAR",
+   "name": "Chinguar",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CHITEMBO",
+   "name": "Chitembo",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CUEMBA",
+   "name": "Cuemba",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CUNHINGA",
+   "name": "Cunhinga",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CALUCINGA",
+   "name": "Calucinga",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-MUMBUE",
+   "name": "Mumbué",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CHICALA",
+   "name": "Chicala",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CAMBANDUA",
+   "name": "Cambândua",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-RINGOMA",
+   "name": "Ringoma",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-UMPULO",
+   "name": "Umpulo",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-CHIPETA",
+   "name": "Chipeta",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-BELOHORIZ",
+   "name": "Belo Horizonte",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-LUANDO",
+   "name": "Luando",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-BIE-LUBIA",
+   "name": "Lúbia",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-ZRE-QUINDEJE",
+   "name": "Quindeje",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-BIE-NHAREA",
+   "name": "Nharêa",
+   "parent": "AO-BIE"
+  },
+  {
+   "code": "AO-CDA-MICONJE",
+   "name": "Miconje",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-BELIZE",
+   "name": "Belize",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-BUCOZAU",
+   "name": "Buco Zau",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-MASSABI",
+   "name": "Massabi",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-NECUTO",
+   "name": "Necuto",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-CACONGO",
+   "name": "Cacongo",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-TANDOZINZ",
+   "name": "Tando Zinze",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-LIAMBO",
+   "name": "Liambo",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-CABINDA",
+   "name": "Cabinda",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-CDA-NGOIO",
+   "name": "Ngoio",
+   "parent": "AO-CDA"
+  },
+  {
+   "code": "AO-ZRE-SOYO",
+   "name": "Soyo",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-NOQUI",
+   "name": "Nóqui",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-LUVO",
+   "name": "Luvo",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-CUIMBA",
+   "name": "Cuimba",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-QUELO",
+   "name": "Quêlo",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-LUFICO",
+   "name": "Lufico",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-MBANZAKON",
+   "name": "Mbanza Kongo",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-SERRADECA",
+   "name": "Serra de Canda",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-TOMBOCO",
+   "name": "Tomboco",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-ZRE-NZETO",
+   "name": "Nzeto",
+   "parent": "AO-ZRE"
+  },
+  {
+   "code": "AO-UGE-NOVAESPER",
+   "name": "Nova Esperança",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-MAQUELADO",
+   "name": "Maquela do Zombo",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-SACANDICA",
+   "name": "Sacandica",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-QUIMBELE",
+   "name": "Quimbele",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-ALTOZAZA",
+   "name": "Alto Zaza",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-DAMBA",
+   "name": "Damba",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-LUCUNGA",
+   "name": "Lucunga",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-NSOSSO",
+   "name": "Nsosso",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-MILUNGA",
+   "name": "Milunga",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-BEMBE",
+   "name": "Bembe",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-SONGO",
+   "name": "Songo",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-MUCABA",
+   "name": "Mucaba",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-MASSAU",
+   "name": "Massau",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-AMBUILA",
+   "name": "Ambuíla",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-UIGE",
+   "name": "Uíge",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-BUNGO",
+   "name": "Bungo",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-SANZAPOMB",
+   "name": "Sanza Pombo",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-PURI",
+   "name": "Puri",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-QUIPEDRO",
+   "name": "Quipedro",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-DANGEQUIT",
+   "name": "Dange Quitexe",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-NEGAGE",
+   "name": "Negage",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-CANGOLA",
+   "name": "Cangola",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-UGE-VISTAALEG",
+   "name": "Vista Alegre",
+   "parent": "AO-UGE"
+  },
+  {
+   "code": "AO-LDA-RANGEL",
+   "name": "Rangel",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-INGOMBOTA",
+   "name": "Ingombota",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-SAMBIZANG",
+   "name": "Sambizanga",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-MAIANGA",
+   "name": "Maianga",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-SAMBA",
+   "name": "Samba",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-TALATONA",
+   "name": "Talatona",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-MUSSULO",
+   "name": "Mussulo",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-HOJIYAHEN",
+   "name": "Hoji ya Henda",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-CAZENGA",
+   "name": "Cazenga",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-CACUACO",
+   "name": "Cacuaco",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-KILAMBAKI",
+   "name": "Kilamba Kiaxi",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-MULENVOS",
+   "name": "Mulenvos",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-CAMAMA",
+   "name": "Camama",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-VIANA",
+   "name": "Viana",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-KILAMBA",
+   "name": "Kilamba",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-LDA-BELAS",
+   "name": "Belas",
+   "parent": "AO-LDA"
+  },
+  {
+   "code": "AO-IBE-SEQUELE",
+   "name": "Sequele",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-IBE-CABOLEDO",
+   "name": "Cabo Ledo",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-IBE-BOMJESUS",
+   "name": "Bom Jesus",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-IBE-CABIRI",
+   "name": "Cabiri",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-IBE-CATETE",
+   "name": "Catete",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-IBE-CALUMBO",
+   "name": "Calumbo",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-IBE-QUICAMA",
+   "name": "Quiçama",
+   "parent": "AO-IBE"
+  },
+  {
+   "code": "AO-CSU-QUIRIMBO",
+   "name": "Quirimbo",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-BOAENTRAD",
+   "name": "Boa Entrada",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-GANGULA",
+   "name": "Gangula",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-SUMBE",
+   "name": "Sumbe",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-MUNENGA",
+   "name": "Munenga",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-CASSONGUE",
+   "name": "Cassongue",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-CALULO",
+   "name": "Calulo",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-QUILENDA",
+   "name": "Quilenda",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-MUSSENDE",
+   "name": "Mussende",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-PORTOAMBO",
+   "name": "Porto Amboim",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-QUIBALA",
+   "name": "Quibala",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-LONHE",
+   "name": "Lonhe",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-CONDE",
+   "name": "Condé",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-GABELA",
+   "name": "Gabela",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-EBO",
+   "name": "Ebo",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-SANGA",
+   "name": "Sanga",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-CONDA",
+   "name": "Conda",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-WAKUKUNGO",
+   "name": "Waku Kungo",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-SELES",
+   "name": "Seles",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-AMBOIVA",
+   "name": "Amboiva",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-GUNGO",
+   "name": "Gungo",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-PAMBANGAL",
+   "name": "Pambangala",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-QUENHA",
+   "name": "Quenha",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-CSU-QUISSONGO",
+   "name": "Quissongo",
+   "parent": "AO-CSU"
+  },
+  {
+   "code": "AO-MJE-QUIHUHU",
+   "name": "Quihuhu",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-MASSANGO",
+   "name": "Massango",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-MARIMBA",
+   "name": "Marimba",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CUALE",
+   "name": "Cuale",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-MBANJIYAN",
+   "name": "Mbanji ya Ngola",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-KUNDADYAB",
+   "name": "Kunda dya Baze",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-MILANDO",
+   "name": "Milando",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CAMBOSUIN",
+   "name": "Cambo Suinginge",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CATECOCAN",
+   "name": "Cateco Cangola",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CAHOMBO",
+   "name": "Cahombo",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-KIWABANZO",
+   "name": "Kiwaba Nzoji",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-QUELA",
+   "name": "Quela",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-NGOLALUIJ",
+   "name": "Ngola Luiji",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CALANDULA",
+   "name": "Calandula",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CACUSO",
+   "name": "Cacuso",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-MUQUIXE",
+   "name": "Muquixe",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CACULAMA",
+   "name": "Caculama",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-XANDEL",
+   "name": "Xandel",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-PUNGUANDO",
+   "name": "Pungu a Ndongo",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-MALANJE",
+   "name": "Malanje",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-QUESSUA",
+   "name": "Quêssua",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CANGANDAL",
+   "name": "Cangandala",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CAMBUNDIC",
+   "name": "Cambundi Catembo",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-QUITAPA",
+   "name": "Quitapa",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-CAPUNDA",
+   "name": "Capunda",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-LUQUEMBO",
+   "name": "Luquembo",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-MJE-QUIRIMA",
+   "name": "Quirima",
+   "parent": "AO-MJE"
+  },
+  {
+   "code": "AO-BLA-CHONGOROI",
+   "name": "Chongoroi",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-MCO-LEUA",
+   "name": "Léua",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-CAMANONGU",
+   "name": "Camanongue",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-LUENA",
+   "name": "Luena",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-CANGUMBE",
+   "name": "Cangumbe",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-LUCUSSE",
+   "name": "Lucusse",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-LUTUAI",
+   "name": "Lutuai",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-ALTOCUITO",
+   "name": "Alto Cuito",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-LUTEMBO",
+   "name": "Lutembo",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-CANGAMBA",
+   "name": "Cangamba",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-LUMBALANG",
+   "name": "Lumbala Nguimbo",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-NINDA",
+   "name": "Ninda",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MCO-CHIUME",
+   "name": "Chiúme",
+   "parent": "AO-MCO"
+  },
+  {
+   "code": "AO-MLE-LUAU",
+   "name": "Luau",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-LUACANO",
+   "name": "Luacano",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-CAMEIA",
+   "name": "Cameia",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-LAGODILOL",
+   "name": "Lago Dilolo",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-CAZOMBO",
+   "name": "Cazombo",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-NANACANDU",
+   "name": "Nana Candundo",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-CAIANDA",
+   "name": "Caianda",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-LOVUADOZA",
+   "name": "Lóvua do Zambeze",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-MLE-MACONDO",
+   "name": "Macondo",
+   "parent": "AO-MLE"
+  },
+  {
+   "code": "AO-BLA-BALOMBO",
+   "name": "Balombo",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-HBO-ECUNHA",
+   "name": "Ecunha",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-HUAMBO",
+   "name": "Huambo",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-BAILUNDO",
+   "name": "Bailundo",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-CAALA",
+   "name": "Caála",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-CACHIUNGO",
+   "name": "Cachiungo",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-LONDUIMBA",
+   "name": "Londuimbali",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-LONGONJO",
+   "name": "Longonjo",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-MUNGO",
+   "name": "Mungo",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-CHINJENJE",
+   "name": "Chinjenje",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-UCUMA",
+   "name": "Ucuma",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-ALTOHAMA",
+   "name": "Alto-Hama",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-BIMBE",
+   "name": "Bimbe",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-CUIMA",
+   "name": "Cuima",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-CHILATA",
+   "name": "Chilata",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-GALANGA",
+   "name": "Galanga",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-HBO-SAMBO",
+   "name": "Sambo",
+   "parent": "AO-HBO"
+  },
+  {
+   "code": "AO-BLA-BENGUELA",
+   "name": "Benguela",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-LOBITO",
+   "name": "Lobito",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CATUMBELA",
+   "name": "Catumbela",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-GANDA",
+   "name": "Ganda",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-BOCOIO",
+   "name": "Bocoio",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CUBAL",
+   "name": "Cubal",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-BAIAFARTA",
+   "name": "Baía Farta",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CAIMBAMBO",
+   "name": "Caimbambo",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CHICUMA",
+   "name": "Chicuma",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-BIOPIO",
+   "name": "Biópio",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CHILA",
+   "name": "Chila",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CHINDUMBO",
+   "name": "Chindumbo",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CAPUPA",
+   "name": "Capupa",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-DOMBEGRAN",
+   "name": "Dombe Grande",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CANHAMELA",
+   "name": "Canhamela",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-CATENGUE",
+   "name": "Catengue",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-BOLONGUER",
+   "name": "Bolonguera",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-NAVEGANTE",
+   "name": "Navegantes",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-BABERA",
+   "name": "Babaera",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-NBE-MOCAMEDES",
+   "name": "Moçâmedes",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-BIBALA",
+   "name": "Bibala",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-CAMUCUIO",
+   "name": "Camucuio",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-VIREI",
+   "name": "Virei",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-LUCIRA",
+   "name": "Lucira",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-SACOMAR",
+   "name": "Sacomar",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-CACIMBAS",
+   "name": "Cacimbas",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-IONA",
+   "name": "Iona",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-NBE-TOMBUA",
+   "name": "Tômbwa",
+   "parent": "AO-NBE"
+  },
+  {
+   "code": "AO-HLA-HOQUE",
+   "name": "Hoque",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-LUBANGO",
+   "name": "Lubango",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CHIBIA",
+   "name": "Chibia",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-HUMPATA",
+   "name": "Humpata",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-MATALA",
+   "name": "Matala",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-QUIPUNGO",
+   "name": "Quipungo",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CACONDA",
+   "name": "Caconda",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CALUQUEMB",
+   "name": "Caluquembe",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CACULA",
+   "name": "Cacula",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CHICOMBA",
+   "name": "Chicomba",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CHIPINDO",
+   "name": "Chipindo",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CUVANGO",
+   "name": "Cuvango",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-GAMBOS",
+   "name": "Gambos",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-QUILENGUE",
+   "name": "Quilengues",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-DONGO",
+   "name": "Dongo",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-PALANCA",
+   "name": "Palanca",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-VITIVIVAL",
+   "name": "Viti-Vivali",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CAPELONGO",
+   "name": "Capelongo",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CHICUNGO",
+   "name": "Chicungo",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CAPUNDACA",
+   "name": "Capunda Cavilongo",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-CHITUTO",
+   "name": "Chituto",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-GALANGUE",
+   "name": "Galangue",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-HLA-JAMBA",
+   "name": "Jamba Mineira",
+   "parent": "AO-HLA"
+  },
+  {
+   "code": "AO-CNE-CUROCA",
+   "name": "Curoca",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CAHAMA",
+   "name": "Cahama",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-HUMBE",
+   "name": "Humbe",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CHITADO",
+   "name": "Chitado",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-NAULILA",
+   "name": "Naulila",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-OMBADJA",
+   "name": "Ombadja",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CUANHAMA",
+   "name": "Cuanhama",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-NAMACUNDE",
+   "name": "Namacunde",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CUVELAI",
+   "name": "Cuvelai",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-MUPA",
+   "name": "Mupa",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-NEHONE",
+   "name": "Nehone",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CHISSUATA",
+   "name": "Chissuata",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CAFIMA",
+   "name": "Cafima",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CNE-CHIEDE",
+   "name": "Chiéde",
+   "parent": "AO-CNE"
+  },
+  {
+   "code": "AO-CGO-CUTATO",
+   "name": "Cutato",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-CUCHI",
+   "name": "Cuchi",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-CHINGUANJ",
+   "name": "Chinguanja",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-MENONGUE",
+   "name": "Menongue",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-CAIUNDO",
+   "name": "Caiundo",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-LONGA",
+   "name": "Longa",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-SAVATE",
+   "name": "Savate",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-NANCOVA",
+   "name": "Nancova",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-CUANGAR",
+   "name": "Cuangar",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-MAVENGUE",
+   "name": "Mavengue",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CGO-CALAI",
+   "name": "Calai",
+   "parent": "AO-CGO"
+  },
+  {
+   "code": "AO-CDO-CUITOCUAN",
+   "name": "Cuito Cuanavale",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-DIMA",
+   "name": "Dima",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-MAVINGA",
+   "name": "Mavinga",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-RIVUNGO",
+   "name": "Rivungo",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-XIPUNDO",
+   "name": "Xipundo",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-LUENGUE",
+   "name": "Luengue",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-DIRICO",
+   "name": "Dirico",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-MUCUSSO",
+   "name": "Mucusso",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-CDO-LUIANA",
+   "name": "Luiana",
+   "parent": "AO-CDO"
+  },
+  {
+   "code": "AO-BLA-EGIPTOPRA",
+   "name": "Egito-Praia",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-BLA-YAMBALA",
+   "name": "Iambala",
+   "parent": "AO-BLA"
+  },
+  {
+   "code": "AO-HBO-CHICALACH",
+   "name": "Chicala-Choloanga",
+   "parent": "AO-HBO"
+  }
+ ],
+ "regions": {
+  "1": {
+   "name": "Norte",
+   "provinceCodes": [
+    "AO-CDA",
+    "AO-ZRE",
+    "AO-UGE",
+    "AO-BGO",
+    "AO-CNO",
+    "AO-MJE"
+   ]
+  },
+  "2": {
+   "name": "Centro",
+   "provinceCodes": [
+    "AO-HBO",
+    "AO-BIE"
+   ]
+  },
+  "3": {
+   "name": "Sul",
+   "provinceCodes": [
+    "AO-NBE",
+    "AO-HLA",
+    "AO-CNE",
+    "AO-CGO",
+    "AO-CDO"
+   ]
+  },
+  "4": {
+   "name": "Leste",
+   "provinceCodes": [
+    "AO-LNO",
+    "AO-LSU",
+    "AO-MCO",
+    "AO-MLE"
+   ]
+  },
+  "5": {
+   "name": "Oeste",
+   "provinceCodes": [
+    "AO-LDA",
+    "AO-IBE",
+    "AO-CSU",
+    "AO-BLA"
+   ]
+  }
+ },
+ "provinceRegion": {
+  "AO-CDA": 1,
+  "AO-ZRE": 1,
+  "AO-UGE": 1,
+  "AO-BGO": 1,
+  "AO-CNO": 1,
+  "AO-MJE": 1,
+  "AO-HBO": 2,
+  "AO-BIE": 2,
+  "AO-NBE": 3,
+  "AO-HLA": 3,
+  "AO-CNE": 3,
+  "AO-CGO": 3,
+  "AO-CDO": 3,
+  "AO-LNO": 4,
+  "AO-LSU": 4,
+  "AO-MCO": 4,
+  "AO-MLE": 4,
+  "AO-LDA": 5,
+  "AO-IBE": 5,
+  "AO-CSU": 5,
+  "AO-BLA": 5
+ },
+ "comunas": {
+  "AO-CDA-CACONGO": [
+   "Dinge",
+   "Lândana"
+  ],
+  "AO-CDA-BELIZE": [
+   "Belize",
+   "Luali"
+  ],
+  "AO-CDA-NECUTO": [
+   "Inhuca",
+   "Necuto"
+  ],
+  "AO-CDA-TANDOZINZ": [
+   "Malembo",
+   "Tando Zinze"
+  ],
+  "AO-ZRE-SOYO": [
+   "Pedra de Feitiço",
+   "Soyo"
+  ],
+  "AO-ZRE-MBANZAKON": [
+   "Caluca",
+   "Madimba",
+   "Mbanza Kongo",
+   "Quiende"
+  ],
+  "AO-ZRE-NZETO": [
+   "Musserra",
+   "Nzeto"
+  ],
+  "AO-ZRE-TOMBOCO": [
+   "Quinsimba",
+   "Quinzau",
+   "Tomboco"
+  ],
+  "AO-ZRE-CUIMBA": [
+   "Buela",
+   "Cuimba",
+   "Luvaca"
+  ],
+  "AO-ZRE-LUFICO": [
+   "Lufico",
+   "Mpala"
+  ],
+  "AO-ZRE-QUINDEJE": [
+   "Quibala - Norte",
+   "Quindeje"
+  ],
+  "AO-UGE-DANGEQUIT": [
+   "Aldeia Viçosa",
+   "Quitexe"
+  ],
+  "AO-UGE-NEGAGE": [
+   "Dimuca",
+   "Negage",
+   "Quisseque"
+  ],
+  "AO-UGE-MAQUELADO": [
+   "Maquela do Zombo",
+   "Quibocolo"
+  ],
+  "AO-UGE-DAMBA": [
+   "Camatambo",
+   "Damba",
+   "Lêmboa",
+   "Petecusso"
+  ],
+  "AO-UGE-SANZAPOMB": [
+   "Alfândega",
+   "Cuilo Pombo",
+   "Sanza Pombo",
+   "Uamba"
+  ],
+  "AO-UGE-BEMBE": [
+   "Bembe",
+   "Mabaia"
+  ],
+  "AO-UGE-MILUNGA": [
+   "Macocola",
+   "Milunga"
+  ],
+  "AO-UGE-SONGO": [
+   "Quivuenga",
+   "Songo"
+  ],
+  "AO-UGE-QUIMBELE": [
+   "Icoca",
+   "Quimbele"
+  ],
+  "AO-UGE-CANGOLA": [
+   "Bengo",
+   "Caiongo",
+   "Cangola"
+  ],
+  "AO-UGE-UIGE": [
+   "Cancungo",
+   "Casseche",
+   "Luanga",
+   "Uíge"
+  ],
+  "AO-UGE-MUCABA": [
+   "Mucaba",
+   "Uando Mucaba"
+  ],
+  "AO-UGE-NOVAESPER": [
+   "Buenga - Sul",
+   "Cuilo Camboso",
+   "Nova Esperança"
+  ],
+  "AO-UGE-SACANDICA": [
+   "Béu",
+   "Cuilo Futa",
+   "Sacandica"
+  ],
+  "AO-UGE-MASSAU": [
+   "Macolo",
+   "Massau"
+  ],
+  "AO-UGE-VISTAALEG": [
+   "Cambamba",
+   "Vista Alegre"
+  ],
+  "AO-UGE-ALTOZAZA": [
+   "Alto Zaza",
+   "Cuango Calumbo"
+  ],
+  "AO-BGO-DANDE": [
+   "Caxito",
+   "Mabubas",
+   "Quicabo"
+  ],
+  "AO-BGO-QUIBAXE": [
+   "Coxe",
+   "Paredes",
+   "Quibaxe"
+  ],
+  "AO-BGO-MUXALUAND": [
+   "Cage Mazumbo",
+   "Muxaluando",
+   "Quixico"
+  ],
+  "AO-BGO-BULAATUMB": [
+   "Bula Atumba",
+   "Quiage"
+  ],
+  "AO-BGO-AMBRIZ": [
+   "Ambriz",
+   "Bela Vista",
+   "Tabi"
+  ],
+  "AO-BGO-PANGOALUQ": [
+   "Cazuangongo",
+   "Pango Aluquém"
+  ],
+  "AO-BGO-NAMBUANGO": [
+   "Canacassala",
+   "Gombe",
+   "Zala"
+  ],
+  "AO-LDA-CACUACO": [
+   "Cacuaco",
+   "Kikolo"
+  ],
+  "AO-LDA-CAZENGA": [
+   "Cazenga",
+   "Kima Kieza"
+  ],
+  "AO-LDA-BELAS": [
+   "Barra do Cuanza",
+   "Cabolombo",
+   "Ramiros"
+  ],
+  "AO-LDA-KILAMBAKI": [
+   "Golfe",
+   "Nova Vida"
+  ],
+  "AO-LDA-TALATONA": [
+   "Benfica",
+   "Talatona"
+  ],
+  "AO-LDA-KILAMBA": [
+   "Kilamba",
+   "Vila Flôr"
+  ],
+  "AO-IBE-CATETE": [
+   "Caculo Cahango",
+   "Cassoneca",
+   "Catete",
+   "Caxicane"
+  ],
+  "AO-IBE-QUICAMA": [
+   "Demba Chio",
+   "Mumbondo",
+   "Muxima",
+   "Quixinge"
+  ],
+  "AO-IBE-SEQUELE": [
+   "Funda",
+   "Quifangondo",
+   "Sequele"
+  ],
+  "AO-CNO-CAZENGO": [
+   "Caculo Camuiza",
+   "Ndalatando"
+  ],
+  "AO-CNO-GOLUNGOAL": [
+   "Cambondo",
+   "Golungo Alto",
+   "Quilombo quía Puto"
+  ],
+  "AO-CNO-CAMBAMBE": [
+   "Dange ya Menha",
+   "Dondo",
+   "São Pedro da Quilemba"
+  ],
+  "AO-CNO-SAMBACAJU": [
+   "Samba Cajú",
+   "Samba Lucala"
+  ],
+  "AO-CNO-AMBACA": [
+   "Bindo",
+   "Camabatela",
+   "Máua"
+  ],
+  "AO-CNO-LUCALA": [
+   "Lucala",
+   "Quiangombe"
+  ],
+  "AO-CNO-BANGA": [
+   "Banga",
+   "Cariamba"
+  ],
+  "AO-CNO-NGONGUEMB": [
+   "Camame",
+   "Cavunga",
+   "Quilombo dos Dembos"
+  ],
+  "AO-CNO-MASSANGAN": [
+   "Massangano",
+   "Zenza do Itombe"
+  ],
+  "AO-CNO-TERREIRO": [
+   "Quiquiemba",
+   "Terreiro"
+  ],
+  "AO-CSU-SUMBE": [
+   "Quicombo",
+   "Sumbe"
+  ],
+  "AO-CSU-CALULO": [
+   "Cabuta",
+   "Calulo"
+  ],
+  "AO-CSU-GABELA": [
+   "Assango",
+   "Gabela"
+  ],
+  "AO-CSU-CASSONGUE": [
+   "Atóme",
+   "Cassongue",
+   "Dumbi"
+  ],
+  "AO-CSU-PORTOAMBO": [
+   "Capolo",
+   "Porto Amboím"
+  ],
+  "AO-CSU-QUIBALA": [
+   "Dala Cachibo",
+   "Quibala"
+  ],
+  "AO-CSU-SELES": [
+   "Botera",
+   "Seles"
+  ],
+  "AO-CSU-MUSSENDE": [
+   "Mussende",
+   "Quipaxi"
+  ],
+  "AO-CSU-EBO": [
+   "Cassanje",
+   "Ebo"
+  ],
+  "AO-CSU-CONDA": [
+   "Conda",
+   "Cunjo"
+  ],
+  "AO-CSU-LONHE": [
+   "Cariango",
+   "Lonhe"
+  ],
+  "AO-MJE-CALANDULA": [
+   "Calandula",
+   "Cota"
+  ],
+  "AO-MJE-MALANJE": [
+   "Lombe",
+   "Malanje"
+  ],
+  "AO-MJE-CACUSO": [
+   "Cacuso",
+   "Soqueco"
+  ],
+  "AO-MJE-MARIMBA": [
+   "Mangando",
+   "Marimba"
+  ],
+  "AO-MJE-QUELA": [
+   "Bângalas",
+   "Quela"
+  ],
+  "AO-MJE-QUIRIMA": [
+   "Quirima",
+   "Sautar"
+  ],
+  "AO-MJE-CANGANDAL": [
+   "Cangandala",
+   "Caribo",
+   "Culamagia"
+  ],
+  "AO-MJE-CAHOMBO": [
+   "Cahombo",
+   "Micanda"
+  ],
+  "AO-MJE-KUNDADYAB": [
+   "Kunda dya Baze",
+   "Lemba"
+  ],
+  "AO-MJE-CAMBUNDIC": [
+   "Cambundi Catembo",
+   "Dumba Cambango"
+  ],
+  "AO-MJE-CACULAMA": [
+   "Caculama",
+   "Caxinga"
+  ],
+  "AO-MJE-KIWABANZO": [
+   "Kiwaba Nzoji",
+   "Mufuma"
+  ],
+  "AO-MJE-LUQUEMBO": [
+   "Dombo wa Zanga",
+   "Luquembo"
+  ],
+  "AO-MJE-MBANJIYAN": [
+   "Cabombo",
+   "Mbanji ya Ngola"
+  ],
+  "AO-MJE-NGOLALUIJ": [
+   "Cambaxe",
+   "Ngola Luiji"
+  ],
+  "AO-MJE-QUIHUHU": [
+   "Quihuhu",
+   "Quinguengue"
+  ],
+  "AO-MJE-XANDEL": [
+   "Moma",
+   "Xandel"
+  ],
+  "AO-MJE-CAPUNDA": [
+   "Capunda",
+   "Cunga Palanga",
+   "Quimbango"
+  ],
+  "AO-LNO-CUILO": [
+   "Caluango",
+   "Cuilo"
+  ],
+  "AO-LNO-DUNDO": [
+   "Dundo",
+   "Luachimo"
+  ],
+  "AO-LNO-LUBALO": [
+   "Lubalo",
+   "Muvuluege"
+  ],
+  "AO-LNO-CAPENDACA": [
+   "Capenda Camulemba",
+   "Xinge"
+  ],
+  "AO-LNO-LUCAPA": [
+   "Camissombo",
+   "Lucapa"
+  ],
+  "AO-LNO-CAMBULO": [
+   "Cachimo",
+   "Nzage"
+  ],
+  "AO-LNO-XACASSAU": [
+   "Capaia",
+   "Xá Cassau"
+  ],
+  "AO-LNO-CANZAR": [
+   "Canzar",
+   "Luia"
+  ],
+  "AO-LNO-CASSANJEC": [
+   "Cassanje Calucala",
+   "Iongo"
+  ],
+  "AO-LNO-MUSSUNGUE": [
+   "Caíta",
+   "Mussungue"
+  ],
+  "AO-LSU-SAURIMO": [
+   "Mona Quimbundo",
+   "Saurimo"
+  ],
+  "AO-LSU-XASSENGUE": [
+   "Cucumbi",
+   "Xassengue"
+  ],
+  "AO-MCO-LUENA": [
+   "Cassongo",
+   "Luena"
+  ],
+  "AO-MCO-CANGAMBA": [
+   "Cangamba",
+   "Cangombe",
+   "Cassamba",
+   "Muié"
+  ],
+  "AO-MCO-LUMBALANG": [
+   "Lumbala Nguimbo",
+   "Mussuma Mitete",
+   "Sessa"
+  ],
+  "AO-MCO-LEUA": [
+   "Léua",
+   "Liangongo"
+  ],
+  "AO-MCO-LUTEMBO": [
+   "Lutembo",
+   "Luvuei"
+  ],
+  "AO-MLE-CAZOMBO": [
+   "Cazombo",
+   "Lumbala Caquengue"
+  ],
+  "AO-MLE-MACONDO": [
+   "Calunda",
+   "Macondo"
+  ],
+  "AO-BIE-ANDULO": [
+   "Andulo",
+   "Cassumbe",
+   "Chivaúlo"
+  ],
+  "AO-BIE-CHITEMBO": [
+   "Cachingues",
+   "Chitembo",
+   "Malengue"
+  ],
+  "AO-BIE-CUITO": [
+   "Cuito",
+   "Cunje"
+  ],
+  "AO-BIE-CAMACUPA": [
+   "Camacupa",
+   "Cuanza",
+   "Muinha"
+  ],
+  "AO-BIE-CHINGUAR": [
+   "Cangote",
+   "Chinguar",
+   "Cutato"
+  ],
+  "AO-BIE-CATABOLA": [
+   "Caiuera",
+   "Catabola",
+   "Sande"
+  ],
+  "AO-BIE-CUEMBA": [
+   "Cuemba",
+   "Munhango",
+   "Sachinemuna"
+  ],
+  "AO-BIE-NHAREA": [
+   "Caieie",
+   "Gamba",
+   "Nharêa"
+  ],
+  "AO-BIE-MUMBUE": [
+   "Mumbué",
+   "Mutumbo",
+   "Soma Cuanza"
+  ],
+  "AO-BIE-CHIPETA": [
+   "Chipeta",
+   "Chiuca"
+  ],
+  "AO-BIE-LUBIA": [
+   "Dando",
+   "Lúbia"
+  ],
+  "AO-HBO-BAILUNDO": [
+   "Bailundo",
+   "Lunge",
+   "Luvemba"
+  ],
+  "AO-HBO-HUAMBO": [
+   "Calima",
+   "Huambo"
+  ],
+  "AO-HBO-LONDUIMBA": [
+   "Londuimbali",
+   "Ussoque"
+  ],
+  "AO-HBO-CHICALACH": [
+   "Chicala",
+   "Mbave"
+  ],
+  "AO-HBO-CACHIUNGO": [
+   "Cachiungo",
+   "Chinhama"
+  ],
+  "AO-HBO-MUNGO": [
+   "Cambuengo",
+   "Mungo"
+  ],
+  "AO-HBO-LONGONJO": [
+   "Lépi",
+   "Longonjo"
+  ],
+  "AO-HBO-UCUMA": [
+   "Cacoma",
+   "Mundundo",
+   "Ucuma"
+  ],
+  "AO-HBO-ECUNHA": [
+   "Ecunha",
+   "Quipeio"
+  ],
+  "AO-HBO-CHINJENJE": [
+   "Chiaca",
+   "Chinjenje"
+  ],
+  "AO-HBO-BIMBE": [
+   "Bimbe",
+   "Hengue"
+  ],
+  "AO-HBO-SAMBO": [
+   "Sambo",
+   "Samboto"
+  ],
+  "AO-HBO-GALANGA": [
+   "Cumbira",
+   "Galanga"
+  ],
+  "AO-HBO-CUIMA": [
+   "Catata",
+   "Cuima"
+  ],
+  "AO-BLA-BOCOIO": [
+   "Bocoio",
+   "Cubal do Lumbo",
+   "Monte Belo"
+  ],
+  "AO-BLA-BALOMBO": [
+   "Balombo",
+   "Maca Mombolo"
+  ],
+  "AO-BLA-CAIMBAMBO": [
+   "Caiave",
+   "Caimbambo",
+   "Viangombe"
+  ],
+  "AO-BLA-CHONGOROI": [
+   "Camuine",
+   "Chongorói"
+  ],
+  "AO-BLA-EGIPTOPRA": [
+   "Canjala",
+   "Egito Praia"
+  ],
+  "AO-NBE-BIBALA": [
+   "Bibala",
+   "Caitou",
+   "Capangombe",
+   "Lola"
+  ],
+  "AO-NBE-VIREI": [
+   "Cainde",
+   "Virei"
+  ],
+  "AO-NBE-CAMUCUIO": [
+   "Camucuio",
+   "Chingo",
+   "Mamué"
+  ],
+  "AO-NBE-LUCIRA": [
+   "Bentiaba",
+   "Lucira"
+  ],
+  "AO-HLA-CACONDA": [
+   "Caconda",
+   "Cusse",
+   "Gungue",
+   "Uaba"
+  ],
+  "AO-HLA-GAMBOS": [
+   "Chiange",
+   "Chimbemba"
+  ],
+  "AO-HLA-LUBANGO": [
+   "Huíla",
+   "Lubango"
+  ],
+  "AO-HLA-CHIBIA": [
+   "Chibia",
+   "Jau"
+  ],
+  "AO-HLA-QUILENGUE": [
+   "Dinde",
+   "Impulo",
+   "Quilengues"
+  ],
+  "AO-HLA-CALUQUEMB": [
+   "Calepi",
+   "Caluquembe",
+   "Negola"
+  ],
+  "AO-HLA-JAMBA": [
+   "Cassinga",
+   "Jamba Mineira"
+  ],
+  "AO-HLA-CHIPINDO": [
+   "Bambi",
+   "Chipindo"
+  ],
+  "AO-HLA-CHICOMBA": [
+   "Chicomba",
+   "Cutenda"
+  ],
+  "AO-HLA-CACULA": [
+   "Cacula",
+   "Tchicuaqueia"
+  ],
+  "AO-HLA-CAPELONGO": [
+   "Capelongo",
+   "Mulondo"
+  ],
+  "AO-HLA-CAPUNDACA": [
+   "Capunda Cavilongo",
+   "Quihita"
+  ],
+  "AO-CNE-OMBADJA": [
+   "Ombala yo Mungu",
+   "Xangongo"
+  ],
+  "AO-CNE-CUANHAMA": [
+   "Môngua",
+   "Ondjiva"
+  ],
+  "AO-CNE-CAHAMA": [
+   "Cahama",
+   "Otchinjau"
+  ],
+  "AO-CNE-NEHONE": [
+   "Evale",
+   "Nehone"
+  ],
+  "AO-CNE-HUMBE": [
+   "Humbe",
+   "Mucope"
+  ],
+  "AO-CGO-NANCOVA": [
+   "Nancova",
+   "Rito"
+  ],
+  "AO-CGO-SAVATE": [
+   "Bondo Caíla",
+   "Savate"
+  ],
+  "AO-CGO-CAIUNDO": [
+   "Caiundo",
+   "Jamba Cueio"
+  ],
+  "AO-CGO-LONGA": [
+   "Baixo Longa",
+   "Longa"
+  ],
+  "AO-CGO-CUTATO": [
+   "Cutato",
+   "Vissati"
+  ],
+  "AO-CGO-MAVENGUE": [
+   "Maué",
+   "Mavengue"
+  ],
+  "AO-CDO-CUITOCUAN": [
+   "Cuito Cuanavale",
+   "Lupire"
+  ],
+  "AO-CDO-DIRICO": [
+   "Dirico",
+   "Xamavera"
+  ],
+  "AO-CDO-DIMA": [
+   "Cunjamba",
+   "Cutuile"
+  ]
+ }
+}

@@ -36,7 +36,7 @@ import { GPSHistoryTimeline } from "@/components/GPSHistoryTimeline";
 import { ResidentsTab } from "@/components/ResidentsTab";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuthorizationLevel } from "@/hooks/useAuthorizationLevel";
-import { postalFrom } from "@/lib/postal";
+import { postalFrom, explainPostal } from "@/lib/postal";
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 type AfrolocWitness = Database["public"]["Tables"]["afroloc_witnesses"]["Row"];
@@ -754,8 +754,24 @@ export default function IdentityDetail() {
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">{t('postal_cep_label')}</label>
-                        <p className="text-lg font-mono">{postalFrom(record.level1_code || "", record.level2_code || "", record.code).cep}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{t('postal_cep_hint')}</p>
+                        {(() => {
+                          const postal = postalFrom(record.level1_code || "", record.level2_code || "", record.code, record.level3_name);
+                          return (
+                            <>
+                              <p className="text-lg font-mono">{postal.cep}</p>
+                              <p className="text-xs text-muted-foreground mt-0.5">{t('postal_cep_hint')}</p>
+                              <div className="mt-2 flex flex-wrap gap-1.5">
+                                {explainPostal(postal).map((seg) => (
+                                  <div key={seg.label} title={seg.value}
+                                       className="rounded-md border border-border/50 bg-muted/30 px-2 py-1 text-center min-w-[2.4rem]">
+                                    <div className="font-mono text-sm font-semibold leading-none">{seg.digits}</div>
+                                    <div className="text-[9px] uppercase tracking-wide text-muted-foreground mt-0.5">{seg.label}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                       <div>
                         <label className="text-sm font-medium text-muted-foreground">{t('postal_box_label')}</label>

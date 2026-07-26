@@ -93,7 +93,7 @@ export default function CreateIdentity() {
 
           // Need to load municipalities + communes for this province
           await loadMunicipalities(country, resolved.level1.code);
-          await loadCommunes(country, resolved.level1.code);
+          await loadCommunes(country, resolved.level1.code, resolved.level2?.code);
         }
         
         // Auto-fill municipality if found and not already selected  
@@ -138,14 +138,15 @@ export default function CreateIdentity() {
     }
   }, [country, level1Code]);
 
-  // Load communes when province changes (comunas 2024 têm parent = província)
+  // Load communes when province/município changes (filtra por município se já
+  // mapeado; recorre à província caso contrário — ver loadCommunes).
   useEffect(() => {
     if (country && level1Code) {
-      loadCommunes(country, level1Code);
+      loadCommunes(country, level1Code, level2Code);
     } else {
       setCommunes([]);
     }
-  }, [country, level1Code]);
+  }, [country, level1Code, level2Code]);
 
   // Clear number when street name is removed (digital address)
   useEffect(() => {
@@ -184,19 +185,24 @@ export default function CreateIdentity() {
     setMunicipalities(data || []);
   };
 
-  // NOTA: as comunas da reforma de 2024 (Lei 14/24) estão registadas com
-  // parent = PROVÍNCIA (o Anexo I da lei lista as comunas por província; o
-  // mapeamento comuna→município só existe nos mapas-imagem e será afinado
-  // depois via OCR). Por isso filtramos por província, não por município.
-  const loadCommunes = async (countryCode: string, provinceCode: string) => {
-    const { data } = await supabase
+  // Comunas (nível 3). Preferimos as ligadas ao MUNICÍPIO (após o mapeamento
+  // comuna→município da migração 20260726130000); se ainda estiverem ligadas à
+  // PROVÍNCIA (estado anterior à migração), recorremos a esse filtro. Assim o
+  // dropdown funciona antes e depois de aplicar o mapeamento na BD.
+  const loadCommunes = async (countryCode: string, provinceCode: string, municipioCode?: string) => {
+    const base = () => supabase
       .from('administrative_divisions')
       .select('code, name')
       .eq('country_code', countryCode)
-      .eq('level', 3)
-      .eq('parent_code', provinceCode)
-      .order('name');
-    setCommunes(data || [])
+      .eq('level', 3);
+    let data: Array<{ code: string; name: string }> | null = null;
+    if (municipioCode) {
+      ({ data } = await base().eq('parent_code', municipioCode).order('name'));
+    }
+    if ((!data || data.length === 0) && provinceCode) {
+      ({ data } = await base().eq('parent_code', provinceCode).order('name'));
+    }
+    setCommunes(data || []);
   };
 
   const checkAuthAndLoadProfile = async () => {
@@ -556,8 +562,8 @@ export default function CreateIdentity() {
       // Caixa Postal — alocação SEQUENCIAL ATÓMICA por estação (RPC no gateway).
       let allocatedCP: string | null = null;
       try {
-        const station = stationFrom(level1Code, level2Code);
-        if (station !== "0000" && insertedRecord?.id) {
+        const station = stationFrom(level1Code, level2Code, level3Name);
+        if (station !== "0000000" && !station.startsWith("0") && insertedRecord?.id) {
           const { data: box } = await supabase.rpc("allocate_postal_box", {
             p_station: station, p_tier: postalTier, p_entity: insertedRecord.id,
           });
@@ -1115,7 +1121,7 @@ export default function CreateIdentity() {
                   {/* Código Postal (CEP) derivado da divisão + código AFROLOC. A Caixa
                       Postal (nº sequencial por estação) é atribuída no registo (Parte B). */}
                   {level1Code && level2Code && (() => {
-                    const p = postalFrom(level1Code, level2Code, generateCodePreview());
+                    const p = postalFrom(level1Code, level2Code, generateCodePreview(), level3Name);
                     return (
                       <div className="p-4 rounded-2xl bg-gradient-to-br from-accent/5 to-primary/5 border border-border/50 space-y-3">
                         <div>
