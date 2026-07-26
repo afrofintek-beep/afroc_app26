@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { authedInvoke } from '@/lib/authedInvoke';
 
 export interface SamplePoint {
   id: string;
@@ -49,7 +50,7 @@ export default function SampleScatterMap({
   useEffect(() => {
     (async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        const { data, error } = await authedInvoke('get-mapbox-token');
         if (error) throw error;
         if (data?.token) setToken(data.token);
       } catch (e: any) {

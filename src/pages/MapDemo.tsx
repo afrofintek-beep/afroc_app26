@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -78,10 +79,8 @@ export default function MapDemo() {
   useEffect(() => {
     async function fetchToken() {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token', {
-          body: {}
-        });
-        
+        const { data, error } = await authedInvoke('get-mapbox-token', {});
+
         if (error) throw error;
         if (data?.token) {
           setMapboxToken(data.token);

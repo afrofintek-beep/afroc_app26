@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Building2, 
@@ -47,7 +48,7 @@ export default function ZoneDetectionMonitor() {
 
   const fetchStatus = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('urban-zones-status');
+      const { data, error } = await authedInvoke('urban-zones-status');
       if (error) throw error;
       setStatus(data);
     } catch (err) {

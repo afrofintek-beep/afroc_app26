@@ -42,8 +42,10 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
           level3: record.level3_name,
           level4: record.level4_name,
         },
-        // Sem coordenadas: o endereço é a célula/código (Identidade Digital
-        // Territorial). Expor lat/lon no QR partilhado violaria a privacidade.
+        // PRIVACIDADE DO QR: o QR/cartão contém de propósito o endereço humano
+        // legível (província/município/comuna/rua/número) para apps parceiras
+        // como a Yamioo, mas NUNCA coordenadas GPS (lat/lon). As coordenadas
+        // são excluídas por política. [[afroloc-copy-no-coordinates]]
         property_type: record.property_type,
         status: record.status,
       };
@@ -121,42 +123,134 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
     }
   };
 
-  // Monta um cartão A6 (105×148 mm): marca + QR + código AFROLOC + endereço.
-  const buildCardPdf = (): jsPDF => {
+  // Desenha o cartão A6 inteiro (marca + QR + código + endereço) num <canvas>.
+  //
+  // Rota escolhida: imagem-de-canvas em vez da fonte Helvetica embutida do jsPDF.
+  // O texto do browser (canvas) é Unicode-safe, por isso nomes de lugares com
+  // acentos — "São Tomé", "Ingombota", "Água Grande" — são desenhados
+  // corretamente sem embutir qualquer binário de fonte TTF no bundle.
+  //
+  // PRIVACIDADE (QR + cartão): tanto o QR como o cartão contêm de propósito o
+  // endereço humano legível (país/província/município/comuna/bairro/rua/nº) —
+  // é isso que apps parceiras como a Yamioo precisam de ler. Mas NUNCA incluem
+  // coordenadas GPS (lat/lon). As coordenadas são excluídas por política.
+  // [[afroloc-copy-no-coordinates]]
+  const renderCardCanvas = (): Promise<HTMLCanvasElement> => {
+    return new Promise((resolve, reject) => {
+      // A6 = 105 × 148 mm. Renderiza a 8 px/mm para ficar nítido no PDF.
+      const pxPerMm = 8;
+      const mmW = 105;
+      const mmH = 148;
+      const canvas = document.createElement("canvas");
+      canvas.width = mmW * pxPerMm; // 840
+      canvas.height = mmH * pxPerMm; // 1184
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Canvas 2D context unavailable"));
+        return;
+      }
+
+      const cx = canvas.width / 2;
+
+      // Fundo branco.
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+
+      // Marca AFROLOC.
+      ctx.fillStyle = "#f59e0b"; // AFROLOC amber
+      ctx.font = "bold 56px Helvetica, Arial, sans-serif";
+      ctx.fillText("AFROLOC", cx, 130);
+
+      // Subtítulo.
+      ctx.fillStyle = "#787878";
+      ctx.font = "22px Helvetica, Arial, sans-serif";
+      ctx.fillText(t("qrdialog_pdf_subtitle"), cx, 168);
+
+      const drawRest = (qrImg?: HTMLImageElement) => {
+        // QR (opcional — se falhar a carregar, o cartão continua utilizável).
+        const qrPx = 512;
+        const qrY = 200;
+        if (qrImg) {
+          ctx.drawImage(qrImg, cx - qrPx / 2, qrY, qrPx, qrPx);
+        }
+
+        // Código AFROLOC.
+        let y = qrY + qrPx + 70;
+        ctx.fillStyle = "#111111";
+        ctx.font = "bold 40px Helvetica, Arial, sans-serif";
+        ctx.fillText(record.code, cx, y);
+
+        // Endereço legível: quebra por palavras, limita nº de linhas e usa
+        // reticências para nunca transbordar a página A6 nem tocar no QR/código.
+        y += 46;
+        const maxWidth = canvas.width - 120; // margens de ~7.5 mm de cada lado
+        const lineHeight = 34;
+        const bottomLimit = canvas.height - 40; // não ultrapassar o fundo
+        const maxLines = Math.max(1, Math.floor((bottomLimit - y) / lineHeight));
+
+        ctx.fillStyle = "#505050";
+        ctx.font = "26px Helvetica, Arial, sans-serif";
+
+        const words = getFullAddress().split(/\s+/).filter(Boolean);
+        const lines: string[] = [];
+        let current = "";
+        for (const word of words) {
+          const test = current ? `${current} ${word}` : word;
+          if (ctx.measureText(test).width > maxWidth && current) {
+            lines.push(current);
+            current = word;
+          } else {
+            current = test;
+          }
+        }
+        if (current) lines.push(current);
+
+        // Clampa ao nº de linhas que cabem e ellipsiza a última.
+        if (lines.length > maxLines) {
+          lines.length = maxLines;
+          let last = lines[maxLines - 1];
+          while (last.length && ctx.measureText(`${last}…`).width > maxWidth) {
+            last = last.slice(0, -1);
+          }
+          lines[maxLines - 1] = `${last}…`;
+        }
+
+        lines.forEach((line, i) => {
+          ctx.fillText(line, cx, y + i * lineHeight);
+        });
+
+        resolve(canvas);
+      };
+
+      if (!qrCodeUrl) {
+        drawRest();
+        return;
+      }
+      const qrImg = new Image();
+      qrImg.onload = () => drawRest(qrImg);
+      qrImg.onerror = () => drawRest(); // desenha o cartão sem QR em vez de falhar
+      qrImg.src = qrCodeUrl;
+    });
+  };
+
+  // Monta um cartão A6 (105×148 mm) colocando a imagem do canvas na página PDF.
+  const buildCardPdf = async (): Promise<jsPDF> => {
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a6" });
     const pageW = doc.internal.pageSize.getWidth();
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(20);
-    doc.setTextColor(245, 158, 11); // AFROLOC amber
-    doc.text("AFROLOC", pageW / 2, 16, { align: "center" });
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(120, 120, 120);
-    doc.text(t("qrdialog_pdf_subtitle"), pageW / 2, 21, { align: "center" });
-
-    const qrSize = 64;
-    doc.addImage(qrCodeUrl, "PNG", (pageW - qrSize) / 2, 27, qrSize, qrSize);
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.setTextColor(17, 17, 17);
-    doc.text(record.code, pageW / 2, 27 + qrSize + 9, { align: "center" });
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.setTextColor(80, 80, 80);
-    const addrLines = doc.splitTextToSize(getFullAddress(), pageW - 20);
-    doc.text(addrLines, pageW / 2, 27 + qrSize + 16, { align: "center" });
-
+    const pageH = doc.internal.pageSize.getHeight();
+    const canvas = await renderCardCanvas();
+    // Texto desenhado no canvas (Unicode-safe) → imagem → página A6 completa.
+    doc.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, pageW, pageH);
     return doc;
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!qrCodeUrl) return;
     try {
-      buildCardPdf().save(`afroloc-${record.code}.pdf`);
+      const doc = await buildCardPdf();
+      doc.save(`afroloc-${record.code}.pdf`);
       toast({ title: t("qrdialog_success"), description: t("qrdialog_download_success") });
     } catch (error) {
       console.error("Error generating PDF card:", error);
@@ -168,7 +262,7 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
     if (!qrCodeUrl) return;
 
     try {
-      const doc = buildCardPdf();
+      const doc = await buildCardPdf();
       const fileName = `afroloc-${record.code}.pdf`;
       const file = new File([doc.output("blob")], fileName, { type: "application/pdf" });
 

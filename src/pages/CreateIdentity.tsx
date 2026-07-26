@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useToast } from "@/hooks/use-toast";
 import { Save, MapPin, Sparkles, ArrowLeft, Package, Timer } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
@@ -285,8 +286,7 @@ export default function CreateIdentity() {
       const comShort = level3Code ? getCommuneShortCode(level3Code) : munShort;
       const baiCode = isDigitalAddress ? 'DIG' : (level4Name?.substring(0, 3).toUpperCase() || comShort);
       
-      const { data, error } = await supabase.functions.invoke('qg-engine', {
-        body: {
+      const { data, error } = await authedInvoke('qg-engine', {
           action: 'encode',
           latitude: parseFloat(geoLat),
           longitude: parseFloat(geoLon),
@@ -297,7 +297,6 @@ export default function CreateIdentity() {
           neighborhoodCode: baiCode,
           registrationType: isDigitalAddress ? 'digital' : 'formal',
           cellType: 'auto'
-        }
       });
       
       if (error) throw error;

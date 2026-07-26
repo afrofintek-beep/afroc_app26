@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { useToast } from '@/hooks/use-toast';
 
 interface AdminDivision {
@@ -54,9 +55,7 @@ export function useAdminDivisionResolver() {
       }
 
       // 2. Get Mapbox token and do reverse geocoding
-      const { data: mapboxData, error: mapboxError } = await supabase.functions.invoke('get-mapbox-token', {
-        body: { latitude, longitude }
-      });
+      const { data: mapboxData, error: mapboxError } = await authedInvoke('get-mapbox-token', { latitude, longitude });
 
       if (mapboxError) {
         console.error('Mapbox error:', mapboxError);

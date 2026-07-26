@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { useNetworkStatus } from './useNetworkStatus';
 import {
   getUnsyncedAfrolocs,
@@ -69,8 +70,7 @@ export const useOfflineSync = (userId: string | undefined) => {
       console.log(`[sync] Processing AFROLOC: ${record.code}`);
       
       // Call address-gateway or address-create endpoint
-      const { data, error } = await supabase.functions.invoke('address-gateway', {
-        body: {
+      const { data, error } = await authedInvoke('address-gateway', {
           action: 'create',
           code: record.code,
           country: record.country,
@@ -88,7 +88,6 @@ export const useOfflineSync = (userId: string | undefined) => {
           user_id: record.user_id,
           idempotency_key: record.idempotency_key,
           witnesses: record.witnesses
-        }
       });
 
       if (error) {
@@ -151,11 +150,9 @@ export const useOfflineSync = (userId: string | undefined) => {
 
     try {
       // Call the sync-places endpoint with batch
-      const { data, error } = await supabase.functions.invoke('sync-places', {
-        body: {
+      const { data, error } = await authedInvoke('sync-places', {
           device_id: `WEB-${navigator.userAgent.slice(0, 20)}`,
           items: syncItems
-        }
       });
 
       if (error) {

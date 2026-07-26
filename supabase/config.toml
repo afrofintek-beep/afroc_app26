@@ -1,15 +1,100 @@
 project_id = "ljcxqwjvjgobhisqkujr"
 
-[functions.biometric-login]
-verify_jwt = false
+# ─────────────────────────────────────────────────────────────
+# Explicit verify_jwt for EVERY deployable Edge Function (88).
+#   true  = PROTECTED  → requires a logged-in user's JWT.
+#   false = PUBLIC     → pre-login / cron / inbound webhook / server-to-server;
+#                        does its own internal auth (apikey/HMAC/service-role)
+#                        or is a login/OTP endpoint. Platform JWT gate must be OFF.
+# ─────────────────────────────────────────────────────────────
 
-[functions.receive-afroloc-request]
-verify_jwt = false
+[functions.address-create]
+verify_jwt = true
+
+[functions.address-gateway]
+verify_jwt = true
+
+[functions.address-verify]
+verify_jwt = true
+
+[functions.admin-users]
+verify_jwt = true
+
+[functions.api-v1]
+verify_jwt = true
+
+[functions.archive-gps-history]
+verify_jwt = true
 
 [functions.assign-afroloc-request]
 verify_jwt = true
 
+[functions.ats-engine]
+verify_jwt = true
+
+[functions.ats-score]
+verify_jwt = true
+
+[functions.audit-log]
+verify_jwt = true
+
+[functions.auth]
+verify_jwt = true
+
+[functions.batch-assign-qgsq]
+verify_jwt = true
+
+# ⚠️ no internal inbound auth check — verify
+[functions.batch-resolve]
+verify_jwt = false
+
+[functions.biometric-login]
+verify_jwt = false
+
+[functions.check-risk-alerts]
+verify_jwt = false
+
+[functions.cleanup-expired-otps]
+verify_jwt = false
+
 [functions.complete-afroloc-request]
+verify_jwt = true
+
+# ⚠️ PUBLIC data export with service-role and no auth — confirm intended before deploy
+[functions.csv-export]
+verify_jwt = false
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.delivery-confirm]
+verify_jwt = true
+
+[functions.delivery-list]
+verify_jwt = true
+
+[functions.delivery-register]
+verify_jwt = true
+
+[functions.delivery-revoke]
+verify_jwt = true
+
+[functions.delivery-set-primary]
+verify_jwt = true
+
+[functions.download-source]
+verify_jwt = true
+
+[functions.export-geojson]
+verify_jwt = false
+
+[functions.format]
+verify_jwt = false
+
+[functions.generate-backup-codes]
+verify_jwt = true
+
+[functions.get-mapbox-token]
 verify_jwt = true
 
 [functions.import-cell-towers]
@@ -18,17 +103,49 @@ verify_jwt = true
 [functions.import-opencellid]
 verify_jwt = true
 
-[functions.verify-witness-otp]
+[functions.import-urban-zones]
 verify_jwt = true
 
-[functions.receive-witness-sms]
+# ⚠️ PUBLIC data export with service-role and no auth — confirm intended before deploy
+[functions.kpis-by-admin-csv]
+verify_jwt = false
+
+# ⚠️ PUBLIC data export with service-role and no auth — confirm intended before deploy
+[functions.kpis-by-province-csv]
+verify_jwt = false
+
+# ⚠️ PUBLIC data export with service-role and no auth — confirm intended before deploy
+[functions.kpis-growth-csv]
+verify_jwt = false
+
+# ⚠️ PUBLIC data export with service-role and no auth — confirm intended before deploy
+[functions.kpis-summary-csv]
+verify_jwt = false
+
+# ⚠️ PUBLIC data export with service-role and no auth — confirm intended before deploy
+[functions.kpis-timeseries-csv]
+verify_jwt = false
+
+[functions.lookup-requester]
+verify_jwt = true
+
+[functions.manage-yamioo-agents]
+verify_jwt = true
+
+[functions.mobility-api]
+verify_jwt = false
+
+[functions.net-arrive]
+verify_jwt = true
+
+[functions.net-team]
+verify_jwt = true
+
+[functions.normalize]
 verify_jwt = false
 
 [functions.notify-requester-validation]
-verify_jwt = true
-
-[functions.send-validation-reminder]
-verify_jwt = true
+verify_jwt = false
 
 [functions.notify-witness-contract-download]
 verify_jwt = true
@@ -36,104 +153,129 @@ verify_jwt = true
 [functions.phone-login]
 verify_jwt = false
 
-[functions.cleanup-expired-otps]
+[functions.podp-admin]
+verify_jwt = false
+
+[functions.podp-rollup]
+verify_jwt = false
+
+[functions.podp-sample]
 verify_jwt = false
 
 [functions.qg-engine]
 verify_jwt = false
 
-[functions.sq-engine]
+[functions.recalculate-authorization-levels]
+verify_jwt = true
+
+[functions.receive-afroloc-request]
 verify_jwt = false
 
-[functions.telecom-fusion]
-verify_jwt = true
-
-[functions.ats-engine]
-verify_jwt = true
-
-[functions.address-gateway]
+[functions.receive-webhook]
 verify_jwt = false
 
-[functions.batch-assign-qgsq]
-verify_jwt = true
-
-[functions.validate-signup]
+[functions.receive-witness-sms]
 verify_jwt = false
 
-[functions.send-fraud-alert-email]
+[functions.register-biometric-device]
 verify_jwt = true
 
-[functions.address-create]
-verify_jwt = true
-
-[functions.address-verify]
-verify_jwt = true
-
-[functions.ats-score]
-verify_jwt = true
-
-[functions.csv-export]
-verify_jwt = false
-
-[functions.kpis-summary-csv]
-verify_jwt = false
-
-[functions.kpis-timeseries-csv]
-verify_jwt = false
-
-[functions.kpis-by-province-csv]
-verify_jwt = false
-
-[functions.kpis-growth-csv]
-verify_jwt = false
-
-[functions.kpis-by-admin-csv]
-verify_jwt = false
-
-[functions.v1-docs]
-verify_jwt = false
-
-[functions.admin-users]
-verify_jwt = true
-
-[functions.audit-log]
-verify_jwt = true
-
-[functions.test-auth-rbac]
-verify_jwt = true
-
-[functions.auth]
-verify_jwt = false
-
-[functions.import-urban-zones]
-verify_jwt = true
-
-[functions.urban-zones-status]
-verify_jwt = true
-
-[functions.urban-zones-clear]
+[functions.resident-checkin]
 verify_jwt = true
 
 [functions.resolve-zone]
 verify_jwt = false
 
+# ⚠️ PUBLIC + service-role + NO env guard — must NOT be reachable in prod; consider removing before deploy
+[functions.seed-test-data]
+verify_jwt = false
+
+[functions.send-admin-2fa]
+verify_jwt = false
+
+[functions.send-change-phone-otp]
+verify_jwt = true
+
+[functions.send-contact-email]
+verify_jwt = false
+
+[functions.send-document-status-email]
+verify_jwt = false
+
+[functions.send-fraud-alert-email]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.send-risk-alert]
+verify_jwt = false
+
+[functions.send-signup-otp]
+verify_jwt = false
+
+[functions.send-validation-reminder]
+verify_jwt = false
+
+[functions.send-weekly-analytics-report]
+verify_jwt = false
+
+[functions.send-witness-otp]
+verify_jwt = false
+
+[functions.sq-engine]
+verify_jwt = false
+
 [functions.sync-places]
 verify_jwt = true
 
-[functions.seed-test-data]
-verify_jwt = false
+[functions.telecom-fusion]
+verify_jwt = true
+
+[functions.test-auth-rbac]
+verify_jwt = true
 
 [functions.translate-keys]
 verify_jwt = true
 
-[functions.normalize]
-verify_jwt = false
+[functions.urban-zones-clear]
+verify_jwt = true
+
+[functions.urban-zones-status]
+verify_jwt = true
+
+[functions.v1-docs]
+verify_jwt = true
 
 [functions.validate]
 verify_jwt = false
 
-[functions.format]
+[functions.validate-signup]
 verify_jwt = false
 
-[functions.api-v1]
+[functions.verify-admin-2fa]
+verify_jwt = false
+
+[functions.verify-backup-code]
+verify_jwt = false
+
+[functions.verify-change-phone-otp]
+verify_jwt = true
+
+[functions.verify-signup-otp]
+verify_jwt = false
+
+[functions.verify-witness-otp]
+verify_jwt = true
+
+[functions.webauthn-register-options]
+verify_jwt = true
+
+[functions.webauthn-register-verify]
+verify_jwt = true
+
+[functions.webhook-dispatch]
+verify_jwt = false
+
+[functions.yamioo-gateway]
 verify_jwt = false

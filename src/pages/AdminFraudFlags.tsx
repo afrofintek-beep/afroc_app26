@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -255,8 +256,7 @@ export default function AdminFraudFlags() {
   const sendFraudAlertEmail = async (flag: FraudFlag) => {
     setSendingEmail(flag.id);
     try {
-      const { data, error } = await supabase.functions.invoke("send-fraud-alert-email", {
-        body: {
+      const { data, error } = await authedInvoke("send-fraud-alert-email", {
           flag_id: flag.id,
           witness_user_id: flag.witness_user_id,
           flag_type: flag.flag_type,
@@ -264,7 +264,6 @@ export default function AdminFraudFlags() {
           description: flag.description || `Flag de fraude: ${flag.flag_type}`,
           afroloc_code: flag.afroloc_record?.code,
           region_name: flag.afroloc_record?.level1_name
-        }
       });
 
       if (error) throw error;

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { Upload, FileJson, CheckCircle, AlertCircle, Loader2, MapPin } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Badge } from "@/components/ui/badge";
@@ -114,11 +115,9 @@ const AdminImportUrbanZones = () => {
         throw new Error(t('importzones_error_session_expired'));
       }
 
-      const response = await supabase.functions.invoke("import-urban-zones", {
-        body: {
+      const response = await authedInvoke("import-urban-zones", {
           geojson: geojsonData,
           source: source,
-        },
       });
 
       if (response.error) {

@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { Loader2, Languages, Download, CheckCircle, AlertCircle, Globe } from "lucide-react";
 
 // Import all translations
@@ -148,12 +149,10 @@ export default function AdminAutoTranslate() {
         description: `${t('autotrans_toast_translating_desc_prefix')} ${missingCount} ${t('autotrans_toast_translating_desc_suffix')} ${languageNames[lang]}`,
       });
 
-      const { data, error } = await supabase.functions.invoke('translate-keys', {
-        body: {
+      const { data, error } = await authedInvoke('translate-keys', {
           sourceLanguage: 'pt',
           targetLanguage: lang,
           keys: missingKeys,
-        },
       });
 
       if (error) throw error;

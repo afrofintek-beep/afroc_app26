@@ -1,22 +1,14 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import { supabase } from "@/integrations/supabase/client";
 
-// Fix de ponto único: garante que TODAS as edge functions autenticadas recebem o
-// JWT do utilizador. Sem isto, supabase.functions.invoke pode enviar a anon key
-// e as funções que validam o utilizador devolvem 401 "Invalid or expired token".
-// Atualiza o token da FunctionsClient a cada mudança de sessão (inicial/login/
-// refresh/logout); sem sessão fica a anon key (correto para os fluxos pré-login).
-supabase.auth.onAuthStateChange((_event, session) => {
-  try {
-    supabase.functions.setAuth(
-      session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-    );
-  } catch {
-    /* setAuth indisponível nesta versão — ignora */
-  }
-});
+// NOTA (auth): NÃO usamos mais `supabase.functions.setAuth(...)` global. Esse
+// padrão dependia do timing do onAuthStateChange (race condition) e, sem sessão,
+// enviava a anon key no header Authorization como se fosse o JWT do utilizador.
+// Agora cada chamada PROTEGIDA usa `authedInvoke` (src/lib/authedInvoke.ts), que
+// lê a sessão fresca e envia explicitamente `Authorization: Bearer <access_token>`
+// — imune ao timing e nunca envia a anon key como JWT. As funções públicas/
+// pré-login usam `supabase.functions.invoke` normal (apikey por omissão).
 
 // Um deploy novo troca os hashes dos chunks; um browser com o index.html antigo
 // falha ao importar um chunk que já não existe. Recarregar uma vez (com guarda
@@ -30,10 +22,8 @@ window.addEventListener("vite:preloadError", () => {
   }
 });
 
-if ("serviceWorker" in navigator && window.self === window.top) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => undefined);
-  });
-}
+// O registo do service worker é feito UMA única vez pelo vite-plugin-pwa
+// (registerType: "autoUpdate" + injectRegister automático). Removido o registo
+// manual de "/sw.js" que colidia com o SW gerado e criava dupla estratégia.
 
 createRoot(document.getElementById("root")!).render(<App />);

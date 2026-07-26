@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useToast } from "@/hooks/use-toast";
 import { Shield, Copy, Download, RefreshCw, ArrowLeft, AlertTriangle, Check } from "lucide-react";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -43,7 +44,7 @@ export default function AdminBackupCodes() {
     setLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke("generate-backup-codes");
+      const { data, error } = await authedInvoke("generate-backup-codes");
 
       if (error) throw error;
 

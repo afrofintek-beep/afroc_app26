@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -206,9 +207,7 @@ export default function AdminUserManagement() {
   // Delete user mutation
   const deleteUserMutation = useMutation({
     mutationFn: async ({ userId, reason }: { userId: string; reason: string }) => {
-      const { data, error } = await supabase.functions.invoke('delete-user', {
-        body: { userId, reason }
-      });
+      const { data, error } = await authedInvoke('delete-user', { userId, reason });
 
       if (error) throw new Error(error.message);
       if (!data?.success) throw new Error(data?.error || t('adminusers_toast_delete_error'));

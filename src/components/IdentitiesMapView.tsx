@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card';
 import { MapPin, Home, Building2, Store, Mountain, Flame, Search, Filter, X, Award, CheckCircle2, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { authedInvoke } from '@/lib/authedInvoke';
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 
@@ -122,7 +123,7 @@ export default function IdentitiesMapView({ records }: IdentitiesMapViewProps) {
 
   const fetchMapboxToken = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+      const { data, error } = await authedInvoke('get-mapbox-token');
       if (error) throw error;
       setMapboxToken(data.token);
     } catch (error) {

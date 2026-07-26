@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Shield, FileText, CheckCircle2, XCircle, Clock, Eye, Search, Filter, ArrowLeft } from "lucide-react";
@@ -161,13 +162,11 @@ export default function AdminDocuments() {
 
       // Send approval email
       try {
-        await supabase.functions.invoke("send-document-status-email", {
-          body: {
+        await authedInvoke("send-document-status-email", {
             user_email: selectedDoc.user_email,
             afroloc_code: selectedDoc.afroloc_code,
             document_type: selectedDoc.document_type,
             status: "verified",
-          },
         });
       } catch (emailError) {
         console.error("Failed to send approval email:", emailError);
@@ -219,14 +218,12 @@ export default function AdminDocuments() {
 
       // Send rejection email
       try {
-        await supabase.functions.invoke("send-document-status-email", {
-          body: {
+        await authedInvoke("send-document-status-email", {
             user_email: selectedDoc.user_email,
             afroloc_code: selectedDoc.afroloc_code,
             document_type: selectedDoc.document_type,
             status: "rejected",
             rejection_reason: rejectionReason,
-          },
         });
       } catch (emailError) {
         console.error("Failed to send rejection email:", emailError);

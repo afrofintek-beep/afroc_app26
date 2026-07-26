@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -176,12 +177,10 @@ const AfrolocRequests = () => {
       assignToUserId: string; 
       notes: string;
     }) => {
-      const { data, error } = await supabase.functions.invoke("assign-afroloc-request", {
-        body: {
+      const { data, error } = await authedInvoke("assign-afroloc-request", {
           request_id: requestId,
           assign_to_user_id: assignToUserId,
           notes,
-        },
       });
       if (error) throw error;
       return data;
@@ -218,15 +217,13 @@ const AfrolocRequests = () => {
         console.warn("Could not get location:", e);
       }
 
-      const { data, error } = await supabase.functions.invoke("complete-afroloc-request", {
-        body: {
+      const { data, error } = await authedInvoke("complete-afroloc-request", {
           request_id: requestId,
           action,
           rejection_reason: rejectionReason,
           site_visit_notes: siteVisitNotes,
           site_visit_geo_lat: geo_lat,
           site_visit_geo_lon: geo_lon,
-        },
       });
       if (error) throw error;
       return data;

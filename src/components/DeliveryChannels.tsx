@@ -121,7 +121,7 @@ export default function DeliveryChannels({
   const [showOtpDialog, setShowOtpDialog] = useState(false);
   const [otpValue, setOtpValue] = useState("");
   const [pendingDeliveryPointId, setPendingDeliveryPointId] = useState<string | null>(null);
-  const [devOtp, setDevOtp] = useState<string | null>(null);
+  const [otpChannel, setOtpChannel] = useState<string | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   
   const { toast } = useToast();
@@ -210,9 +210,7 @@ export default function DeliveryChannels({
         
         // Store pending point ID and show OTP dialog
         setPendingDeliveryPointId(data.delivery_point_id);
-        if (data.otp_dev) {
-          setDevOtp(data.otp_dev);
-        }
+        setOtpChannel(data.channel ?? null);
         setShowOtpDialog(true);
         
         // Reset form
@@ -255,8 +253,8 @@ export default function DeliveryChannels({
         setShowOtpDialog(false);
         setOtpValue("");
         setPendingDeliveryPointId(null);
-        setDevOtp(null);
-        
+        setOtpChannel(null);
+
         // Reload delivery points
         await loadDeliveryPoints();
       } else if (data.error) {
@@ -554,14 +552,18 @@ export default function DeliveryChannels({
           </DialogHeader>
           
           <div className="space-y-4">
-            {devOtp && (
-              <Alert>
-                <AlertDescription className="font-mono text-center text-lg">
-                  {t('delivery_dev_otp_label')} <strong>{devOtp}</strong>
-                </AlertDescription>
-              </Alert>
-            )}
-            
+            <Alert>
+              <AlertDescription className="text-center text-sm">
+                {otpChannel === 'email'
+                  ? t('delivery_otp_sent_email')
+                  : otpChannel === 'whatsapp'
+                  ? t('delivery_otp_sent_whatsapp')
+                  : otpChannel === 'sms'
+                  ? t('delivery_otp_sent_sms')
+                  : t('delivery_otp_sent_generic')}
+              </AlertDescription>
+            </Alert>
+
             <div className="flex justify-center">
               <InputOTP
                 value={otpValue}
@@ -586,7 +588,7 @@ export default function DeliveryChannels({
                   setShowOtpDialog(false);
                   setOtpValue("");
                   setPendingDeliveryPointId(null);
-                  setDevOtp(null);
+                  setOtpChannel(null);
                 }}
                 disabled={isConfirming}
               >

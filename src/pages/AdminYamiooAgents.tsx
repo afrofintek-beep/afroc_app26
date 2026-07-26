@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { UserPlus, Users, Search, Loader2, Hash, Phone, Mail, ShieldCheck, ShieldOff, RefreshCw } from "lucide-react";
 
 interface YamiooAgent {
@@ -45,9 +46,7 @@ export default function AdminYamiooAgents() {
   const fetchAgents = useCallback(async () => {
     setLoading(true);
     try {
-      const resp = await supabase.functions.invoke("manage-yamioo-agents", {
-        method: "GET",
-      });
+      const resp = await authedInvoke("manage-yamioo-agents", undefined, { method: "GET" });
       if (resp.error) throw resp.error;
       setAgents(resp.data?.agents || []);
     } catch (err) {
@@ -66,9 +65,7 @@ export default function AdminYamiooAgents() {
     if (searchPhone.trim().length < 6) return;
     setSearching(true);
     try {
-      const resp = await supabase.functions.invoke("lookup-requester", {
-        body: { phone: searchPhone.trim() },
-      });
+      const resp = await authedInvoke("lookup-requester", { phone: searchPhone.trim() });
       if (resp.error) throw resp.error;
       setSearchResults(resp.data?.results || []);
       if (!resp.data?.found) {
@@ -86,10 +83,7 @@ export default function AdminYamiooAgents() {
     if (!selectedUser) return;
     setRegistering(true);
     try {
-      const resp = await supabase.functions.invoke("manage-yamioo-agents", {
-        method: "POST",
-        body: { user_id: selectedUser.user_id, notes: notes.trim() || null },
-      });
+      const resp = await authedInvoke("manage-yamioo-agents", { user_id: selectedUser.user_id, notes: notes.trim() || null }, { method: "POST" });
       if (resp.error) throw resp.error;
       if (resp.data?.error) {
         toast({ title: t('yamiooagents_toast_error'), description: resp.data.error, variant: "destructive" });
@@ -114,10 +108,7 @@ export default function AdminYamiooAgents() {
 
   const handleDeactivate = async (agent: YamiooAgent) => {
     try {
-      const resp = await supabase.functions.invoke("manage-yamioo-agents", {
-        method: "DELETE",
-        body: { agent_id: agent.id },
-      });
+      const resp = await authedInvoke("manage-yamioo-agents", { agent_id: agent.id }, { method: "DELETE" as "POST" });
       if (resp.error) throw resp.error;
       toast({ title: t('yamiooagents_toast_deactivated'), description: `${t('yamiooagents_agent_label')} #${agent.agent_number} ${t('yamiooagents_toast_deactivated_suffix')}` });
       fetchAgents();

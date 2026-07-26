@@ -835,8 +835,12 @@ export default function IdentityDetail() {
                           {t('view_zone_on_map')}
                         </Button>
                         {showZoneMap && record.geo_lat != null && record.geo_lon != null && (
-                          <div className="mt-2 pointer-events-none">
+                          <div className="mt-2">
+                            {/* readOnly: o mapa APENAS apresenta a zona — sem clique,
+                                arrasto, seleção ou geolocalização. Coordenadas nunca
+                                mostradas em texto (apenas usadas para centrar). */}
                             <LocationMap
+                              readOnly
                               latitude={Number(Number(record.geo_lat).toFixed(4))}
                               longitude={Number(Number(record.geo_lon).toFixed(4))}
                               onLocationSelect={() => {}}

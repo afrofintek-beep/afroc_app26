@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { toast } from 'sonner';
 import { 
   Grid3X3, 
@@ -107,7 +108,7 @@ export default function GridManagementDashboard() {
       if (recordsError) throw recordsError;
 
       // Fetch urban zones status
-      const { data: zonesData } = await supabase.functions.invoke('urban-zones-status');
+      const { data: zonesData } = await authedInvoke('urban-zones-status');
 
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());

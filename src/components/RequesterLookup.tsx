@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface RequesterProfile {
@@ -48,9 +49,7 @@ export default function RequesterLookup({ onSelect, selectedProfile, onClear }: 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      const resp = await supabase.functions.invoke("lookup-requester", {
-        body: { phone: phone.trim() },
-      });
+      const resp = await authedInvoke("lookup-requester", { phone: phone.trim() });
 
       if (resp.error) {
         toast({ title: t('requester_search_error'), description: resp.error.message, variant: "destructive" });

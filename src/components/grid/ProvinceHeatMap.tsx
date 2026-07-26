@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { toast } from 'sonner';
 import { 
   Map, 
@@ -94,7 +95,7 @@ export default function ProvinceHeatMap({ countryCode }: ProvinceHeatMapProps) {
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        const { data, error } = await authedInvoke('get-mapbox-token');
         if (error) throw error;
         if (data?.token) {
           setMapboxToken(data.token);

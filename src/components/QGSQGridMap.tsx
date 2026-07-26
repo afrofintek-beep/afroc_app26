@@ -19,6 +19,7 @@ import { format, subMonths, startOfMonth, endOfMonth, eachMonthOfInterval, parse
 import { useAuthorizationLevel, LEVEL_NAMES, hasMinimumLevel } from '@/hooks/useAuthorizationLevel';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ClickProposalModal } from '@/components/ClickProposalModal';
+import { authedInvoke } from '@/lib/authedInvoke';
 
 // Minimum authorization level required for cadastral pre-registration
 const MIN_LEVEL_CADASTRAL_PREREGISTER = 4; // Certified level - Admin Provincial/Nacional
@@ -897,7 +898,7 @@ export default function QGSQGridMap({
   useEffect(() => {
     const fetchToken = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        const { data, error } = await authedInvoke('get-mapbox-token');
         if (error) throw error;
         setMapboxToken(data.token);
       } catch (err) {

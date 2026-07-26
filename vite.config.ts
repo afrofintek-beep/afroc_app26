@@ -82,12 +82,37 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff,woff2,json}"],
+        // Pull the push handlers (push / notificationclick / sync) into the
+        // Workbox-generated sw.js at runtime, so a SINGLE service worker handles
+        // both caching and Web Push. See public/sw-push.js.
+        importScripts: ["/sw-push.js"],
         navigateFallback: "index.html",
         navigateFallbackDenylist: [/^\/~oauth/, /^\/api/],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
         runtimeCaching: [
+          {
+            // Stale-HTML fix: serve navigations network-first so a fresh
+            // index.html (and thus fresh hashed asset URLs) is fetched on every
+            // online navigation right after a deploy, instead of waiting a
+            // navigation cycle for the precached copy to update. The precached
+            // index.html + navigateFallback above remain as the offline safety
+            // net. We use a runtimeCaching rule (rather than dropping "html"
+            // from globPatterns) because navigateFallback still needs the
+            // precached index.html to serve offline SPA routes.
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "html-navigations",
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          },
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: "CacheFirst",

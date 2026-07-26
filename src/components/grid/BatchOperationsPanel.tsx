@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { 
   Layers, 
@@ -100,12 +101,10 @@ export default function BatchOperationsPanel({ countryCode }: BatchOperationsPan
   const handleStartBatch = async () => {
     setRunning(true);
     try {
-      const { data, error } = await supabase.functions.invoke('batch-assign-qgsq', {
-        body: {
+      const { data, error } = await authedInvoke('batch-assign-qgsq', {
           countryCode,
           limit: parseInt(batchLimit),
           dryRun,
-        },
       });
 
       if (error) throw error;

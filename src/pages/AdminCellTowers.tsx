@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { Radio, Plus, Trash2, Edit, MapPin, Signal, Search, Circle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import mapboxgl from "mapbox-gl";
@@ -84,7 +85,7 @@ export default function AdminCellTowers() {
   }, [towers, filterTech, filterOperator, searchQuery, showCoverage]);
 
   const fetchMapToken = async () => {
-    const { data } = await supabase.functions.invoke("get-mapbox-token");
+    const { data } = await authedInvoke("get-mapbox-token");
     if (data?.token) setMapToken(data.token);
   };
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -77,9 +78,7 @@ export default function ChangePhone() {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke("send-change-phone-otp", {
-        body: { new_phone: newPhone },
-      });
+      const { data, error } = await authedInvoke("send-change-phone-otp", { new_phone: newPhone });
 
       if (error) throw error;
 
@@ -149,11 +148,9 @@ export default function ChangePhone() {
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke("verify-change-phone-otp", {
-        body: { 
+      const { data, error } = await authedInvoke("verify-change-phone-otp", {
           new_phone: newPhone,
-          otp_code: otpCode 
-        },
+          otp_code: otpCode
       });
 
       if (error) throw error;

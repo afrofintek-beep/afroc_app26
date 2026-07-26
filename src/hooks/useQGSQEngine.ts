@@ -15,6 +15,7 @@
 
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 
 export interface QGResult {
   afroloc: string;
@@ -114,14 +115,12 @@ export function useQGSQEngine() {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('qg-engine', {
-        body: { 
-          latitude, 
-          longitude, 
-          countryCode, 
+      const { data, error: fnError } = await authedInvoke('qg-engine', {
+          latitude,
+          longitude,
+          countryCode,
           cellType: cellType || 'auto',
-          adminPath 
-        }
+          adminPath
       });
 
       if (fnError) throw fnError;
@@ -158,9 +157,7 @@ export function useQGSQEngine() {
         }
       }
       
-      const { data, error: fnError } = await supabase.functions.invoke('qg-engine', {
-        body: { code: cleanCode }
-      });
+      const { data, error: fnError } = await authedInvoke('qg-engine', { code: cleanCode });
 
       if (fnError) throw fnError;
       return transformQGResult(data);
@@ -184,14 +181,12 @@ export function useQGSQEngine() {
     setError(null);
 
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('sq-engine', {
-        body: {
+      const { data, error: fnError } = await authedInvoke('sq-engine', {
           qgCode: qgResult.afroloc || qgResult.qgCode,
           latitude,
           longitude,
           cellBounds: qgResult.bbox || qgResult.bounds,
           countryCode
-        }
       });
 
       if (fnError) throw fnError;

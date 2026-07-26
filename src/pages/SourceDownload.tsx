@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Copy, Check, Package, ShieldCheck, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { authedInvoke } from "@/lib/authedInvoke";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Manifest {
@@ -23,9 +24,7 @@ const formatBytes = (n: number) => {
 };
 
 const requestSignedUrl = async (kind: "zip" | "manifest") => {
-  const { data, error } = await supabase.functions.invoke("download-source", {
-    body: { kind },
-  });
+  const { data, error } = await authedInvoke("download-source", { kind });
   if (error) throw error;
   if (!data?.url) throw new Error("No URL returned");
   return data.url as string;

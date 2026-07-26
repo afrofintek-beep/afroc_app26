@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { Shield, Search, TrendingUp, Activity, Flame } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
@@ -117,12 +118,12 @@ export default function AdminPodpDashboard() {
     setLoading(true);
     setError(null);
     try {
-      const qs = new URLSearchParams();
-      if (recordId.trim()) qs.set('recordId', recordId.trim());
-      qs.set('limit', '200');
-      const { data, error: invErr } = await supabase.functions.invoke(
-        `podp-admin?${qs.toString()}`,
-        { method: 'GET' },
+      const query: Record<string, string> = { limit: '200' };
+      if (recordId.trim()) query.recordId = recordId.trim();
+      const { data, error: invErr } = await authedInvoke(
+        'podp-admin',
+        undefined,
+        { method: 'GET', query },
       );
       if (invErr) throw invErr;
       setCycles(data?.cycles ?? []);
@@ -140,10 +141,10 @@ export default function AdminPodpDashboard() {
       cycles: [], daily: [], samples: [], rejectionBreakdown: {}, address: null,
     });
     try {
-      const qs = new URLSearchParams({ recordId: rid, details: '1', limit: '300' });
-      const { data, error: invErr } = await supabase.functions.invoke(
-        `podp-admin?${qs.toString()}`,
-        { method: 'GET' },
+      const { data, error: invErr } = await authedInvoke(
+        'podp-admin',
+        undefined,
+        { method: 'GET', query: { recordId: rid, details: '1', limit: '300' } },
       );
       if (invErr) throw invErr;
       setDrill((d) => ({

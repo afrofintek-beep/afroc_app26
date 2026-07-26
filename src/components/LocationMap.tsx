@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
 import { MapPin } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { authedInvoke } from '@/lib/authedInvoke';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface LocationMapProps {
@@ -12,14 +12,21 @@ interface LocationMapProps {
   onLocationSelect: (lat: number, lon: number) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
+  /**
+   * Modo de apenas leitura: o mapa apenas APRESENTA a zona. Desativa clique,
+   * arrasto do marcador, seleção e geolocalização. Usado em ecrãs de detalhe
+   * (ex.: IdentityDetail) — a criação/edição de endereço mantém-se interativa.
+   */
+  readOnly?: boolean;
 }
 
-export default function LocationMap({ 
-  latitude, 
-  longitude, 
-  onLocationSelect, 
+export default function LocationMap({
+  latitude,
+  longitude,
+  onLocationSelect,
   initialCenter = [13.2344, -8.8383],
-  initialZoom = 6 
+  initialZoom = 6,
+  readOnly = false,
 }: LocationMapProps) {
   const { t } = useLanguage();
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -34,7 +41,7 @@ export default function LocationMap({
     // Get Mapbox token from edge function
     const fetchToken = async () => {
       try {
-        const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        const { data, error } = await authedInvoke<{ token?: string }>('get-mapbox-token');
         if (error) throw error;
         if (data?.token) {
           setMapboxToken(data.token);
@@ -96,16 +103,17 @@ export default function LocationMap({
       'top-right'
     );
 
-    // Add geolocate control
-    const geolocateControl = new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true,
-      showUserHeading: true
-    });
-    
-    map.current.addControl(geolocateControl, 'top-right');
+    // Geolocalização apenas no modo interativo (criação/edição).
+    if (!readOnly) {
+      const geolocateControl = new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        trackUserLocation: true,
+        showUserHeading: true
+      });
+      map.current.addControl(geolocateControl, 'top-right');
+    }
 
     // O Mapbox pode desenhar um canvas 0×0 (mapa "preto") quando o contentor
     // ainda não tinha tamanho no arranque — forçar resize no load resolve.
@@ -117,29 +125,33 @@ export default function LocationMap({
     resizeObserver = new ResizeObserver(() => map.current?.resize());
     resizeObserver.observe(mapContainer.current);
 
-    // Create marker
+    // Create marker — arrastável apenas no modo interativo.
     marker.current = new mapboxgl.Marker({
-      draggable: true,
+      draggable: !readOnly,
       color: '#3b82f6'
     })
       .setLngLat([initialLon, initialLat])
       .addTo(map.current);
 
-    // Update coordinates when marker is dragged
-    marker.current.on('dragend', () => {
-      if (marker.current) {
-        const lngLat = marker.current.getLngLat();
-        onLocationSelect(lngLat.lat, lngLat.lng);
-      }
-    });
+    // Seleção por clique/arrasto só no modo interativo. Em readOnly o mapa
+    // APENAS apresenta a zona (sem clique, sem drag do marcador, sem seleção).
+    if (!readOnly) {
+      // Update coordinates when marker is dragged
+      marker.current.on('dragend', () => {
+        if (marker.current) {
+          const lngLat = marker.current.getLngLat();
+          onLocationSelect(lngLat.lat, lngLat.lng);
+        }
+      });
 
-    // Update marker position when map is clicked
-    map.current.on('click', (e) => {
-      if (marker.current) {
-        marker.current.setLngLat(e.lngLat);
-        onLocationSelect(e.lngLat.lat, e.lngLat.lng);
-      }
-    });
+      // Update marker position when map is clicked
+      map.current.on('click', (e) => {
+        if (marker.current) {
+          marker.current.setLngLat(e.lngLat);
+          onLocationSelect(e.lngLat.lat, e.lngLat.lng);
+        }
+      });
+    }
 
       // Handle map load errors
       map.current.on('error', (e) => {
@@ -219,17 +231,19 @@ export default function LocationMap({
           <p className="font-medium mb-2">{t('locationmap_map_unavailable')}</p>
           <p className="text-sm text-muted-foreground">{mapError}</p>
         </div>
-        <div className="w-full max-w-md space-y-3">
-          <p className="text-sm text-center text-muted-foreground">{t('locationmap_use_current_location_prompt')}</p>
-          <Button 
-            onClick={handleCurrentLocation} 
-            className="w-full"
-            variant="outline"
-          >
-            <MapPin className="mr-2 h-4 w-4" />
-            {t('locationmap_use_current_location_button')}
-          </Button>
-        </div>
+        {!readOnly && (
+          <div className="w-full max-w-md space-y-3">
+            <p className="text-sm text-center text-muted-foreground">{t('locationmap_use_current_location_prompt')}</p>
+            <Button
+              onClick={handleCurrentLocation}
+              className="w-full"
+              variant="outline"
+            >
+              <MapPin className="mr-2 h-4 w-4" />
+              {t('locationmap_use_current_location_button')}
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
@@ -239,10 +253,13 @@ export default function LocationMap({
       {/* Altura EXPLÍCITA no próprio contentor do mapa. Antes era `absolute inset-0`
           sobre um pai h-[400px] que colapsava para 0 → mapa "preto" (sem tiles). */}
       <div ref={mapContainer} className="w-full h-[400px]" style={{ minHeight: '400px' }} />
-      <div className="absolute top-4 left-4 z-10 bg-background/95 p-2 rounded-lg shadow-lg text-sm">
-        <p className="font-medium">{t('locationmap_instruction_title')}</p>
-        <p className="text-muted-foreground text-xs">{t('locationmap_instruction_subtitle')}</p>
-      </div>
+      {/* Instrução de seleção apenas no modo interativo. */}
+      {!readOnly && (
+        <div className="absolute top-4 left-4 z-10 bg-background/95 p-2 rounded-lg shadow-lg text-sm">
+          <p className="font-medium">{t('locationmap_instruction_title')}</p>
+          <p className="text-muted-foreground text-xs">{t('locationmap_instruction_subtitle')}</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,12 +8,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/auth_rbac.ts";
+import { sha256String } from "../_shared/hash_utils.ts";
+import { settings } from "../_shared/settings.ts";
 
-const MAX_OTP_ATTEMPTS = 5;
+const MAX_OTP_ATTEMPTS = settings.OTP_MAX_ATTEMPTS; // 3 (shared setting)
 
 interface DeliveryConfirmRequest {
   delivery_point_id: string;
   otp: string;
+}
+
+/**
+ * Constant-time comparison of two equal-length hex strings.
+ * Avoids leaking information through early-exit timing on the OTP hash.
+ */
+function timingSafeEqualHex(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 serve(async (req) => {
@@ -111,8 +126,10 @@ serve(async (req) => {
       );
     }
 
-    // Verify OTP
-    if (deliveryPoint.otp_code !== body.otp) {
+    // Verify OTP: the DB stores a SHA-256 hex of the code, so hash the
+    // submitted OTP and compare in constant time.
+    const submittedHash = await sha256String(String(body.otp));
+    if (!deliveryPoint.otp_code || !timingSafeEqualHex(submittedHash, deliveryPoint.otp_code)) {
       // Increment attempts
       await supabase
         .from("afroloc_delivery_points")

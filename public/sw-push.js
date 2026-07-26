@@ -1,30 +1,9 @@
-// Service Worker for Push Notifications (no fetch caching)
-// NOTE: We intentionally do NOT intercept fetch requests here to avoid serving stale HTML/JS
-// on mobile/PWA, which can lead to blank screens after deployments.
-
-const CACHE_PREFIX = "afro-id";
-const CACHE_NAME = `${CACHE_PREFIX}-v2`;
-
-self.addEventListener("install", (event) => {
-  // Activate the new SW immediately.
-  self.skipWaiting();
-});
-
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      // Clean up old caches created by previous versions of this SW.
-      const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames
-          .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
-          .map((name) => caches.delete(name)),
-      );
-
-      await self.clients.claim();
-    })(),
-  );
-});
+// AFROLOC push handlers, imported at runtime by the Workbox-generated sw.js
+// via `workbox.importScripts: ["/sw-push.js"]` (see vite.config.ts).
+//
+// This file contains ONLY push-related handlers. Lifecycle (install / activate /
+// skipWaiting / clientsClaim) and fetch/caching are owned by Workbox in the
+// generated service worker, so they are intentionally NOT defined here.
 
 // Push event - show notification
 self.addEventListener("push", (event) => {
