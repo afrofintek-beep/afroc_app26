@@ -32,7 +32,7 @@ const DashboardHeader = () => {
   const { toast } = useToast();
   const { role } = useUserRole();
   const { t } = useLanguage();
-  const { primaryResidence, requiresPrimarySelection, totalAddresses, formatAddress } = usePrimaryResidence();
+  const { primaryResidence, requiresPrimarySelection, totalAddresses, formatAddress, loading: residenceLoading } = usePrimaryResidence();
 
   const handleLogout = async () => {
     try {
@@ -63,8 +63,10 @@ const DashboardHeader = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Primary Residence Indicator */}
-          {totalAddresses > 0 && (
+          {/* Primary Residence Indicator — só depois de carregar, para não
+              piscar "Selecionar Residência" enquanto a residência principal
+              ainda está a ser determinada (evita o flicker aparece/desaparece). */}
+          {!residenceLoading && totalAddresses > 0 && (
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
