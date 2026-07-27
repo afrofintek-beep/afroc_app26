@@ -15,15 +15,16 @@ serve(async (req) => {
 
   try {
     // Utilizador autenticado (o passkey é registado à conta com sessão ativa).
+    // getUser(token) EXPLÍCITO. O padrão getUser() (só com o header global) não é
+    // fiável no supabase-js em edge functions e devolvia 401 mesmo com sessão
+    // válida — daí a biometria/passkey dar "Unauthorized".
+    const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
     const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        auth: { autoRefreshToken: false, persistSession: false },
-        global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } },
-      },
+      { auth: { autoRefreshToken: false, persistSession: false } },
     );
-    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
     if (authError || !user) return json(401, { error: "Unauthorized" });
 
     const oc = resolveOrigin(req);

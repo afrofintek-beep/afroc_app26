@@ -14,15 +14,15 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    // getUser(token) EXPLÍCITO (ver nota em webauthn-register-options): o padrão
+    // getUser() sem argumento devolvia 401 mesmo com sessão válida.
+    const token = (req.headers.get("Authorization") ?? "").replace(/^Bearer\s+/i, "");
     const authClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        auth: { autoRefreshToken: false, persistSession: false },
-        global: { headers: { Authorization: req.headers.get("Authorization") ?? "" } },
-      },
+      { auth: { autoRefreshToken: false, persistSession: false } },
     );
-    const { data: { user }, error: authError } = await authClient.auth.getUser();
+    const { data: { user }, error: authError } = await authClient.auth.getUser(token);
     if (authError || !user) return json(401, { error: "Unauthorized" });
 
     const oc = resolveOrigin(req);
