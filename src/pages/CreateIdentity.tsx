@@ -43,6 +43,9 @@ export default function CreateIdentity() {
   const [unit, setUnit] = useState("");
   const [propertyName, setPropertyName] = useState("");
   const [propertyType, setPropertyType] = useState("");
+  // Título de ocupação da residência (só residências): proprietário / arrendatário
+  // com contrato / outro. "outro" NÃO pode registar residência oficial (ver handleSubmit).
+  const [occupancyTitle, setOccupancyTitle] = useState<'' | 'owner' | 'tenant' | 'other'>("");
   const [isTemporary, setIsTemporary] = useState(false);
   const [temporaryDays, setTemporaryDays] = useState("30");
   const [isYamiooAgent, setIsYamiooAgent] = useState(false);
@@ -407,7 +410,30 @@ export default function CreateIdentity() {
       });
       return;
     }
-    
+
+    // Residência oficial: só o PROPRIETÁRIO ou o ARRENDATÁRIO (com contrato) pode
+    // registar uma residência (casa/apartamento) como endereço AFROLOC oficial.
+    // Quem não for nenhum deve ser adicionado como CO-RESIDENTE pelo titular.
+    const isResidence = propertyType === 'house' || propertyType === 'apartment';
+    if (isResidence) {
+      if (!occupancyTitle) {
+        toast({
+          title: t('createid_occupancy_required_title') || 'Título de ocupação',
+          description: t('createid_occupancy_required_desc') || 'Indique se é o proprietário ou o arrendatário (com contrato) desta residência.',
+          variant: "destructive",
+        });
+        return;
+      }
+      if (occupancyTitle === 'other') {
+        toast({
+          title: t('createid_occupancy_denied_title') || 'Registo não permitido',
+          description: t('createid_occupancy_denied_desc') || 'Só proprietários ou detentores de contratos de aluguer de residências podem registar endereços AFROLOC como residências oficiais. Peça ao titular do agregado para o adicionar como co-residente.',
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     // Tipo escolhido pelo utilizador: endereço Formal exige rua + número.
     const isDigitalAddress = addressType !== 'formal';
     const numberRequired = !isDigitalAddress;
@@ -536,6 +562,11 @@ export default function CreateIdentity() {
         address_type: addressType,
         property_type: propertyType,
         property_name: propertyName || null,
+        // Título de ocupação declarado (só residências) — regra da residência oficial:
+        // proprietário / arrendatário. (o 'other' é bloqueado antes de chegar aqui.)
+        ...(isResidence && occupancyTitle
+          ? { metadata: { occupancy_title: occupancyTitle } as unknown as import('@/integrations/supabase/types').Json }
+          : {}),
         geo_lat: latitude,
         geo_lon: longitude,
         user_id: isYamiooAgent && selectedRequester ? selectedRequester.user_id : user.id,
@@ -990,6 +1021,33 @@ export default function CreateIdentity() {
                         }
                       </p>
                     </div>
+
+                    {/* Título de ocupação — só residências (casa/apartamento). Só o
+                        proprietário ou arrendatário (com contrato) pode registar
+                        uma residência oficial; os restantes são co-residentes. */}
+                    {(propertyType === 'house' || propertyType === 'apartment') && (
+                      <div>
+                        <Label htmlFor="occupancyTitle">
+                          {t('createid_occupancy_title') || 'É o titular desta residência?'} <span className="text-destructive">*</span>
+                        </Label>
+                        <Select value={occupancyTitle} onValueChange={(v) => setOccupancyTitle(v as 'owner' | 'tenant' | 'other')} required>
+                          <SelectTrigger className={!occupancyTitle ? "border-amber-500" : ""}>
+                            <SelectValue placeholder={t('createid_occupancy_placeholder') || 'Selecione o título de ocupação'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="owner">🔑 {t('createid_occupancy_owner') || 'Sou o proprietário'}</SelectItem>
+                            <SelectItem value="tenant">📄 {t('createid_occupancy_tenant') || 'Sou arrendatário (com contrato)'}</SelectItem>
+                            <SelectItem value="other">🚫 {t('createid_occupancy_other') || 'Não sou proprietário nem arrendatário'}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {occupancyTitle === 'other'
+                            ? `⚠️ ${t('createid_occupancy_other_note') || 'Só proprietários ou detentores de contratos de aluguer podem registar uma residência oficial. Peça ao titular do agregado para o adicionar como co-residente.'}`
+                            : `ℹ️ ${t('createid_occupancy_note') || 'A residência oficial só pode ser registada pelo proprietário ou arrendatário. Os restantes membros são adicionados como co-residentes pelo titular.'}`
+                          }
+                        </p>
+                      </div>
+                    )}
 
                     {/* Temporary address toggle - only for yamioo agents */}
                     {isYamiooAgent && (
