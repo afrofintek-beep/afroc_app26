@@ -397,7 +397,8 @@ export default function MapDemo() {
                       {t(statusLabelKeys[selectedAddress.status || 'draft'])}
                     </Badge>
                   </div>
-                  {/* Coordenadas GPS NUNCA exibidas ao utilizador (privacidade). */}
+                  {/* Sem coordenadas nas UIs de utilizador: o endereço já é o CÓDIGO
+                      AFROLOC (título do cartão), não a coordenada nua. */}
                 </div>
                 
                 <div className="mt-4 pt-4 border-t">

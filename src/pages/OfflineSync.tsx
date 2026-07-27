@@ -283,7 +283,13 @@ export default function OfflineSync() {
                             </p>
                           )}
                           
-                          {/* Coordenadas GPS NUNCA exibidas ao utilizador (privacidade). */}
+                          {(record.geo_lat && record.geo_lon) && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {/* Sem coordenadas nas UIs de utilizador — só indicamos que há localização. */}
+                              Localização registada
+                            </p>
+                          )}
 
                           {record.witnesses && record.witnesses.length > 0 && (
                             <div className="mt-2 pt-2 border-t border-border">

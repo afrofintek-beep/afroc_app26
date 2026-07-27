@@ -172,6 +172,35 @@ export function resolveZone(lat: number, lon: number, countryCode: string, admin
   return resolveZoneByCoordinates(lat, lon, countryCode);
 }
 
+// Códigos OFICIAIS de província de Angola (reforma 2024 — Codificação Nacional,
+// DPA 2024). O código antigo cortava 3 letras do nome (Luanda→LUA); o oficial é
+// um código próprio (Luanda→LDA, Cabinda→CDA, Zaire→ZRE). Aceita nome de
+// província, código AFROLOC antigo (3 letras), ou já o oficial.
+const AO_OFFICIAL_PROVINCE: Record<string, string> = {
+  bengo: 'BGO', benguela: 'BLA', bie: 'BIE', cabinda: 'CDA', cuando: 'CDO',
+  cuandocubango: 'CDO', cuanzanorte: 'CNO', kwanzanorte: 'CNO', cuanzasul: 'CSU',
+  kwanzasul: 'CSU', cubango: 'CGO', cunene: 'CNE', huambo: 'HBO', huila: 'HLA',
+  icoloebengo: 'IBE', luanda: 'LDA', lundanorte: 'LNO', lundasul: 'LSU',
+  malanje: 'MJE', moxico: 'MCO', moxicoleste: 'MLE', namibe: 'NBE', uige: 'UGE',
+  zaire: 'ZRE',
+  // códigos AFROLOC antigos (3 letras) → oficiais
+  cab: 'CDA', zai: 'ZRE', uig: 'UGE', lua: 'LDA', ico: 'IBE', cus: 'CSU',
+  mal: 'MJE', mox: 'MCO', mxl: 'MLE', hua: 'HBO', bgu: 'BLA', nam: 'NBE',
+  hui: 'HLA', cnn: 'CNE', cub: 'CGO', cud: 'CDO',
+};
+const AO_OFFICIAL_SET = new Set([
+  'BGO', 'BLA', 'BIE', 'CDA', 'CDO', 'CGO', 'CNE', 'CNO', 'CSU', 'HBO', 'HLA',
+  'IBE', 'LDA', 'LNO', 'LSU', 'MCO', 'MJE', 'MLE', 'NBE', 'UGE', 'ZRE',
+]);
+function officialProvinceAO(input: string): string {
+  const seg = input.includes('-') ? input.split('-').pop()! : input;
+  const up = seg.toUpperCase();
+  if (AO_OFFICIAL_SET.has(up)) return up; // já é oficial
+  const key = seg.normalize('NFKD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z]/g, '');
+  return AO_OFFICIAL_PROVINCE[key] || up.slice(0, 3); // recurso: 3 letras antigas
+}
+
 // --- Encode ---
 export function encodeAfroloc(request: QGRequest): QGResponse {
   const {
@@ -207,7 +236,9 @@ export function encodeAfroloc(request: QGRequest): QGResponse {
 
   let code: string;
 
-  const normProv = provinceCode?.toUpperCase().slice(0, 3) || '';
+  const normProv = provinceCode
+    ? (cc === 'AO' ? officialProvinceAO(provinceCode) : provinceCode.toUpperCase().slice(0, 3))
+    : '';
   const normMun = municipalityCode?.toUpperCase().slice(0, 3) || '';
   const normCom = communeCode?.toUpperCase().slice(0, 3) || '';
   const normBai = registrationType === 'digital' ? 'DIG' : (neighborhoodCode?.toUpperCase().slice(0, 3) || '');

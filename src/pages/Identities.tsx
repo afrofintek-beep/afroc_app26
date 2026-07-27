@@ -629,9 +629,8 @@ export default function Identities() {
                                     </Badge>
                                   </div>
                                 )}
-                                {/* Coordenadas GPS NUNCA exibidas ao utilizador (privacidade
-                                    por construção — ver [[afroloc-copy-no-coordinates]]). A
-                                    localização é dada pelo código AFROLOC + nomes admin. */}
+                                {/* Sem coordenadas nas UIs de utilizador: o endereço é o
+                                    CÓDIGO AFROLOC (forma IP-protegida), não a coordenada nua. */}
 
                                 {/* Verification Cycle Status Bar - Semáforo (apenas para endereços validados) */}
                                 <VerificationStatusBar
