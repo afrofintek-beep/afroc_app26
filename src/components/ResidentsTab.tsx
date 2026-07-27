@@ -227,6 +227,31 @@ export function ResidentsTab({
     }
   };
 
+  // Remover (retirar) um co-residente da residência — revoga o registo.
+  const handleRemove = async (residentId: string) => {
+    if (!window.confirm(t('resident_remove_confirm') || 'Remover este co-residente da residência? Esta ação pode ser refeita adicionando-o de novo.')) return;
+    try {
+      const { error } = await supabase
+        .from('afroloc_residents')
+        .update({
+          status: 'revoked',
+          revoked_at: new Date().toISOString(),
+          revoked_by_user_id: currentUserId,
+          revocation_reason: 'Removido pelo titular',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', residentId);
+      if (error) throw error;
+      toast({
+        title: t('resident_removed_title') || 'Removido',
+        description: t('resident_removed_desc') || 'Co-residente removido da residência.',
+      });
+      loadResidents();
+    } catch (error: any) {
+      toast({ title: t('error') || 'Erro', description: error.message, variant: 'destructive' });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -337,6 +362,7 @@ export function ResidentsTab({
               resident={resident}
               onApprove={handleApprove}
               onReject={handleReject}
+              onRemove={isOwner ? handleRemove : undefined}
               isPrimaryOwner={isOwner}
               isAuthority={isAuthority}
             />

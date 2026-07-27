@@ -11,7 +11,8 @@ import {
   AlertCircle,
   Home,
   UserCheck,
-  Shield
+  Shield,
+  Trash2
 } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -39,6 +40,7 @@ interface ResidentRequestCardProps {
   };
   onApprove?: (residentId: string) => void;
   onReject?: (residentId: string) => void;
+  onRemove?: (residentId: string) => void;
   onViewDocuments?: (residentId: string) => void;
   isPrimaryOwner?: boolean;
   isAuthority?: boolean;
@@ -48,6 +50,7 @@ export function ResidentRequestCard({
   resident,
   onApprove,
   onReject,
+  onRemove,
   onViewDocuments,
   isPrimaryOwner = false,
   isAuthority = false,
@@ -61,6 +64,8 @@ export function ResidentRequestCard({
       spouse: t('relationship_spouse') || 'Cônjuge',
       child: t('relationship_child') || 'Filho/a',
       parent: t('relationship_parent') || 'Pai/Mãe',
+      father: t('relationship_father') || 'Pai',
+      mother: t('relationship_mother') || 'Mãe',
       sibling: t('relationship_sibling') || 'Irmão/Irmã',
       other_family: t('relationship_other_family') || 'Outro Familiar',
       cohabitant: t('relationship_cohabitant') || 'Coabitante',
@@ -234,6 +239,21 @@ export function ResidentRequestCard({
             >
               <XCircle className="h-4 w-4 mr-1" />
               {t('reject') || 'Rejeitar'}
+            </Button>
+          </div>
+        )}
+
+        {/* Remover — o titular pode retirar qualquer co-residente da residência. */}
+        {onRemove && (
+          <div className="pt-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={() => onRemove(resident.id)}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              {t('remove') || 'Remover'}
             </Button>
           </div>
         )}

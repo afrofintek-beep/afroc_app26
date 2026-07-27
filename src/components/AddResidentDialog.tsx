@@ -52,13 +52,17 @@ export function AddResidentDialog({
 
   const relationships: { value: ResidentRelationship; label: string }[] = [
     { value: 'spouse', label: t('relationship_spouse') || 'Cônjuge' },
+    { value: 'father' as ResidentRelationship, label: t('relationship_father') || 'Pai' },
+    { value: 'mother' as ResidentRelationship, label: t('relationship_mother') || 'Mãe' },
     { value: 'child', label: t('relationship_child') || 'Filho/a' },
-    { value: 'parent', label: t('relationship_parent') || 'Pai/Mãe' },
     { value: 'sibling', label: t('relationship_sibling') || 'Irmão/Irmã' },
     { value: 'other_family', label: t('relationship_other_family') || 'Outro Familiar' },
     { value: 'tenant', label: t('relationship_tenant') || 'Inquilino' },
     { value: 'cohabitant', label: t('relationship_cohabitant') || 'Coabitante' },
   ];
+
+  // Parentescos que só podem existir UMA vez por residência (1 cônjuge, 1 pai, 1 mãe).
+  const singleRelationships: Record<string, number> = { spouse: 1, father: 1, mother: 1 };
 
   const remainingSlots = maxResidents - currentResidents;
   const canAddMore = remainingSlots > 0;
@@ -80,6 +84,17 @@ export function AddResidentDialog({
       return;
     }
 
+    // Nome COMPLETO: pelo menos duas palavras (evita entradas como "to").
+    const cleanName = fullName.trim().replace(/\s+/g, ' ');
+    if (cleanName.length < 3 || cleanName.split(' ').length < 2) {
+      toast({
+        title: t('resident_name_invalid_title') || 'Nome inválido',
+        description: t('resident_name_invalid_desc') || 'Indique o nome completo (nome e apelido).',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (!canAddMore) {
       toast({
         title: t('limit_reached') || 'Limite Atingido',
@@ -91,6 +106,26 @@ export function AddResidentDialog({
 
     setLoading(true);
     try {
+      // Limite por parentesco: 1 cônjuge, 1 pai, 1 mãe por residência.
+      if (singleRelationships[relationship]) {
+        const { count } = await supabase
+          .from('afroloc_residents')
+          .select('id', { count: 'exact', head: true })
+          .eq('afroloc_record_id', afrolocRecordId)
+          .eq('relationship', relationship)
+          .not('status', 'in', '("rejected","revoked")');
+        if ((count || 0) >= singleRelationships[relationship]) {
+          const lbl = relationships.find((r) => r.value === relationship)?.label || relationship;
+          toast({
+            title: t('resident_relationship_limit_title') || 'Grau de parentesco já preenchido',
+            description: (t('resident_relationship_limit_desc') || 'Já existe "{rel}" nesta residência; não pode adicionar outro.').replace('{rel}', lbl),
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+      }
+
       // Telefone OPCIONAL: se for indicado e existir uma conta com esse número,
       // liga-se essa conta (fluxo de co-residente com documentos). Caso contrário,
       // o membro fica registado apenas por NOME (agregado familiar sem conta).
@@ -123,26 +158,26 @@ export function AddResidentDialog({
         }
       }
 
-      // Membro só-nome é aprovado de imediato (declarado pelo dono do agregado);
-      // membro com conta ligada segue o fluxo de documentos/aprovação.
+      // TODOS os co-residentes exigem PROVA DOCUMENTAL da relação com o titular
+      // (certidão de nascimento p/ filho, casamento p/ cônjuge, etc.). Por isso
+      // ficam em 'pending_documents' até a prova ser submetida e validada — não
+      // há aprovação automática.
       const { error: insertError } = await supabase
         .from('afroloc_residents')
         .insert({
           afroloc_record_id: afrolocRecordId,
           user_id: linkedUserId,
-          full_name: fullName.trim(),
+          full_name: cleanName,
           relationship: relationship as ResidentRelationship,
           is_primary: false,
-          status: linkedUserId ? 'pending_documents' : 'approved',
+          status: 'pending_documents',
         } as never);
 
       if (insertError) throw insertError;
 
       toast({
         title: t('resident_added') || 'Residente Adicionado',
-        description: linkedUserId
-          ? (t('resident_added_desc') || 'Pedido criado. A pessoa deve submeter os documentos.')
-          : (t('resident_added_name_desc') || 'Membro do agregado adicionado ao endereço.'),
+        description: t('resident_added_pending_docs') || 'Adicionado. Falta submeter a prova documental da relação com o titular para ser aprovado.',
       });
 
       setOpen(false);
