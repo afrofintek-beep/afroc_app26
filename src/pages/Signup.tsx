@@ -352,27 +352,37 @@ export default function Signup() {
 
       // Handle edge function error - check data first as it may contain the error details
       if (error || !data?.success) {
+        // Em respostas non-2xx, o supabase-js coloca a mensagem GENÉRICA
+        // ("Edge Function returned a non-2xx status code") em error.message e o
+        // corpo REAL do erro fica em error.context (Response). Lê-lo para mostrar
+        // a causa verdadeira ao utilizador (mesmo padrão do Login.tsx, 81286b8).
+        let serverBody: any = data;
+        const ctx = (error as any)?.context;
+        if (ctx && typeof ctx.json === 'function') {
+          try { serverBody = await ctx.json(); } catch { /* corpo não-JSON — mantém data */ }
+        }
         // Handle specific error codes from server
-        const errorCode = data?.code;
-        let errorMessage = data?.error || error?.message || 'Erro ao criar conta';
-        
+        const errorCode = serverBody?.code;
+        let errorMessage = serverBody?.error || error?.message || 'Erro ao criar conta';
+
         if (errorCode === 'WEAK_PASSWORD') {
-          errorMessage = t('password_too_weak') + ': ' + (data.passwordErrors?.join(', ') || '');
+          errorMessage = t('password_too_weak') + ': ' + (serverBody.passwordErrors?.join(', ') || '');
         } else if (errorCode === 'PHONE_EXISTS') {
           errorMessage = t('phone_already_registered');
         } else if (errorCode === 'EMAIL_EXISTS' || errorCode === 'AUTH_ERROR') {
           // AUTH_ERROR often means email already exists
-          if (data?.error?.includes('email') && data?.error?.includes('registered')) {
+          if (serverBody?.error?.includes('email') && serverBody?.error?.includes('registered')) {
             errorMessage = t('email_already_registered') || 'Este email já está registado';
           } else {
-            errorMessage = data?.error || t('email_already_registered') || 'Este email já está registado';
+            errorMessage = serverBody?.error || t('email_already_registered') || 'Este email já está registado';
           }
         } else if (errorCode === 'PHONE_NOT_VERIFIED') {
           errorMessage = t('verify_phone_first');
         } else if (errorCode === 'RATE_LIMITED') {
           errorMessage = t('too_many_attempts') || 'Muitas tentativas. Tente novamente mais tarde.';
         }
-        
+
+        console.error('Signup validate-signup error:', errorMessage, serverBody);
         toast({
           title: t('error'),
           description: errorMessage,
