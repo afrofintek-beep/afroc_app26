@@ -43,6 +43,27 @@ serve(async (req) => {
   }
 
   try {
+    // === Exclusividade: o encode em lote é uma API de PARCEIRO. Exige uma
+    // chave válida (x-partner-key ∈ AFROLOC_PARTNER_KEYS). Sem chaves
+    // configuradas, o endpoint fica desligado. ===
+    const partnerKeys = (Deno.env.get('AFROLOC_PARTNER_KEYS') ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (partnerKeys.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'batch-resolve is not enabled (AFROLOC_PARTNER_KEYS not configured)' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const providedKey = req.headers.get('x-partner-key') ?? '';
+    if (!providedKey || !partnerKeys.includes(providedKey)) {
+      return new Response(
+        JSON.stringify({ error: 'unauthorized: valid x-partner-key required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const body = await req.json();
     const { points, countryCode: defaultCountry } = body;
 
@@ -59,7 +80,8 @@ serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    // Chamada INTERNA ao codec exclusivo → service-role key.
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
     console.log(`[BatchResolve] Processing ${points.length} points`);
 

@@ -45,9 +45,69 @@ import {
  * partilhada com o yamioo-gateway). Este ficheiro é só o handler HTTP.
  */
 
+/**
+ * Lê o papel (role) do JWT sem verificar assinatura — suficiente para
+ * distinguir anon / authenticated / service_role. O gate abaixo é o que
+ * torna a LEITURA/SCAN de endereços AFROLOC EXCLUSIVA do ecossistema:
+ * a anon key pública (embebida em qualquer frontend) NÃO resolve códigos.
+ */
+function jwtRole(token: string): string | null {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const json = JSON.parse(
+      atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+    );
+    return typeof json.role === 'string' ? json.role : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Autoriza a chamada ao codec. Permitidos:
+ *  - service_role  → chamadas internas (address-gateway, batch-resolve)
+ *  - authenticated → utilizadores reais do ecossistema (sessão iniciada)
+ *  - anon + x-partner-key válido → parceiros licenciados
+ * Rejeitado: anon sem chave de parceiro, ou sem Authorization.
+ */
+function authorizeCodec(req: Request): { ok: boolean; reason: string } {
+  const authHeader = req.headers.get('Authorization') ?? '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  if (!token) return { ok: false, reason: 'Authorization required' };
+
+  const role = jwtRole(token);
+  if (role === 'service_role' || role === 'authenticated') return { ok: true, reason: '' };
+
+  // anon (ou role desconhecido): só passa com chave de parceiro válida.
+  const partnerKeys = (Deno.env.get('AFROLOC_PARTNER_KEYS') ?? '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const provided = req.headers.get('x-partner-key') ?? '';
+  if (partnerKeys.length > 0 && provided && partnerKeys.includes(provided)) {
+    return { ok: true, reason: '' };
+  }
+
+  return {
+    ok: false,
+    reason: 'Exclusive endpoint: sign in or provide a valid partner key to resolve AFROLOC codes',
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // === Exclusividade: só o ecossistema (utilizadores autenticados, serviços
+  // internos ou parceiros licenciados) pode resolver/gerar códigos AFROLOC. ===
+  const gate = authorizeCodec(req);
+  if (!gate.ok) {
+    return new Response(
+      JSON.stringify({ error: gate.reason }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   try {

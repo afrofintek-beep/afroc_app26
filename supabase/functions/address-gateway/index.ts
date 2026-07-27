@@ -136,8 +136,9 @@ async function callQGEngine(
   countryCode: string
 ): Promise<any> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  
+  // Chamada INTERNA ao codec → usa a service-role key (o qg-engine é exclusivo).
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
   const response = await fetch(`${supabaseUrl}/functions/v1/qg-engine`, {
     method: 'POST',
     headers: {
@@ -159,8 +160,9 @@ async function callQGEngine(
  */
 async function validateAfrolocCode(code: string): Promise<any> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  
+  // Chamada INTERNA ao codec → service-role key.
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
   const response = await fetch(`${supabaseUrl}/functions/v1/qg-engine`, {
     method: 'POST',
     headers: {
@@ -182,8 +184,9 @@ async function validateAfrolocCode(code: string): Promise<any> {
  */
 async function decodeAfrolocCode(code: string): Promise<any> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  
+  // Chamada INTERNA ao codec → service-role key.
+  const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
   const response = await fetch(`${supabaseUrl}/functions/v1/qg-engine`, {
     method: 'POST',
     headers: {
@@ -507,9 +510,28 @@ async function handleCertify(
 /**
  * Handle LOOKUP action
  */
+/**
+ * Remove coordenadas e quaisquer campos sensíveis de posição de um registo,
+ * antes de o devolver a quem NÃO é o dono nem autoridade. Coerente com a
+ * regra do ecossistema: nunca expor coordenadas a terceiros.
+ */
+function stripCoordinates<T extends Record<string, any>>(record: T): Partial<T> {
+  if (!record) return record;
+  const {
+    geo_lat: _lat,
+    geo_lon: _lon,
+    latitude: _latitude,
+    longitude: _longitude,
+    ...safe
+  } = record as Record<string, any>;
+  return safe as Partial<T>;
+}
+
 async function handleLookup(
   request: LookupAddressRequest,
-  supabase: any
+  supabase: any,
+  requesterId?: string,
+  isAuthority?: boolean
 ): Promise<any> {
   if (request.code) {
     // Lookup by AFROLOC code
@@ -518,15 +540,18 @@ async function handleLookup(
       .select('*')
       .eq('code', request.code)
       .single();
-    
+
     if (error || !record) {
       throw new Error('Address not found');
     }
-    
+
     const atsResult = await callATSEngine(record.id);
-    
+
+    // Coordenadas só para o dono ou autoridade; terceiros recebem só a zona.
+    const canSeeCoordinates = isAuthority || (requesterId && record.user_id === requesterId);
+
     return {
-      record,
+      record: canSeeCoordinates ? record : stripCoordinates(record),
       atsScore: atsResult.score,
       certificationLevel: atsResult.certificationLevel,
     };
@@ -577,9 +602,15 @@ async function handleLookup(
       return { ...r, distanceMeters: distance };
     }).sort((a: any, b: any) => a.distanceMeters - b.distanceMeters);
     
+    const nearestRaw = withDistances[0] || null;
+    const nearestCanSee =
+      nearestRaw && (isAuthority || (requesterId && nearestRaw.user_id === requesterId));
+
     return {
       count: withDistances.length,
-      nearest: withDistances[0] || null,
+      // Só o dono/autoridade vê o registo completo do mais próximo; caso
+      // contrário, apenas código + distância + zona (sem coordenadas).
+      nearest: nearestRaw ? (nearestCanSee ? nearestRaw : stripCoordinates(nearestRaw)) : null,
       records: withDistances.slice(0, 5).map((r: any) => ({
         code: r.code,
         distanceMeters: r.distanceMeters,
@@ -611,14 +642,15 @@ async function handleList(
   }
   
   const { data: records, error } = await query.limit(limit);
-  
+
   if (error) {
     throw new Error(`List failed: ${error.message}`);
   }
-  
+
+  // A lista é a leitura mais aberta → NUNCA expõe coordenadas.
   return {
     count: records.length,
-    records,
+    records: (records ?? []).map((r: any) => stripCoordinates(r)),
   };
 }
 
@@ -881,9 +913,10 @@ serve(async (req) => {
         result = await handleCertify(request, supabase);
         break;
       case 'lookup':
-        result = await handleLookup(request, supabase);
+        result = await handleLookup(request, supabase, user.id, isValidator);
         break;
       case 'list':
+        // A lista nunca devolve coordenadas (é a leitura mais aberta).
         result = await handleList(request, supabase);
         break;
       case 'validate':
