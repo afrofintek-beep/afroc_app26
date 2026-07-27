@@ -88,11 +88,17 @@ export function ResidentsTab({
       // Carregar perfis e contagem de documentos para cada residente
       const residentsWithProfiles = await Promise.all(
         (residentsData || []).map(async (resident) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name, phone')
-            .eq('id', resident.user_id)
-            .maybeSingle();
+          // Residente com conta → nome vem do profile. Residente só-nome
+          // (user_id null) → nome vem da coluna full_name do próprio registo.
+          const { data: profile } = resident.user_id
+            ? await supabase
+                .from('profiles')
+                .select('full_name, phone')
+                .eq('id', resident.user_id)
+                .maybeSingle()
+            : { data: null };
+
+          const nameOnly = (resident as { full_name?: string }).full_name;
 
           const { count: docsCount } = await supabase
             .from('afroloc_resident_documents')
@@ -101,7 +107,7 @@ export function ResidentsTab({
 
           return {
             ...resident,
-            profile: profile || undefined,
+            profile: profile || (nameOnly ? { full_name: nameOnly, phone: null } : undefined),
             documents_count: docsCount || 0,
           };
         })

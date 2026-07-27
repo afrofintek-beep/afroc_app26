@@ -44,6 +44,7 @@ export function AddResidentDialog({
 }: AddResidentDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [relationship, setRelationship] = useState<ResidentRelationship | "">("");
   const { toast } = useToast();
@@ -62,11 +63,18 @@ export function AddResidentDialog({
   const remainingSlots = maxResidents - currentResidents;
   const canAddMore = remainingSlots > 0;
 
+  const reset = () => {
+    setFullName("");
+    setPhone("");
+    setRelationship("");
+  };
+
   const handleSubmit = async () => {
-    if (!phone || !relationship) {
+    // Grau de parentesco e nome são OBRIGATÓRIOS. O telefone é opcional.
+    if (!fullName.trim() || !relationship) {
       toast({
         title: t('validation_error') || 'Erro de Validação',
-        description: t('fill_all_fields') || 'Preencha todos os campos',
+        description: t('resident_name_relationship_required') || 'Indique o nome e o grau de parentesco.',
         variant: 'destructive',
       });
       return;
@@ -83,63 +91,62 @@ export function AddResidentDialog({
 
     setLoading(true);
     try {
-      // Encontrar utilizador pelo telefone
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, full_name, phone')
-        .eq('phone', phone)
-        .single();
-
-      if (profileError || !profile) {
-        toast({
-          title: t('user_not_found') || 'Utilizador Não Encontrado',
-          description: t('user_must_register') || 'Este utilizador deve primeiro registar-se no AFROLOC',
-          variant: 'destructive',
-        });
-        setLoading(false);
-        return;
+      // Telefone OPCIONAL: se for indicado e existir uma conta com esse número,
+      // liga-se essa conta (fluxo de co-residente com documentos). Caso contrário,
+      // o membro fica registado apenas por NOME (agregado familiar sem conta).
+      let linkedUserId: string | null = null;
+      if (phone.trim()) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .eq('phone', phone.trim())
+          .maybeSingle();
+        if (profile?.id) {
+          linkedUserId = profile.id;
+          // Evitar duplicar uma conta já residente neste endereço.
+          const { data: existing } = await supabase
+            .from('afroloc_residents')
+            .select('id')
+            .eq('afroloc_record_id', afrolocRecordId)
+            .eq('user_id', profile.id)
+            .not('status', 'in', '("rejected","revoked")')
+            .maybeSingle();
+          if (existing) {
+            toast({
+              title: t('already_resident') || 'Já Registado',
+              description: t('user_already_resident') || 'Esta pessoa já está registada neste endereço',
+              variant: 'destructive',
+            });
+            setLoading(false);
+            return;
+          }
+        }
       }
 
-      // Verificar se já existe pedido para este utilizador
-      const { data: existingResident } = await supabase
-        .from('afroloc_residents')
-        .select('id, status')
-        .eq('afroloc_record_id', afrolocRecordId)
-        .eq('user_id', profile.id)
-        .not('status', 'in', '("rejected","revoked")')
-        .single();
-
-      if (existingResident) {
-        toast({
-          title: t('already_resident') || 'Já Registado',
-          description: t('user_already_resident') || 'Este utilizador já está registado neste endereço',
-          variant: 'destructive',
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Criar pedido de co-residência
+      // Membro só-nome é aprovado de imediato (declarado pelo dono do agregado);
+      // membro com conta ligada segue o fluxo de documentos/aprovação.
       const { error: insertError } = await supabase
         .from('afroloc_residents')
         .insert({
           afroloc_record_id: afrolocRecordId,
-          user_id: profile.id,
+          user_id: linkedUserId,
+          full_name: fullName.trim(),
           relationship: relationship as ResidentRelationship,
           is_primary: false,
-          status: 'pending_documents', // Começa a aguardar documentos
-        });
+          status: linkedUserId ? 'pending_documents' : 'approved',
+        } as never);
 
       if (insertError) throw insertError;
 
       toast({
         title: t('resident_added') || 'Residente Adicionado',
-        description: t('resident_added_desc') || 'O pedido foi criado. O utilizador deve agora submeter os documentos.',
+        description: linkedUserId
+          ? (t('resident_added_desc') || 'Pedido criado. A pessoa deve submeter os documentos.')
+          : (t('resident_added_name_desc') || 'Membro do agregado adicionado ao endereço.'),
       });
 
       setOpen(false);
-      setPhone("");
-      setRelationship("");
+      reset();
       onResidentAdded();
     } catch (error: any) {
       console.error('Error adding resident:', error);
@@ -154,7 +161,7 @@ export function AddResidentDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
       <DialogTrigger asChild>
         <Button disabled={!canAddMore}>
           <UserPlus className="h-4 w-4 mr-2" />
@@ -163,9 +170,9 @@ export function AddResidentDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{t('add_coresident') || 'Adicionar Co-Residente'}</DialogTitle>
+          <DialogTitle>{t('add_coresident') || 'Adicionar Membro do Agregado'}</DialogTitle>
           <DialogDescription>
-            {t('add_coresident_desc') || 'Adicione um membro da família ou inquilino a este endereço AFROLOC.'}
+            {t('add_coresident_desc') || 'Adicione um membro da família a este endereço AFROLOC. O telefone é opcional — só é preciso se a pessoa tiver conta própria.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -190,32 +197,28 @@ export function AddResidentDialog({
             <Input value={afrolocCode} disabled className="font-mono" />
           </div>
 
-          {/* Telefone do novo residente */}
+          {/* Nome completo (OBRIGATÓRIO) */}
           <div className="space-y-2">
-            <Label htmlFor="phone">{t('resident_phone') || 'Telefone do Residente'}</Label>
+            <Label htmlFor="resident-name">{t('resident_full_name') || 'Nome completo'} <span className="text-destructive">*</span></Label>
             <Input
-              id="phone"
-              type="tel"
-              placeholder="+244 9XX XXX XXX"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              id="resident-name"
+              placeholder={t('resident_full_name_placeholder') || 'Ex.: Maria Dinguanza'}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               disabled={!canAddMore}
             />
-            <p className="text-xs text-muted-foreground">
-              {t('resident_must_be_registered') || 'O residente deve estar registado no AFROLOC'}
-            </p>
           </div>
 
-          {/* Relação */}
+          {/* Grau de parentesco (OBRIGATÓRIO) */}
           <div className="space-y-2">
-            <Label>{t('relationship') || 'Relação com o Endereço'}</Label>
+            <Label>{t('relationship') || 'Grau de parentesco'} <span className="text-destructive">*</span></Label>
             <Select
               value={relationship}
               onValueChange={(val) => setRelationship(val as ResidentRelationship)}
               disabled={!canAddMore}
             >
               <SelectTrigger>
-                <SelectValue placeholder={t('select_relationship') || 'Selecionar relação'} />
+                <SelectValue placeholder={t('select_relationship') || 'Selecionar grau de parentesco'} />
               </SelectTrigger>
               <SelectContent>
                 {relationships.map((rel) => (
@@ -226,6 +229,22 @@ export function AddResidentDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {/* Telefone (OPCIONAL) */}
+          <div className="space-y-2">
+            <Label htmlFor="phone">{t('resident_phone_optional') || 'Telefone (opcional)'}</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="+244 9XX XXX XXX"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={!canAddMore}
+            />
+            <p className="text-xs text-muted-foreground">
+              {t('resident_phone_optional_hint') || 'Só se a pessoa tiver conta AFROLOC própria. Sem telefone, o membro fica registado só pelo nome.'}
+            </p>
+          </div>
         </div>
 
         <DialogFooter>
@@ -234,7 +253,7 @@ export function AddResidentDialog({
           </Button>
           <Button onClick={handleSubmit} disabled={loading || !canAddMore}>
             {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {t('send_request') || 'Enviar Pedido'}
+            {t('add_resident') || 'Adicionar'}
           </Button>
         </DialogFooter>
       </DialogContent>
