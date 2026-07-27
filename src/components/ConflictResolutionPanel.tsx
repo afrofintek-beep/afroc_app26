@@ -137,12 +137,7 @@ export default function ConflictResolutionPanel({ onResolved }: ConflictResoluti
                   {item.last_error && (
                     <p className="text-xs text-muted-foreground">{item.last_error}</p>
                   )}
-                  {item.payload?.geo_lat && item.payload?.geo_lon && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {item.payload.geo_lat.toFixed(5)}, {item.payload.geo_lon.toFixed(5)}
-                    </p>
-                  )}
+                  {/* Coordenadas GPS NUNCA exibidas ao utilizador (privacidade). */}
                   <p className="text-xs text-muted-foreground">
                     {t('conflictres_attempts_label')}: {item.attempts} · {t('conflictres_created_label')}: {new Date(item.created_at).toLocaleDateString()}
                   </p>

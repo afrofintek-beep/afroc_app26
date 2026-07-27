@@ -130,10 +130,10 @@ export function OfflineWitnessCapture({ onWitnessAdded, witnessCount }: Props) {
     setShowCompressionPreview(false);
     
     const savings = stats.compressionRatio.toFixed(0);
-    const exifInfo = exif?.deviceModel 
+    const exifInfo = exif?.deviceModel
       ? ` | Device: ${exif.deviceModel}`
       : exif?.latitude && exif?.longitude
-      ? ` | GPS: ${exif.latitude.toFixed(4)}, ${exif.longitude.toFixed(4)}`
+      ? ` | GPS EXIF: registado` // coordenadas NUNCA expostas (privacidade)
       : '';
     
     toast({

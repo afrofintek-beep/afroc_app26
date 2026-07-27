@@ -317,12 +317,7 @@ const AfrolocRequests = () => {
               )}
             </div>
 
-            {request.geo_lat && request.geo_lon && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Navigation className="h-3 w-3" />
-                <span>{request.geo_lat.toFixed(6)}, {request.geo_lon.toFixed(6)}</span>
-              </div>
-            )}
+            {/* Coordenadas GPS NUNCA exibidas (privacidade por construção). */}
 
             {request.rejection_reason && (
               <div className="flex items-start gap-2 text-sm text-destructive mt-2 p-2 bg-destructive/10 rounded">

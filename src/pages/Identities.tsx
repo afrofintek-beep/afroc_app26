@@ -629,11 +629,9 @@ export default function Identities() {
                                     </Badge>
                                   </div>
                                 )}
-                                {record.geo_lat && record.geo_lon && (
-                                  <div className="text-xs text-muted-foreground font-mono">
-                                    GPS: {Number(record.geo_lat).toFixed(5)}, {Number(record.geo_lon).toFixed(5)}
-                                  </div>
-                                )}
+                                {/* Coordenadas GPS NUNCA exibidas ao utilizador (privacidade
+                                    por construção — ver [[afroloc-copy-no-coordinates]]). A
+                                    localização é dada pelo código AFROLOC + nomes admin. */}
 
                                 {/* Verification Cycle Status Bar - Semáforo (apenas para endereços validados) */}
                                 <VerificationStatusBar

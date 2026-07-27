@@ -397,14 +397,7 @@ export default function MapDemo() {
                       {t(statusLabelKeys[selectedAddress.status || 'draft'])}
                     </Badge>
                   </div>
-                  <div>
-                    <p className="text-muted-foreground">{t('mapdemo_field_latitude')}</p>
-                    <p className="font-mono text-xs">{selectedAddress.geo_lat?.toFixed(6)}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">{t('mapdemo_field_longitude')}</p>
-                    <p className="font-mono text-xs">{selectedAddress.geo_lon?.toFixed(6)}</p>
-                  </div>
+                  {/* Coordenadas GPS NUNCA exibidas ao utilizador (privacidade). */}
                 </div>
                 
                 <div className="mt-4 pt-4 border-t">

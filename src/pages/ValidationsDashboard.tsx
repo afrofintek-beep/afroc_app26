@@ -319,12 +319,8 @@ const ValidationsDashboard = () => {
                   </p>
                 ) : (
                   currentValidations.map((validation) => {
-                    const geoCoords = validation.afroloc_records?.geo_lat && validation.afroloc_records?.geo_lon
-                      ? `(${validation.afroloc_records.geo_lat}, ${validation.afroloc_records.geo_lon})`
-                      : "";
-                    const address = geoCoords 
-                      ? `${validation.afroloc_records?.code} ${geoCoords}`
-                      : validation.afroloc_records?.code;
+                    // Coordenadas GPS NUNCA exibidas — só o código AFROLOC.
+                    const address = validation.afroloc_records?.code;
 
                     return (
                       <div key={validation.id} className="flex items-center gap-4 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors">

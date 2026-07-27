@@ -270,7 +270,7 @@ export const VerificationStatusBar = ({
               <div className="grid grid-cols-2 gap-1 text-[10px]">
                 <span>{t('completeness')}: {riskData.riskBreakdown.addressCompleteness}/20</span>
                 <span>{t('property')}: {riskData.riskBreakdown.propertyStability}/15</span>
-                <span>GPS: {riskData.riskBreakdown.gpsValidation}/15</span>
+                <span>{t('location') || 'Local'}: {riskData.riskBreakdown.gpsValidation}/15</span>
                 <span>{t('witnesses')}: {riskData.riskBreakdown.witnessQuality}/15</span>
                 <span>ATS: {riskData.riskBreakdown.atsScore}/20</span>
                 <span>{t('history')}: {riskData.riskBreakdown.verificationHistory}/15</span>
