@@ -17,6 +17,7 @@ import {
 import { ResidentRequestCard } from "./ResidentRequestCard";
 import { AddResidentDialog } from "./AddResidentDialog";
 import { ResidenceConfigDialog } from "./ResidenceConfigDialog";
+import { ResidentDocumentsDialog } from "./ResidentDocumentsDialog";
 import type { Database } from "@/integrations/supabase/types";
 
 type ResidentStatus = Database["public"]["Enums"]["coresident_request_status"];
@@ -70,6 +71,7 @@ export function ResidentsTab({
   const [config, setConfig] = useState<ResidenceConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [docsResident, setDocsResident] = useState<Resident | null>(null);
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -363,6 +365,11 @@ export function ResidentsTab({
               onApprove={handleApprove}
               onReject={handleReject}
               onRemove={isOwner ? handleRemove : undefined}
+              onManageDocuments={
+                isOwner
+                  ? (id) => setDocsResident(residents.find((r) => r.id === id) || null)
+                  : undefined
+              }
               isPrimaryOwner={isOwner}
               isAuthority={isAuthority}
             />
@@ -404,6 +411,20 @@ export function ResidentsTab({
           </div>
         </CardContent>
       </Card>
+
+      {/* Diálogo de prova documental — o titular anexa os documentos que
+          comprovam a relação do co-residente com a residência. */}
+      {docsResident && (
+        <ResidentDocumentsDialog
+          residentId={docsResident.id}
+          relationship={docsResident.relationship}
+          residentName={docsResident.profile?.full_name}
+          configuredDocuments={config?.required_documents?.[docsResident.relationship]}
+          open={!!docsResident}
+          onOpenChange={(o) => { if (!o) setDocsResident(null); }}
+          onChanged={loadResidents}
+        />
+      )}
     </div>
   );
 }

@@ -41,6 +41,7 @@ interface ResidentRequestCardProps {
   onApprove?: (residentId: string) => void;
   onReject?: (residentId: string) => void;
   onRemove?: (residentId: string) => void;
+  onManageDocuments?: (residentId: string) => void;
   onViewDocuments?: (residentId: string) => void;
   isPrimaryOwner?: boolean;
   isAuthority?: boolean;
@@ -51,6 +52,7 @@ export function ResidentRequestCard({
   onApprove,
   onReject,
   onRemove,
+  onManageDocuments,
   onViewDocuments,
   isPrimaryOwner = false,
   isAuthority = false,
@@ -243,18 +245,31 @@ export function ResidentRequestCard({
           </div>
         )}
 
-        {/* Remover — o titular pode retirar qualquer co-residente da residência. */}
-        {onRemove && (
-          <div className="pt-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full text-destructive border-destructive/30 hover:bg-destructive/10"
-              onClick={() => onRemove(resident.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              {t('remove') || 'Remover'}
-            </Button>
+        {/* Ações do titular: anexar prova documental e remover o co-residente. */}
+        {(onManageDocuments || onRemove) && (
+          <div className="flex gap-2 pt-2">
+            {onManageDocuments && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                onClick={() => onManageDocuments(resident.id)}
+              >
+                <FileText className="h-4 w-4 mr-1" />
+                {t('resident_documents_action') || 'Documentos'}
+              </Button>
+            )}
+            {onRemove && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => onRemove(resident.id)}
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                {t('remove') || 'Remover'}
+              </Button>
+            )}
           </div>
         )}
       </CardContent>
