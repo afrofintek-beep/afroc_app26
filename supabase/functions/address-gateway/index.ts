@@ -527,6 +527,24 @@ function stripCoordinates<T extends Record<string, any>>(record: T): Partial<T> 
   return safe as Partial<T>;
 }
 
+// Máscara por NATUREZA do endereço: a terceiros, uma RESIDÊNCIA revela só a
+// zona (nunca rua/número/morador/tipo). Lugares/comércio revelam o restante
+// (sem coordenadas, que o stripCoordinates já retira). O dono/autoridade vê tudo.
+function maskByNature<T extends Record<string, any>>(record: T, canSeeFull: boolean): Partial<T> {
+  if (!record) return record;
+  if (canSeeFull) return record;
+  const safe = stripCoordinates(record) as Record<string, any>;
+  if (record.is_primary_residence === true) {
+    const {
+      street_name: _s, number: _n, house_number: _hn, street_code: _sc,
+      property_name: _pn, property_type: _pt, level4_name: _l4,
+      user_id: _u, registered_by_user_id: _r, ...zone
+    } = safe;
+    return { ...zone, nature: 'residencial', privacy: 'so_zona' } as Partial<T>;
+  }
+  return safe as Partial<T>;
+}
+
 async function handleLookup(
   request: LookupAddressRequest,
   supabase: any,
@@ -551,7 +569,7 @@ async function handleLookup(
     const canSeeCoordinates = isAuthority || (requesterId && record.user_id === requesterId);
 
     return {
-      record: canSeeCoordinates ? record : stripCoordinates(record),
+      record: maskByNature(record, canSeeCoordinates),
       atsScore: atsResult.score,
       certificationLevel: atsResult.certificationLevel,
     };
@@ -610,7 +628,7 @@ async function handleLookup(
       count: withDistances.length,
       // Só o dono/autoridade vê o registo completo do mais próximo; caso
       // contrário, apenas código + distância + zona (sem coordenadas).
-      nearest: nearestRaw ? (nearestCanSee ? nearestRaw : stripCoordinates(nearestRaw)) : null,
+      nearest: nearestRaw ? maskByNature(nearestRaw, !!nearestCanSee) : null,
       records: withDistances.slice(0, 5).map((r: any) => ({
         code: r.code,
         distanceMeters: r.distanceMeters,
@@ -650,7 +668,7 @@ async function handleList(
   // A lista é a leitura mais aberta → NUNCA expõe coordenadas.
   return {
     count: records.length,
-    records: (records ?? []).map((r: any) => stripCoordinates(r)),
+    records: (records ?? []).map((r: any) => maskByNature(r, false)),
   };
 }
 
