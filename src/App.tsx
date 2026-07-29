@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ApprovalGate } from "@/components/ApprovalGate";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Loader2 } from "lucide-react";
@@ -67,6 +68,7 @@ const MyAddresses = lazy(() => import("./pages/MyAddresses"));
 const ChangePhone = lazy(() => import("./pages/ChangePhone"));
 const AdminUserManagement = lazy(() => import("./pages/AdminUserManagement"));
 const AdminRoleApprovals = lazy(() => import("./pages/AdminRoleApprovals"));
+const AdminUserApprovals = lazy(() => import("./pages/AdminUserApprovals"));
 const AdminSystemSetup = lazy(() => import("./pages/AdminSystemSetup"));
 const AdminRegionalManagement = lazy(() => import("./pages/AdminRegionalManagement"));
 const BrandGuidelines = lazy(() => import("./pages/BrandGuidelines"));
@@ -122,6 +124,7 @@ const App = () => (
               <BrowserRouter>
                 <PWAInstallPrompt />
                 <ErrorBoundary>
+                  <ApprovalGate>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                       <Route path="/" element={<Navigate to="/landing" replace />} />
@@ -178,6 +181,7 @@ const App = () => (
                       <Route path="/admin/security-audit" element={<ProtectedRoute requireAdmin><AdminSecurityAudit /></ProtectedRoute>} />
                       <Route path="/admin/user-management" element={<ProtectedRoute requireAdmin><AdminUserManagement /></ProtectedRoute>} />
                       <Route path="/admin/role-approvals" element={<ProtectedRoute requireAdmin><AdminRoleApprovals /></ProtectedRoute>} />
+                      <Route path="/admin/user-approvals" element={<ProtectedRoute requireAdmin><AdminUserApprovals /></ProtectedRoute>} />
                       <Route path="/admin/system-setup" element={<ProtectedRoute requireAdmin><AdminSystemSetup /></ProtectedRoute>} />
                       <Route path="/admin/regional-management" element={<ProtectedRoute requireAdmin><AdminRegionalManagement /></ProtectedRoute>} />
                       <Route path="/admin/cell-towers" element={<ProtectedRoute requireAdmin><AdminCellTowers /></ProtectedRoute>} />
@@ -222,6 +226,7 @@ const App = () => (
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
+                  </ApprovalGate>
                 </ErrorBoundary>
               </BrowserRouter>
             </AuthProvider>
