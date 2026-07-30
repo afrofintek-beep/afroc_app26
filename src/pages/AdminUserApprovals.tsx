@@ -101,11 +101,11 @@ export default function AdminUserApprovals() {
         p_note: "Validação administrativa (autoridade)",
       });
       if (error) throw error;
-      return data as { found: boolean; code?: string; status?: string };
+      return data as { found: boolean; code?: string; status?: string; admin_role?: string };
     },
     onSuccess: (res) => {
       if (res?.found) {
-        toast.success(`Endereço ${res.code} certificado pela autoridade. Já serve de testemunha.`);
+        toast.success(`Endereço ${res.code} certificado pela autoridade (${res.admin_role}). Registado para auditoria. Já serve de testemunha.`);
         setValidateCode("");
       } else {
         toast.error("Endereço não encontrado. Confirma o código AFROLOC.");
