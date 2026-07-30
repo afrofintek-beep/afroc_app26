@@ -226,7 +226,7 @@ export const PropertyPhotoDisplay = ({
 
       toast({
         title: t('photo_updated') || 'Foto atualizada',
-        description: t('photo_updated_success') || 'A foto de validação GPS foi atualizada com sucesso.'
+        description: t('photo_updated_success') || 'A foto de validação da localização foi atualizada com sucesso.'
       });
 
       setShowPreviousPhotos(false);
@@ -421,7 +421,7 @@ export const PropertyPhotoDisplay = ({
 
       toast({
         title: t('photo_captured') || 'Foto capturada',
-        description: t('photo_saved_success') || 'A nova foto de validação GPS foi salva com sucesso.'
+        description: t('photo_saved_success') || 'A nova foto de validação da localização foi guardada com sucesso.'
       });
 
       setShowCompressionPreview(false);
@@ -534,11 +534,11 @@ export const PropertyPhotoDisplay = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5" />
-              {t("recapture_gps_photo") || "Recapturar Foto GPS"}
+              {t("recapture_gps_photo") || "Recapturar foto de localização"}
             </DialogTitle>
             <DialogDescription>
               {t("recapture_description") ||
-                "Capture uma nova foto da propriedade para validação GPS ou selecione da galeria."}
+                "Capture uma nova foto da propriedade para validar a localização ou selecione da galeria."}
             </DialogDescription>
           </DialogHeader>
 
@@ -546,7 +546,7 @@ export const PropertyPhotoDisplay = ({
             <Button onClick={handleTakePhoto} disabled={cameraLoading || gpsLoading} className="w-full">
               <Camera className={`h-4 w-4 mr-2 ${(cameraLoading || gpsLoading) ? "animate-pulse" : ""}`} />
               {gpsLoading
-                ? t("capturing_gps") || "Capturando GPS..."
+                ? t("capturing_gps") || "A obter localização..."
                 : cameraLoading
                   ? t("opening") || "Abrindo..."
                   : t("take_photo") || "Tirar Foto"}
@@ -562,7 +562,7 @@ export const PropertyPhotoDisplay = ({
                 className={`h-4 w-4 mr-2 ${(cameraLoading || gpsLoading) ? "animate-pulse" : ""}`}
               />
               {gpsLoading
-                ? t("capturing_gps") || "Capturando GPS..."
+                ? t("capturing_gps") || "A obter localização..."
                 : cameraLoading
                   ? t("opening") || "Abrindo..."
                   : t("select_from_gallery") || "Selecionar da Galeria"}
@@ -580,7 +580,7 @@ export const PropertyPhotoDisplay = ({
               {t("previous_photos_title") || "Fotos Anteriores"}
             </DialogTitle>
             <DialogDescription>
-              {t("previous_photos_description") || "Selecione uma foto anterior para usar como validação GPS."}
+              {t("previous_photos_description") || "Selecione uma foto anterior para usar como validação da localização."}
             </DialogDescription>
           </DialogHeader>
 
