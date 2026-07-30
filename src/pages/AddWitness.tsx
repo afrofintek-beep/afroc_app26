@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, UserPlus, CheckCircle2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useWitnessPolicy } from "@/hooks/useWitnessPolicy";
 
 // AFROLOC formats supported:
 // New format: AO-TAL-TAL-VID-G10-2ZP1-N1FTR (using hyphens)
@@ -33,6 +34,7 @@ export default function AddWitness() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const witnessPolicy = useWitnessPolicy();
 
   useEffect(() => {
     checkAuth();
@@ -111,26 +113,35 @@ export default function AddWitness() {
         return;
       }
 
-      // CRITICAL: Validate that the witness has address validations
-      const { data: witnessValidations, error: validationError } = await supabase
-        .from("afroloc_validations")
-        .select("id, validation_method")
-        .eq("afroloc_record_id", witnessRecord.id)
-        .in("validation_method", ["authority", "witness"]);
+      // Fase experimental (bootstrap): uma testemunha CERTIFICADA já foi
+      // vouched pela autoridade (ex.: âncora-génese), por isso é aceite sem
+      // exigir validações-vizinho. Isto quebra o arranque a frio. Fora do
+      // bootstrap, mantém-se a exigência normal de validações.
+      const skipValidationsRequirement =
+        witnessPolicy.bootstrapRelax && witnessRecord.status === "certified";
 
-      if (validationError) {
-        console.error("Error checking witness validations:", validationError);
-        throw new Error("Erro ao verificar validações da testemunha");
-      }
+      if (!skipValidationsRequirement) {
+        // CRITICAL: Validate that the witness has address validations
+        const { data: witnessValidations, error: validationError } = await supabase
+          .from("afroloc_validations")
+          .select("id, validation_method")
+          .eq("afroloc_record_id", witnessRecord.id)
+          .in("validation_method", ["authority", "witness"]);
 
-      if (!witnessValidations || witnessValidations.length === 0) {
-        toast({
-          title: t('addwitness_toast_address_not_validated_title'),
-          description: t('addwitness_toast_address_not_validated_desc'),
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
+        if (validationError) {
+          console.error("Error checking witness validations:", validationError);
+          throw new Error("Erro ao verificar validações da testemunha");
+        }
+
+        if (!witnessValidations || witnessValidations.length === 0) {
+          toast({
+            title: t('addwitness_toast_address_not_validated_title'),
+            description: t('addwitness_toast_address_not_validated_desc'),
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
       }
 
       // Check if user is trying to add themselves as witness
@@ -292,7 +303,7 @@ export default function AddWitness() {
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>{t('addwitness_req_proximity_label')}</strong> {t('addwitness_req_proximity_text')}</span>
+                      <span className="break-words"><strong>{t('addwitness_req_proximity_label')}</strong> Deve residir dentro de {witnessPolicy.radiusM} metros da sua localização</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -300,7 +311,7 @@ export default function AddWitness() {
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="break-words"><strong>{t('addwitness_req_minimum_label')}</strong> {t('addwitness_req_minimum_text')}</span>
+                      <span className="break-words"><strong>{t('addwitness_req_minimum_label')}</strong> Precisa de {witnessPolicy.minRequired} testemunha(s) confirmada(s) para validação{witnessPolicy.bootstrapRelax ? " (fase experimental)" : ""}</span>
                     </li>
                     <li className="flex items-start gap-2">
                       <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4 text-destructive mt-0.5 flex-shrink-0" />

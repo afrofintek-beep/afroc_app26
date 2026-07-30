@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -55,6 +56,38 @@ export default function AdminUserApprovals() {
     onSuccess: (_d, next) => {
       queryClient.invalidateQueries({ queryKey: ["approval-gate-flag"] });
       toast.success(next ? "Aprovação manual LIGADA" : "Aprovação manual DESLIGADA (novos registos entram diretamente)");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  // Política de testemunhas (fase experimental).
+  const { data: witnessPolicy } = useQuery({
+    queryKey: ["witness-policy-admin"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("key, value")
+        .in("key", ["witness_min_required", "witness_radius_m", "witness_bootstrap_relax"]);
+      const m = new Map((data ?? []).map((r: { key: string; value: unknown }) => [r.key, r.value]));
+      return {
+        min: Number(m.get("witness_min_required") ?? 3),
+        radius: Number(m.get("witness_radius_m") ?? 100),
+        relax: m.get("witness_bootstrap_relax") === true,
+      };
+    },
+  });
+
+  const setSetting = useMutation({
+    mutationFn: async (args: { key: string; value: number | boolean }) => {
+      const { error } = await supabase
+        .from("app_settings")
+        .update({ value: args.value, updated_at: new Date().toISOString() })
+        .eq("key", args.key);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["witness-policy-admin"] });
+      toast.success("Política de testemunhas atualizada");
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -119,6 +152,63 @@ export default function AdminUserApprovals() {
             <div className="flex items-center gap-2">
               <Badge variant={gateOn ? "default" : "secondary"}>{gateOn ? "Ligado" : "Desligado"}</Badge>
               <Switch checked={!!gateOn} onCheckedChange={(v) => toggleGate.mutate(v)} disabled={toggleGate.isPending} />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Política de testemunhas (resolve o arranque a frio) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Política de testemunhas</CardTitle>
+            <CardDescription>
+              Relaxe estes valores durante a fase experimental para desbloquear a validação por testemunhas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-medium">Aceitar âncoras certificadas como testemunhas</p>
+                <p className="text-sm text-muted-foreground">
+                  Uma morada <strong>certificada</strong> pela autoridade (âncora-génese) passa a servir de testemunha
+                  sem exigir validações-vizinho. Desligue quando a malha de certificados estiver densa.
+                </p>
+              </div>
+              <Switch
+                checked={!!witnessPolicy?.relax}
+                onCheckedChange={(v) => setSetting.mutate({ key: "witness_bootstrap_relax", value: v })}
+                disabled={setSetting.isPending}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="wmin">Mínimo de testemunhas</Label>
+                <Input
+                  id="wmin"
+                  type="number"
+                  min={1}
+                  defaultValue={witnessPolicy?.min ?? 3}
+                  key={`min-${witnessPolicy?.min}`}
+                  onBlur={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    if (v >= 1 && v !== witnessPolicy?.min) setSetting.mutate({ key: "witness_min_required", value: v });
+                  }}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="wrad">Raio de proximidade (m)</Label>
+                <Input
+                  id="wrad"
+                  type="number"
+                  min={10}
+                  step={10}
+                  defaultValue={witnessPolicy?.radius ?? 100}
+                  key={`rad-${witnessPolicy?.radius}`}
+                  onBlur={(e) => {
+                    const v = parseInt(e.target.value, 10);
+                    if (v >= 10 && v !== witnessPolicy?.radius) setSetting.mutate({ key: "witness_radius_m", value: v });
+                  }}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>
