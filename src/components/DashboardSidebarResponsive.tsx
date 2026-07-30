@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Shield, BarChart3, TrendingUp, FileCheck, Download, ShieldCheck, MessageSquare, Languages, MapPin, BookOpen, Smartphone, TestTube, Grid3X3, Share2, Timer } from "lucide-react";
+import { Home, Users, FileText, Shield, BarChart3, TrendingUp, FileCheck, Download, ShieldCheck, MessageSquare, Languages, MapPin, BookOpen, Smartphone, TestTube, Grid3X3, Share2, Timer, UserCheck } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logo from "@/assets/afroloc-symbol.png";
 import { useAuthorizationLevel } from "@/hooks/useAuthorizationLevel";
@@ -72,6 +72,7 @@ const DashboardSidebarResponsive = () => {
     { to: "/grid-management", icon: Grid3X3, label: "Gestão de Grid" },
     { to: "/admin/system-setup", icon: Shield, label: "Configuração Inicial" },
     { to: "/admin/user-management", icon: Users, label: "Gestão de Utilizadores" },
+    { to: "/admin/user-approvals", icon: UserCheck, label: "Aprovar Registos" },
     { to: "/admin/regional-management", icon: MapPin, label: "Gestão Regional" },
     { to: "/admin/documents", icon: FileCheck, label: t("nav_document_review") },
     { to: "/admin/contract-downloads", icon: Download, label: t("nav_contract_downloads") },
