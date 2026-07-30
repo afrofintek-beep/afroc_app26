@@ -92,6 +92,28 @@ export default function AdminUserApprovals() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  // Validação administrativa de um endereço (sem testemunhas).
+  const [validateCode, setValidateCode] = useState("");
+  const validateAddress = useMutation({
+    mutationFn: async (code: string) => {
+      const { data, error } = await supabase.rpc("admin_validate_address", {
+        p_code: code,
+        p_note: "Validação administrativa (autoridade)",
+      });
+      if (error) throw error;
+      return data as { found: boolean; code?: string; status?: string };
+    },
+    onSuccess: (res) => {
+      if (res?.found) {
+        toast.success(`Endereço ${res.code} certificado pela autoridade. Já serve de testemunha.`);
+        setValidateCode("");
+      } else {
+        toast.error("Endereço não encontrado. Confirma o código AFROLOC.");
+      }
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   // Utilizadores pendentes (admins têm SELECT em profiles via RLS).
   const { data: pending, isLoading } = useQuery({
     queryKey: ["pending-users"],
@@ -209,6 +231,43 @@ export default function AdminUserApprovals() {
                   }}
                 />
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Validação administrativa de endereço (sem testemunhas) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Validação administrativa de endereço</CardTitle>
+            <CardDescription>
+              Certifica um endereço diretamente pela autoridade, <strong>sem testemunhas</strong>. Fica certificado
+              (nível 4) e passa a servir de testemunha para os vizinhos. Ideal para semear âncoras no arranque a frio.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+              <div className="flex-1 w-full space-y-1">
+                <Label htmlFor="vcode">Código AFROLOC</Label>
+                <Input
+                  id="vcode"
+                  value={validateCode}
+                  onChange={(e) => setValidateCode(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && validateCode.trim()) validateAddress.mutate(validateCode); }}
+                  placeholder="AO-LDA-TAL-KTA-KTA-G10-359Z-N24Z4"
+                  className="font-mono"
+                />
+              </div>
+              <Button
+                onClick={() => validateAddress.mutate(validateCode)}
+                disabled={validateAddress.isPending || !validateCode.trim()}
+              >
+                {validateAddress.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                )}
+                Validar (autoridade)
+              </Button>
             </div>
           </CardContent>
         </Card>
