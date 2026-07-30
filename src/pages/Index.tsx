@@ -161,7 +161,7 @@ const Index = () => {
           
           {!isCitizen && (
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4 mb-8 animate-fade-in" style={{ animationDelay: '200ms' }}>
-            <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
+            <div role="button" tabIndex={0} onClick={() => navigate('/admin/user-management')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/admin/user-management'); } }} className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-xl bg-gradient-primary animate-float group-hover:scale-110 transition-transform">
                   <Users className="h-6 w-6 text-white" />
@@ -171,7 +171,7 @@ const Index = () => {
               <h3 className="text-3xl font-display font-bold mb-2">{stats.users.toLocaleString()}</h3>
             </div>
             
-            <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
+            <div role="button" tabIndex={0} onClick={() => navigate('/identities')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/identities'); } }} className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-xl bg-gradient-secondary animate-float group-hover:scale-110 transition-transform" style={{ animationDelay: '0.2s' }}>
                   <Shield className="h-6 w-6 text-white" />
@@ -181,7 +181,7 @@ const Index = () => {
               <h3 className="text-3xl font-display font-bold mb-2">{stats.identities.toLocaleString()}</h3>
             </div>
             
-            <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
+            <div role="button" tabIndex={0} onClick={() => navigate('/admin/documents')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/admin/documents'); } }} className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-xl bg-gradient-accent animate-float group-hover:scale-110 transition-transform" style={{ animationDelay: '0.4s' }}>
                   <FileCheck className="h-6 w-6 text-white" />
@@ -191,7 +191,7 @@ const Index = () => {
               <h3 className="text-3xl font-display font-bold mb-2">{stats.documents.toLocaleString()}</h3>
             </div>
             
-            <div className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group">
+            <div role="button" tabIndex={0} onClick={() => navigate('/admin/security')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate('/admin/security'); } }} className="glass-strong border border-border/50 rounded-2xl p-6 shadow-soft hover:shadow-elegant transition-all duration-300 group cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary">
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-xl bg-gradient-warm animate-float group-hover:scale-110 transition-transform" style={{ animationDelay: '0.6s' }}>
                   <Activity className="h-6 w-6 text-white" />
