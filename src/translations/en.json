@@ -4698,5 +4698,13 @@
   "clickprop_ptype_apartment": "Apartment",
   "clickprop_ptype_commercial": "Commercial",
   "clickprop_ptype_land": "Land",
-  "clickprop_ptype_other": "Other"
+  "clickprop_ptype_other": "Other",
+  "regconf_title": "Registration confirmation",
+  "regconf_hint_send": "Send your AFROLOC address to the official validation number:",
+  "regconf_code_label": "Your AFROLOC address",
+  "regconf_button": "Confirm registration",
+  "regconf_confirmed": "Registration confirmed by the authority — now certified.",
+  "regconf_not_authorized": "Your address hasn't been authorized yet. Send it to the number above and ask your local authority to authorize it, or complete witness verification.",
+  "regconf_not_found": "This address doesn't match your record.",
+  "regconf_error": "Couldn't confirm. Please try again."
 }

@@ -4861,5 +4861,13 @@
   "clickprop_ptype_apartment": "Apartamento",
   "clickprop_ptype_commercial": "Comercial",
   "clickprop_ptype_land": "Terreno",
-  "clickprop_ptype_other": "Outro"
+  "clickprop_ptype_other": "Outro",
+  "regconf_title": "Confirmação do registo",
+  "regconf_hint_send": "Envia o teu endereço AFROLOC para o número oficial de validação:",
+  "regconf_code_label": "O teu endereço AFROLOC",
+  "regconf_button": "Confirmar registo",
+  "regconf_confirmed": "Registo confirmado pela autoridade — já está certificado.",
+  "regconf_not_authorized": "O teu endereço ainda não foi autorizado. Envia-o para o número acima e pede a autorização à autoridade da tua zona, ou completa a verificação por testemunhas.",
+  "regconf_not_found": "Este endereço não corresponde ao teu registo.",
+  "regconf_error": "Não foi possível confirmar. Tenta novamente."
 }

@@ -25,6 +25,7 @@ import {
 import type { Database } from "@/integrations/supabase/types";
 import jsPDF from "jspdf";
 import { ATSScoreCard } from "@/components/ATSScoreCard";
+import { RegistrationConfirmation } from "@/components/RegistrationConfirmation";
 import { ATSScoreBadge } from "@/components/ATSScoreBadge";
 import { GPSSpoofingAlert } from "@/components/GPSSpoofingAlert";
 import { AddressTypeBadge } from "@/components/AddressTypeBadge";
@@ -605,6 +606,13 @@ export default function IdentityDetail() {
             </CardContent>
           </Card>
         )}
+
+        {/* Confirmação do registo — dono resgata a pré-autorização da autoridade. */}
+        <RegistrationConfirmation
+          record={{ id: record.id, code: record.code, status: record.status, user_id: record.user_id }}
+          currentUserId={currentUserId}
+          onConfirmed={loadIdentityData}
+        />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5 h-auto">
