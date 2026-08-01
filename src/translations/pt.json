@@ -2103,7 +2103,7 @@
   "resident_name_relationship_required": "Indique o nome e o grau de parentesco.",
   "resident_added_name_desc": "Membro do agregado adicionado ao endereço.",
   "resident_full_name": "Nome completo",
-  "resident_full_name_placeholder": "Ex.: Maria Dinguanza",
+  "resident_full_name_placeholder": "Ex.: Maria Silva",
   "resident_phone_optional": "Telefone (opcional)",
   "resident_phone_optional_hint": "Só se a pessoa tiver conta AFROLOC própria. Sem telefone, o membro fica registado só pelo nome.",
   "createid_temporary_address": "Endereço temporário",

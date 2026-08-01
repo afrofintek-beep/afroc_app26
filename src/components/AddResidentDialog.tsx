@@ -237,7 +237,7 @@ export function AddResidentDialog({
             <Label htmlFor="resident-name">{t('resident_full_name') || 'Nome completo'} <span className="text-destructive">*</span></Label>
             <Input
               id="resident-name"
-              placeholder={t('resident_full_name_placeholder') || 'Ex.: Maria Dinguanza'}
+              placeholder={t('resident_full_name_placeholder') || 'Ex.: Maria Silva'}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               disabled={!canAddMore}

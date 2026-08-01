@@ -1940,7 +1940,7 @@
   "resident_documents_desc": "Attach the documents proving {name}'s relationship with the holder. Until the authority validates them, the co-resident stays pending.",
   "this_resident": "this co-resident",
   "resident_full_name": "Full name",
-  "resident_full_name_placeholder": "e.g. Maria Dinguanza",
+  "resident_full_name_placeholder": "e.g. Maria Silva",
   "resident_phone_optional": "Phone (optional)",
   "resident_phone_optional_hint": "Only if the person has their own AFROLOC account. Without a phone, the member is registered by name only.",
   "createid_temporary_address": "Temporary address",
