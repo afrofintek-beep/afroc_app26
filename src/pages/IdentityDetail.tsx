@@ -43,11 +43,33 @@ type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 type AfrolocWitness = Database["public"]["Tables"]["afroloc_witnesses"]["Row"];
 type IdentityDocument = Database["public"]["Tables"]["identity_documents"]["Row"];
 
+const VAL_METHOD_LABEL: Record<string, string> = {
+  authority: "Validação de autoridade",
+  in_person: "Verificação presencial",
+  document_review: "Revisão de documentos",
+  site_visit: "Visita ao local",
+  database_check: "Verificação em base de dados",
+};
+const VAL_ROLE_LABEL: Record<string, string> = {
+  preauthorization: "Pré-autorização",
+  admin_authority: "Administrador",
+  admin: "Administrador",
+  municipal_officer: "Funcionário Municipal",
+  police_officer: "Polícia",
+  community_leader: "Líder Comunitário",
+  notary_public: "Notário",
+  government_official: "Funcionário do Governo",
+};
+
 export default function IdentityDetail() {
   const { id } = useParams<{ id: string }>();
   const [record, setRecord] = useState<AfrolocRecord | null>(null);
   const [witnesses, setWitnesses] = useState<AfrolocWitness[]>([]);
   const [documents, setDocuments] = useState<IdentityDocument[]>([]);
+  const [validations, setValidations] = useState<Array<{
+    id: string; validation_method: string; authority_role: string | null;
+    notes: string | null; verified_at: string | null; created_at: string;
+  }>>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("details");
   const [currentUserId, setCurrentUserId] = useState<string>("");
@@ -155,6 +177,14 @@ export default function IdentityDetail() {
 
       if (documentsError) throw documentsError;
       setDocuments(documentsData || []);
+
+      // Load validations (histórico de validação de autoridade)
+      const { data: validationsData } = await (supabase as any)
+        .from("afroloc_validations")
+        .select("id, validation_method, authority_role, notes, verified_at, created_at")
+        .eq("afroloc_record_id", id)
+        .order("verified_at", { ascending: false });
+      setValidations(validationsData || []);
 
       // Load Caixa Postal (se atribuída a este endereço). RLS: só o dono vê a sua.
       // (Tabela recente — ainda fora dos tipos gerados; consulta sem tipar.)
@@ -1069,13 +1099,39 @@ export default function IdentityDetail() {
                     <CardDescription>{t('authority_confirmations_certifications')}</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8">
-                      <Award className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">{t('no_validations_yet')}</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {t('once_witnesses_confirm_authority_validate')}
-                      </p>
-                    </div>
+                    {validations.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Award className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">{t('no_validations_yet')}</p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          {t('once_witnesses_confirm_authority_validate')}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {validations.map((v) => (
+                          <div key={v.id} className="flex items-start gap-3 rounded-lg border p-3">
+                            <div className="h-9 w-9 rounded-full bg-green-100 dark:bg-green-900/40 grid place-items-center shrink-0">
+                              <Award className="h-5 w-5 text-green-600 dark:text-green-400" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-sm">
+                                {VAL_METHOD_LABEL[v.validation_method] || v.validation_method}
+                                {v.authority_role && (
+                                  <span className="text-muted-foreground"> · {VAL_ROLE_LABEL[v.authority_role] || v.authority_role}</span>
+                                )}
+                              </p>
+                              {v.notes && <p className="text-xs text-muted-foreground mt-0.5">{v.notes}</p>}
+                              {v.verified_at && (
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {new Date(v.verified_at).toLocaleString('pt-PT')}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
