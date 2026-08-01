@@ -22,6 +22,7 @@ import {
 const DashboardSidebarResponsive = () => {
   const { data: authLevel } = useAuthorizationLevel();
   const [isValidator, setIsValidator] = useState(false);
+  const [isAddressValidator, setIsAddressValidator] = useState(false);
   const { state } = useSidebar();
   const userLevel = authLevel?.current_level || 1;
   const isAdmin = userLevel >= 2;
@@ -40,8 +41,18 @@ const DashboardSidebarResponsive = () => {
           .limit(1);
 
         setIsValidator((validationNumbers?.length || 0) > 0);
+
+        // Validador de ENDEREÇOS = papel operator_field
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("role", "operator_field")
+          .limit(1);
+        setIsAddressValidator((roles?.length || 0) > 0);
       } else {
         setIsValidator(false);
+        setIsAddressValidator(false);
       }
     };
 
@@ -63,16 +74,22 @@ const DashboardSidebarResponsive = () => {
     { to: "/brand-guidelines", icon: BookOpen, label: "Brand Book" },
   ];
 
-  const validatorNavItems = isValidator ? [
-    { to: "/regional-validation", icon: ShieldCheck, label: t("nav_regional_validation") },
-    { to: "/validations-dashboard", icon: MessageSquare, label: t("nav_sms_validations") }
-  ] : [];
+  const validatorNavItems = [
+    ...(isAddressValidator ? [
+      { to: "/validate-address", icon: ShieldCheck, label: "Validar Endereço" },
+    ] : []),
+    ...(isValidator ? [
+      { to: "/regional-validation", icon: ShieldCheck, label: t("nav_regional_validation") },
+      { to: "/validations-dashboard", icon: MessageSquare, label: t("nav_sms_validations") },
+    ] : []),
+  ];
 
   const adminNavItems = isAdmin ? [
     { to: "/grid-management", icon: Grid3X3, label: "Gestão de Grid" },
     { to: "/admin/system-setup", icon: Shield, label: "Configuração Inicial" },
     { to: "/admin/user-management", icon: Users, label: "Gestão de Utilizadores" },
     { to: "/admin/user-approvals", icon: UserCheck, label: "Aprovar Registos" },
+    { to: "/admin/address-validators", icon: ShieldCheck, label: "Validadores de Endereços" },
     { to: "/admin/regional-management", icon: MapPin, label: "Gestão Regional" },
     { to: "/admin/documents", icon: FileCheck, label: t("nav_document_review") },
     { to: "/admin/contract-downloads", icon: Download, label: t("nav_contract_downloads") },

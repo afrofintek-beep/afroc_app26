@@ -69,6 +69,8 @@ const ChangePhone = lazy(() => import("./pages/ChangePhone"));
 const AdminUserManagement = lazy(() => import("./pages/AdminUserManagement"));
 const AdminRoleApprovals = lazy(() => import("./pages/AdminRoleApprovals"));
 const AdminUserApprovals = lazy(() => import("./pages/AdminUserApprovals"));
+const AdminAddressValidators = lazy(() => import("./pages/AdminAddressValidators"));
+const ValidateAddress = lazy(() => import("./pages/ValidateAddress"));
 const AdminSystemSetup = lazy(() => import("./pages/AdminSystemSetup"));
 const AdminRegionalManagement = lazy(() => import("./pages/AdminRegionalManagement"));
 const BrandGuidelines = lazy(() => import("./pages/BrandGuidelines"));
@@ -182,6 +184,8 @@ const App = () => (
                       <Route path="/admin/user-management" element={<ProtectedRoute requireAdmin><AdminUserManagement /></ProtectedRoute>} />
                       <Route path="/admin/role-approvals" element={<ProtectedRoute requireAdmin><AdminRoleApprovals /></ProtectedRoute>} />
                       <Route path="/admin/user-approvals" element={<ProtectedRoute requireAdmin><AdminUserApprovals /></ProtectedRoute>} />
+                      <Route path="/admin/address-validators" element={<ProtectedRoute requireAdmin><AdminAddressValidators /></ProtectedRoute>} />
+                      <Route path="/validate-address" element={<ProtectedRoute><ValidateAddress /></ProtectedRoute>} />
                       <Route path="/admin/system-setup" element={<ProtectedRoute requireAdmin><AdminSystemSetup /></ProtectedRoute>} />
                       <Route path="/admin/regional-management" element={<ProtectedRoute requireAdmin><AdminRegionalManagement /></ProtectedRoute>} />
                       <Route path="/admin/cell-towers" element={<ProtectedRoute requireAdmin><AdminCellTowers /></ProtectedRoute>} />
