@@ -162,7 +162,9 @@ const Profile = () => {
         .from("profiles")
         .update({
           full_name: profile.full_name,
-          phone: profile.phone,
+          // Telefone vazio deve ir como NULL (não ""), senão colide com o
+          // índice único profiles_phone_unique quando há mais contas sem telefone.
+          phone: profile.phone?.trim() ? profile.phone.trim() : null,
           country: profile.country,
           city: profile.city,
         })
