@@ -44,12 +44,13 @@ export default function MyAfroloc() {
     if (!user) return;
     const fetchData = async () => {
       setLoading(true);
-      // Fetch approved or temporary records
+      // Endereços utilizáveis: aprovado/verificado/certificado (certified é o
+      // topo — tem de aparecer) ou pendente/temporário.
       const { data: rec } = await supabase
         .from("afroloc_records")
         .select("*")
         .eq("user_id", user.id)
-        .in("status", ["approved", "pending"])
+        .in("status", ["approved", "pending", "verified", "certified"])
         .order("is_primary_residence", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
         .limit(1)
@@ -119,7 +120,7 @@ export default function MyAfroloc() {
   const confirmedWitnesses = witnesses.filter(w => w.status === "confirmed").length;
   const hasGpsValidation = !!record?.gps_validated_at;
   const hasOfficialValidation = validations.some(v => v.verified_at);
-  const isApproved = record?.status === "approved";
+  const isApproved = ["approved", "verified", "certified"].includes(record?.status ?? "");
   const isTemporary = record?.is_temporary === true;
   const daysRemaining = getTemporaryDaysRemaining(record?.temporary_expires_at ?? null);
   const isExpired = isTemporary && daysRemaining !== null && daysRemaining <= 0;
