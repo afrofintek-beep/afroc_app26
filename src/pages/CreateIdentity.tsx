@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { authedInvoke } from "@/lib/authedInvoke";
 import { useToast } from "@/hooks/use-toast";
-import { Save, MapPin, Sparkles, ArrowLeft, Package, Timer } from "lucide-react";
+import { Save, MapPin, Sparkles, ArrowLeft, Package, Timer, UserPlus } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import DeliveryChannels from "@/components/DeliveryChannels";
 import LocationMap from "@/components/LocationMap";
@@ -50,6 +50,12 @@ export default function CreateIdentity() {
   const [temporaryDays, setTemporaryDays] = useState("30");
   const [isYamiooAgent, setIsYamiooAgent] = useState(false);
   const [selectedRequester, setSelectedRequester] = useState<RequesterProfile | null>(null);
+  // Agente de campo (validador/operator_field): regista EM NOME de um potencial
+  // utilizador. O endereço nasce pendente e dele (dono transitório = autoridade),
+  // nunca do agente. Captura o nome/telefone da pessoa.
+  const [isFieldAgent, setIsFieldAgent] = useState(false);
+  const [potentialUserName, setPotentialUserName] = useState("");
+  const [potentialUserPhone, setPotentialUserPhone] = useState("");
   const [geoLat, setGeoLat] = useState("");
   const [geoLon, setGeoLon] = useState("");
   const [mapCenter, setMapCenter] = useState<[number, number]>([13.2344, -8.8383]);
@@ -241,6 +247,16 @@ export default function CreateIdentity() {
       .maybeSingle();
 
     setIsYamiooAgent(!!agentRecord);
+
+    // Agente de campo: um validador/operador (operator_field) regista EM NOME de
+    // um potencial utilizador — o endereço nasce pendente e dele, não do agente.
+    const { data: fieldRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "operator_field")
+      .maybeSingle();
+    setIsFieldAgent(!!fieldRole);
   };
 
   // O tipo é ESCOLHIDO pelo utilizador. "Informal" usa o caminho de código sem
@@ -401,6 +417,16 @@ export default function CreateIdentity() {
       return;
     }
 
+    // Agente de campo: precisa dos dados do potencial utilizador (em nome de quem).
+    if (isFieldAgent && (!potentialUserName.trim() || !potentialUserPhone.trim())) {
+      toast({
+        title: "Dados do potencial utilizador",
+        description: "Indique o nome e o telefone da pessoa para quem está a registar o endereço.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Property type is REQUIRED
     if (!propertyType) {
       toast({
@@ -542,6 +568,61 @@ export default function CreateIdentity() {
       }
 
       const code = await generateOfficialCode();
+
+      // ── AGENTE DE CAMPO: registar EM NOME do potencial utilizador ──
+      // O endereço nasce PENDENTE e em posse transitória da autoridade (nunca do
+      // agente), com o agente em registered_by. Depois é fiscalizado/validado.
+      // Vai por uma RPC (SECURITY DEFINER) que aplica a regra e a jurisdição.
+      if (isFieldAgent) {
+        const { data: capRes, error: capErr } = await supabase.rpc(
+          "capture_potential_user_address" as never,
+          {
+            p: {
+              code, country,
+              level1_code: level1Code, level1_name: level1Name,
+              level2_code: level2Code, level2_name: level2Name,
+              level3_code: level3Code || null, level3_name: level3Name || null,
+              level4_code: level4Name ? level4Name.substring(0, 3).toUpperCase() : null,
+              level4_name: level4Name || null,
+              street_code: streetName ? streetName.substring(0, 2).toUpperCase() : null,
+              street_name: streetName || null,
+              number: number || null, unit: unit || null,
+              geo_lat: latitude != null ? String(latitude) : null,
+              geo_lon: longitude != null ? String(longitude) : null,
+              property_type: propertyType, address_type: addressType,
+              potential_user: {
+                name: potentialUserName.trim(),
+                phone: potentialUserPhone.trim(),
+                occupancy_title: occupancyTitle || null,
+              },
+            },
+          } as never
+        );
+        if (capErr) throw capErr;
+        const r = capRes as unknown as { ok?: boolean; reason?: string; code?: string } | null;
+        if (!r?.ok) {
+          toast({
+            title: "Registo não concluído",
+            description:
+              r?.reason === "fora_da_jurisdicao"
+                ? "Este endereço está fora da sua jurisdição."
+                : r?.reason === "sem_jurisdicao"
+                ? "A sua conta não tem jurisdição atribuída. Contacte o administrador."
+                : r?.reason === "fora_do_pais"
+                ? "Este endereço está fora do seu país de jurisdição."
+                : "Não foi possível registar o endereço.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+        toast({
+          title: "Potencial utilizador registado",
+          description: `Endereço ${r.code} criado e pendente de validação. Poderá ser certificado por um validador.`,
+        });
+        navigate("/validate-address");
+        return;
+      }
 
       const { data: insertedRecord, error } = await supabase.from("afroloc_records").insert({
         code,
@@ -744,6 +825,45 @@ export default function CreateIdentity() {
               selectedProfile={selectedRequester}
               onClear={() => setSelectedRequester(null)}
             />
+          </div>
+        )}
+
+        {/* Captura em nome de um potencial utilizador (agente de campo / validador) */}
+        {isFieldAgent && (
+          <div className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/5 p-4">
+            <div className="mb-1 flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-amber-500" />
+              <h3 className="font-semibold">Registo em nome de um potencial utilizador</h3>
+            </div>
+            <p className="mb-3 text-sm text-muted-foreground">
+              Está a registar este endereço <strong>para outra pessoa</strong>. Fica{" "}
+              <strong>pendente de validação</strong> e em nome dela — nunca em seu nome.
+              Indique de quem se trata.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="puName">
+                  Nome do potencial utilizador <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="puName"
+                  value={potentialUserName}
+                  onChange={(e) => setPotentialUserName(e.target.value)}
+                  placeholder="Nome completo"
+                />
+              </div>
+              <div>
+                <Label htmlFor="puPhone">
+                  Telefone <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="puPhone"
+                  value={potentialUserPhone}
+                  onChange={(e) => setPotentialUserPhone(e.target.value)}
+                  placeholder="+244 9xx xxx xxx"
+                />
+              </div>
+            </div>
           </div>
         )}
 
