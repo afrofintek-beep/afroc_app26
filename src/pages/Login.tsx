@@ -138,10 +138,13 @@ export default function Login() {
     if (rolesError) throw rolesError;
 
     const adminRoles = ['admin', 'admin_national', 'admin_province', 'admin_municipality'];
+    // "Funcionário" = pessoal com funções administrativas: moderadores, validadores
+    // de endereços (operator_field), autoridades e auditores.
+    const employeeRoles = ['moderator', 'operator_field', 'authority', 'auditor_read'];
     const hasAccess =
       userType === 'admin'
         ? (roles?.some((r) => adminRoles.includes(r.role)) ?? false)
-        : (roles?.some((r) => r.role === 'moderator') ?? false);
+        : (roles?.some((r) => employeeRoles.includes(r.role)) ?? false);
 
     if (!hasAccess) {
       await supabase.auth.signOut();
