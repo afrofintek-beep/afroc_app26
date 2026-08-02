@@ -138,12 +138,13 @@ serve(async (req) => {
     
     console.log('Validating signup request for:', email || phone);
 
-    // Validate required fields
-    if (!phone) {
+    // Telefone só é OBRIGATÓRIO no registo por TELEFONE. No registo por EMAIL,
+    // o telefone é opcional (permite onboarding por email sem SMS/OTP).
+    if (signupMethod === 'phone' && !phone) {
       console.log('Validation failed: Phone is required');
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Número de telefone é obrigatório',
           code: 'PHONE_REQUIRED'
         }),
@@ -151,8 +152,9 @@ serve(async (req) => {
       );
     }
 
-    // Check phone-specific rate limit
-    const phoneKey = getRateLimitKey('phone', phone);
+    // Rate limit por telefone (ou por email, no registo por email sem telefone)
+    const rateKey = phone || email || 'unknown';
+    const phoneKey = getRateLimitKey(phone ? 'phone' : 'ip', rateKey);
     const phoneRateLimit = checkRateLimit(phoneKey, MAX_ATTEMPTS_PER_PHONE);
     
     if (!phoneRateLimit.allowed) {
@@ -212,23 +214,26 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if phone is already registered
-    const { data: existingUser } = await supabase
-      .rpc('get_user_by_phone', { p_phone: phone });
+    // Se houver telefone, não pode já estar registado (aplica-se aos dois métodos).
+    if (phone) {
+      const { data: existingUser } = await supabase
+        .rpc('get_user_by_phone', { p_phone: phone });
 
-    if (existingUser && existingUser.length > 0) {
-      console.log('Validation failed: Phone already registered');
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'Este número de telefone já está registado',
-          code: 'PHONE_EXISTS'
-        }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      if (existingUser && existingUser.length > 0) {
+        console.log('Validation failed: Phone already registered');
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Este número de telefone já está registado',
+            code: 'PHONE_EXISTS'
+          }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
-    // Check if phone OTP was verified
+    // A verificação por OTP só é exigida no registo por TELEFONE.
+    if (signupMethod === 'phone') {
     const { data: otpRecord } = await supabase
       .from('phone_otp_verifications')
       .select('*')
@@ -241,8 +246,8 @@ serve(async (req) => {
     if (!otpRecord) {
       console.log('Validation failed: Phone not verified');
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Número de telefone não verificado',
           code: 'PHONE_NOT_VERIFIED'
         }),
@@ -254,18 +259,19 @@ serve(async (req) => {
     const verifiedAt = new Date(otpRecord.verified_at);
     const now = new Date();
     const minutesSinceVerification = (now.getTime() - verifiedAt.getTime()) / (1000 * 60);
-    
+
     if (minutesSinceVerification > 30) {
       console.log('Validation failed: OTP verification expired');
       return new Response(
-        JSON.stringify({ 
-          success: false, 
+        JSON.stringify({
+          success: false,
           error: 'Verificação de telefone expirada. Por favor, verifique novamente.',
           code: 'OTP_EXPIRED'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    } // fim do bloco de verificação por OTP (só método telefone)
 
     // Create user based on signup method
     let signupEmail: string;
@@ -277,7 +283,7 @@ serve(async (req) => {
       signupPassword = password;
       userData = {
         full_name: fullName,
-        phone: phone,
+        phone: phone || null,
         country: country,
         city: city,
         purpose: purposes,
@@ -331,11 +337,13 @@ serve(async (req) => {
       );
     }
 
-    // Clean up used OTP record
-    await supabase
-      .from('phone_otp_verifications')
-      .delete()
-      .eq('phone_number', phone);
+    // Clean up used OTP record (só quando houve verificação por telefone)
+    if (phone) {
+      await supabase
+        .from('phone_otp_verifications')
+        .delete()
+        .eq('phone_number', phone);
+    }
 
     console.log('User created successfully:', authData.user?.id);
 

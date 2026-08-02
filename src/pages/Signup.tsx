@@ -284,8 +284,9 @@ export default function Signup() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // CRITICAL: Require phone verification for ALL signups (both email and phone)
-    if (!phoneVerified) {
+    // Verificação por telefone só é exigida no registo por TELEFONE.
+    // No registo por EMAIL não é preciso (onboarding por email sem SMS/OTP).
+    if (signupMethod === "phone" && !phoneVerified) {
       toast({
         title: t('error'),
         description: t('verify_phone_first'),
@@ -499,10 +500,9 @@ export default function Signup() {
                         <Input
                           id="phoneEmail"
                           type="tel"
-                          placeholder="+244 900 000 000"
+                          placeholder="+244 900 000 000 (opcional)"
                           value={phone}
                           onChange={(e) => handlePhoneChange(e.target.value)}
-                          required
                           disabled={otpSent}
                           className="pr-10"
                         />
@@ -529,7 +529,7 @@ export default function Signup() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {t('phone_verification_required') || 'Verificação de telefone obrigatória para todos os registos'}
+                      Telefone opcional — o registo por email não precisa de código SMS.
                     </p>
                     {phoneOperator && !otpSent && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -603,8 +603,9 @@ export default function Signup() {
                   </div>
                 )}
                 
-                {/* Email and Password - Only shown after phone verification */}
-                {phoneVerified && (
+                {/* Email e palavra-passe — sempre visíveis no registo por email
+                    (o telefone é opcional e não bloqueia). */}
+                {(
                   <>
                     <div className="space-y-2">
                       <Label htmlFor="email">{t('email')}</Label>
