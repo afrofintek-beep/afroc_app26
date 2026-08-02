@@ -19,6 +19,7 @@ export default function AdminAddressValidators() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [prov, setProv] = useState<Division | null>(null);
   const [mun, setMun] = useState<Division | null>(null);
 
@@ -52,19 +53,31 @@ export default function AdminAddressValidators() {
 
   const assign = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.rpc("assign_address_validator", {
-        p_email: email.trim(),
-        p_level1_code: prov?.code ?? null, p_level1_name: prov?.name ?? null,
-        p_level2_code: mun?.code ?? null, p_level2_name: mun?.name ?? null,
-        p_country: "AO",
+      const name = fullName.trim() || `Validador — ${mun?.name ?? prov?.name ?? ""}`;
+      const { data, error } = await supabase.functions.invoke("create-staff", {
+        body: {
+          email: email.trim().toLowerCase(),
+          fullName: name,
+          role: "operator_field",
+          jurisdiction: {
+            country: "AO",
+            l1_code: prov?.code ?? null, l1_name: prov?.name ?? null,
+            l2_code: mun?.code ?? null, l2_name: mun?.name ?? null,
+          },
+          redirectTo: `${window.location.origin}/reset-password`,
+        },
       });
       if (error) throw error;
-      return data as { found: boolean; email?: string; jurisdiction?: string };
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      return data as { ok: boolean; invited: boolean; email: string };
     },
     onSuccess: (res) => {
-      if (!res?.found) { toast.error("Utilizador não encontrado com esse email. Tem de ter conta na app."); return; }
-      toast.success(`${res.email} é agora validador em ${res.jurisdiction}.`);
-      setEmail(""); setProv(null); setMun(null);
+      toast.success(
+        res.invited
+          ? `Validador criado. Convite para definir a palavra-passe enviado para ${res.email}.`
+          : `Conta ${res.email} já existia — agora é validador nesta jurisdição.`,
+      );
+      setEmail(""); setFullName(""); setProv(null); setMun(null);
       qc.invalidateQueries({ queryKey: ["address-validators"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -92,13 +105,22 @@ export default function AdminAddressValidators() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Nomear validador</CardTitle>
-            <CardDescription>A pessoa tem de já ter conta na app. Fica com poderes de validar endereços só na jurisdição escolhida.</CardDescription>
+            <CardTitle className="text-lg">Criar validador</CardTitle>
+            <CardDescription>
+              Cria a conta e envia um convite por email para a pessoa definir a palavra-passe. Não passa pelo registo de cidadão.
+              Se o email já tiver conta, apenas fica com o papel de validador nesta jurisdição.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="email">Email da pessoa</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nome@exemplo.com" />
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="name">Nome (ou função)</Label>
+                <Input id="name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Ex.: Validador — Talatona" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="validador.talatona@afroloc.com" />
+              </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -118,7 +140,7 @@ export default function AdminAddressValidators() {
             </div>
             <Button onClick={() => assign.mutate()} disabled={assign.isPending || !email.trim() || !prov}>
               {assign.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <UserCheck className="h-4 w-4 mr-2" />}
-              Nomear validador
+              Criar e convidar validador
             </Button>
           </CardContent>
         </Card>

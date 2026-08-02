@@ -253,6 +253,9 @@ verify_jwt = false
 [functions.validate-signup]
 verify_jwt = false
 
+[functions.create-staff]
+verify_jwt = false
+
 [functions.verify-admin-2fa]
 verify_jwt = false
 
