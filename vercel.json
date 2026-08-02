@@ -1,5 +1,19 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "afroloc.com" }],
+      "destination": "https://www.afroloc.ao/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.afroloc.com" }],
+      "destination": "https://www.afroloc.ao/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/((?!api/|.*\\.).*)", "destination": "/index.html" }
   ]
