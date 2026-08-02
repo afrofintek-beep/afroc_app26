@@ -43,7 +43,7 @@ const AUTHORIZATION_LEVELS = [
   { level: 4, name: "Provincial", description: "Administração de uma província", icon: Building2 },
   { level: 3, name: "Municipal", description: "Administração de um município", icon: MapPinned },
   { level: 2, name: "Comunal", description: "Administração de uma comuna", icon: LayoutGrid },
-  { level: 1, name: "Local", description: "Administração de um bairro", icon: Home },
+  { level: 1, name: "Local", description: "Operação local no terreno, ao nível da comuna", icon: Home },
 ];
 
 export default function AdminRegionalManagement() {

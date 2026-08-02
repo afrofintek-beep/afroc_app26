@@ -2598,7 +2598,7 @@
   "regionmgmt_leveldesc_provincial": "Administration of a province",
   "regionmgmt_leveldesc_municipal": "Administration of a municipality",
   "regionmgmt_leveldesc_communal": "Administration of a commune",
-  "regionmgmt_leveldesc_local": "Administration of a neighbourhood",
+  "regionmgmt_leveldesc_local": "Local field operation, at commune level",
   "regionmgmt_div_province": "Province",
   "regionmgmt_div_municipality": "Municipality",
   "regionmgmt_div_commune": "Commune",
