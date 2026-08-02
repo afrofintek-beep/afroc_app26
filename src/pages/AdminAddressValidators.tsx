@@ -67,7 +67,16 @@ export default function AdminAddressValidators() {
           redirectTo: `${window.location.origin}/reset-password`,
         },
       });
-      if (error) throw error;
+      if (error) {
+        // supabase-js põe a mensagem GENÉRICA em error.message e o corpo REAL
+        // (com a causa) em error.context. Lê-o para mostrar o erro verdadeiro.
+        let real = error.message;
+        const ctx = (error as unknown as { context?: { json?: () => Promise<unknown> } }).context;
+        if (ctx?.json) {
+          try { const b = await ctx.json() as { error?: string }; if (b?.error) real = b.error; } catch { /* corpo não-JSON */ }
+        }
+        throw new Error(real);
+      }
       if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
       return data as { ok: boolean; invited: boolean; email: string };
     },
