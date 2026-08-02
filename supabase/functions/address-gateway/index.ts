@@ -527,6 +527,22 @@ function stripCoordinates<T extends Record<string, any>>(record: T): Partial<T> 
   return safe as Partial<T>;
 }
 
+// PRIVACIDADE POR CONSTRUÇÃO: o TIPO de propriedade decide a natureza.
+// Um lar (residência/apartamento) e tipos ambíguos (terreno/outro) são
+// PRIVADOS por natureza; só o COMERCIAL (e âncoras institucionais sem tipo)
+// são pontos públicos descobríveis. Aceita valores online (house/apartment/
+// land/other) e offline em PT (casa/moradia/apartamento/terreno/outro).
+// 'commercial'/'comercial' e property_type nulo (âncoras) => NÃO residencial.
+const RESIDENTIAL_TYPES = new Set([
+  'house', 'apartment', 'land', 'other',
+  'casa', 'moradia', 'apartamento', 'terreno', 'outro',
+]);
+function isResidentialNature(record: Record<string, any>): boolean {
+  if (record.is_primary_residence === true) return true;
+  const pt = String(record.property_type ?? '').toLowerCase().trim();
+  return RESIDENTIAL_TYPES.has(pt);
+}
+
 // Máscara por NATUREZA do endereço: a terceiros, uma RESIDÊNCIA revela só a
 // zona (nunca rua/número/morador/tipo). Lugares/comércio revelam o restante
 // (sem coordenadas, que o stripCoordinates já retira). O dono/autoridade vê tudo.
@@ -534,7 +550,7 @@ function maskByNature<T extends Record<string, any>>(record: T, canSeeFull: bool
   if (!record) return record;
   if (canSeeFull) return record;
   const safe = stripCoordinates(record) as Record<string, any>;
-  if (record.is_primary_residence === true) {
+  if (isResidentialNature(record)) {
     const {
       street_name: _s, number: _n, house_number: _hn, street_code: _sc,
       property_name: _pn, property_type: _pt, level4_name: _l4,
