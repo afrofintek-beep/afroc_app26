@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { authedInvoke } from "@/lib/authedInvoke";
 import { useToast } from "@/hooks/use-toast";
-import { Save, MapPin, Sparkles, ArrowLeft, Package, Timer, UserPlus } from "lucide-react";
+import { Save, MapPin, Sparkles, ArrowLeft, Package, Timer, UserPlus, Plus, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import DeliveryChannels from "@/components/DeliveryChannels";
 import LocationMap from "@/components/LocationMap";
@@ -56,6 +56,9 @@ export default function CreateIdentity() {
   const [isFieldAgent, setIsFieldAgent] = useState(false);
   const [potentialUserName, setPotentialUserName] = useState("");
   const [potentialUserPhone, setPotentialUserPhone] = useState("");
+  // Agregado (decisão 1A): o agente capta os co-residentes na mesma visita.
+  type CoResident = { name: string; relationship: string; phone: string };
+  const [coResidents, setCoResidents] = useState<CoResident[]>([]);
   const [geoLat, setGeoLat] = useState("");
   const [geoLon, setGeoLon] = useState("");
   const [mapCenter, setMapCenter] = useState<[number, number]>([13.2344, -8.8383]);
@@ -595,6 +598,13 @@ export default function CreateIdentity() {
                 phone: potentialUserPhone.trim(),
                 occupancy_title: occupancyTitle || null,
               },
+              co_residents: coResidents
+                .filter((c) => c.name.trim())
+                .map((c) => ({
+                  name: c.name.trim(),
+                  relationship: c.relationship || "other_family",
+                  phone: c.phone.trim(),
+                })),
             },
           } as never
         );
@@ -864,6 +874,92 @@ export default function CreateIdentity() {
                 />
               </div>
             </div>
+
+            {/* Agregado (co-residentes) — só faz sentido para residências */}
+            {(propertyType === "house" || propertyType === "apartment") && (
+              <div className="mt-4 border-t border-amber-500/30 pt-3">
+                <div className="mb-1 flex items-center justify-between">
+                  <p className="text-sm font-medium">Agregado (co-residentes)</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={coResidents.length >= 5}
+                    onClick={() =>
+                      setCoResidents((cr) =>
+                        cr.length >= 5 ? cr : [...cr, { name: "", relationship: "spouse", phone: "" }]
+                      )
+                    }
+                  >
+                    <Plus className="mr-1 h-4 w-4" /> Adicionar
+                  </Button>
+                </div>
+                <p className="mb-2 text-xs text-muted-foreground">
+                  Outras pessoas que vivem nesta residência (opcional, até 5). Cada uma ativa a
+                  sua conta depois, por OTP.
+                </p>
+                {coResidents.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Sem co-residentes adicionados.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {coResidents.map((c, i) => (
+                      <div
+                        key={i}
+                        className="grid gap-2 sm:grid-cols-[1fr_130px_1fr_auto] sm:items-center"
+                      >
+                        <Input
+                          placeholder="Nome"
+                          value={c.name}
+                          onChange={(e) =>
+                            setCoResidents((cr) =>
+                              cr.map((x, j) => (j === i ? { ...x, name: e.target.value } : x))
+                            )
+                          }
+                        />
+                        <Select
+                          value={c.relationship}
+                          onValueChange={(v) =>
+                            setCoResidents((cr) =>
+                              cr.map((x, j) => (j === i ? { ...x, relationship: v } : x))
+                            )
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="spouse">Cônjuge</SelectItem>
+                            <SelectItem value="child">Filho(a)</SelectItem>
+                            <SelectItem value="father">Pai</SelectItem>
+                            <SelectItem value="mother">Mãe</SelectItem>
+                            <SelectItem value="sibling">Irmão(ã)</SelectItem>
+                            <SelectItem value="cohabitant">Coabitante</SelectItem>
+                            <SelectItem value="other_family">Outro familiar</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="Telefone (opcional)"
+                          value={c.phone}
+                          onChange={(e) =>
+                            setCoResidents((cr) =>
+                              cr.map((x, j) => (j === i ? { ...x, phone: e.target.value } : x))
+                            )
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setCoResidents((cr) => cr.filter((_, j) => j !== i))}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
