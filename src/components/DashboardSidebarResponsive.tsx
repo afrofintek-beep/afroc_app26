@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Shield, BarChart3, TrendingUp, FileCheck, Download, ShieldCheck, MessageSquare, Languages, MapPin, BookOpen, Smartphone, TestTube, Grid3X3, Share2, Timer, UserCheck } from "lucide-react";
+import { Home, Users, FileText, Shield, BarChart3, TrendingUp, FileCheck, Download, ShieldCheck, MessageSquare, Languages, MapPin, BookOpen, Smartphone, TestTube, Grid3X3, Share2, Timer, UserCheck, Star } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logo from "@/assets/afroloc-symbol.png";
 import { useAuthorizationLevel } from "@/hooks/useAuthorizationLevel";
@@ -66,12 +66,15 @@ const DashboardSidebarResponsive = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Grupo do cidadão — "A minha AFROLOC" no topo (hub pessoal), seguido de tudo
+  // o que o indivíduo gere e consulta. Consistente com o menu de desktop.
   const mainNavItems = [
+    { to: "/my-afroloc", icon: Share2, label: t("myafroloc_title") || "A minha AFROLOC" },
     { to: "/dashboard", icon: Home, label: t("nav_dashboard") },
+    { to: "/my-addresses", icon: MapPin, label: t("nav_my_addresses") },
     { to: "/identities", icon: Shield, label: t("nav_identities") },
-    { to: "/my-afroloc", icon: Share2, label: "Meu AfroLoc" },
+    { to: "/witness-reputation", icon: Star, label: t("witness_reputation_score") || "Reputação" },
     { to: "/user-levels", icon: TrendingUp, label: t("nav_user_levels") },
-    { to: "/brand-guidelines", icon: BookOpen, label: "Brand Book" },
   ];
 
   const validatorNavItems = [
@@ -123,7 +126,7 @@ const DashboardSidebarResponsive = () => {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="transition-opacity duration-300">
-            {isCollapsed ? "" : <span className="animate-fade-in">{t("nav_main")}</span>}
+            {isCollapsed ? "" : <span className="animate-fade-in">{t("myafroloc_title") || "A minha AFROLOC"}</span>}
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>

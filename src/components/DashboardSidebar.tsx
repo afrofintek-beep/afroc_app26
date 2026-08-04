@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Shield, BarChart3, TrendingUp, FileCheck, Download, ShieldCheck, MessageSquare, UserCheck, MapPin, BookOpen, Smartphone, Target, Grid3X3, ScrollText, Radio, Star, AlertTriangle, FileSpreadsheet, Library, FlaskConical, TestTube, UserPlus } from "lucide-react";
+import { Home, Users, FileText, Shield, BarChart3, TrendingUp, FileCheck, Download, ShieldCheck, MessageSquare, UserCheck, MapPin, BookOpen, Smartphone, Target, Grid3X3, ScrollText, Radio, Star, AlertTriangle, FileSpreadsheet, Library, FlaskConical, TestTube, UserPlus, Share2 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import logo from "@/assets/afroloc-symbol.png";
 import { useAuthorizationLevel } from "@/hooks/useAuthorizationLevel";
@@ -41,14 +41,24 @@ const DashboardSidebar = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const navItems = [
+  // Grupo do cidadão — a experiência individual: gerir e consultar as minhas
+  // AFROLOC e tudo o associado. "A minha AFROLOC" (/my-afroloc) é o hub pessoal.
+  const citizenItems = [
+    { to: "/my-afroloc", icon: Share2, label: t("myafroloc_title") || "A minha AFROLOC" },
     { to: "/dashboard", icon: Home, label: t("nav_dashboard") },
     { to: "/my-addresses", icon: MapPin, label: t("nav_my_addresses") },
     { to: "/identities", icon: Shield, label: t("nav_identities") },
     { to: "/witness-reputation", icon: Star, label: t("witness_reputation_score") || "Reputação" },
     { to: "/user-levels", icon: TrendingUp, label: t("nav_user_levels") },
-    { to: "/brand-guidelines", icon: BookOpen, label: "Brand Book" },
+  ];
+
+  // Item geral, acessível a todos (diretório de validadores).
+  const generalItems = [
     { to: "/validators", icon: UserCheck, label: "Validadores" },
+  ];
+
+  // Itens institucionais — só aparecem para validador / autoridade / admin.
+  const navItems = [
     ...(isValidator ? [
       { to: "/regional-validation", icon: ShieldCheck, label: t("nav_regional_validation"), validatorOnly: true },
       { to: "/validations-dashboard", icon: MessageSquare, label: t("nav_sms_validations"), validatorOnly: true }
@@ -91,12 +101,39 @@ const DashboardSidebar = () => {
         </div>
         
         <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
+          {/* Grupo do cidadão — "A minha AFROLOC" */}
+          <p className="px-3 pt-1 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+            {t("myafroloc_title") || "A minha AFROLOC"}
+          </p>
+          {citizenItems.map((item) => (
+            <div key={item.to}>
+              <NavLink to={item.to} icon={item.icon}>
+                {item.label}
+              </NavLink>
+            </div>
+          ))}
+
+          {/* Item geral (diretório de validadores) — sem rótulo, acessível a todos */}
+          {generalItems.map((item) => (
+            <div key={item.to} className="pt-1">
+              <NavLink to={item.to} icon={item.icon}>
+                {item.label}
+              </NavLink>
+            </div>
+          ))}
+
+          {/* Institucional (validador / autoridade / admin) — visível por papel */}
+          {navItems.length > 0 && (
+            <p className="px-3 pt-4 pb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {t("nav_admin") || "Gestão"}
+            </p>
+          )}
           {navItems.map((item) => (
             <div
               key={item.to}
               className={
-                (item as any).adminOnly 
-                  ? "border-l-2 border-primary/50 bg-primary/5 rounded-r-md transition-all duration-300 hover:bg-primary/10" 
+                (item as any).adminOnly
+                  ? "border-l-2 border-primary/50 bg-primary/5 rounded-r-md transition-all duration-300 hover:bg-primary/10"
                   : (item as any).validatorOnly
                   ? "border-l-2 border-green-500/50 bg-green-500/5 rounded-r-md transition-all duration-300 hover:bg-green-500/10"
                   : (item as any).authorityOnly
