@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { ShieldCheck, Phone, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { ShieldCheck, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Confirmação do registo pelo cidadão (v1 do mecanismo de pré-autorização):
@@ -18,26 +18,25 @@ interface Props {
 
 export function RegistrationConfirmation({ record, currentUserId, onConfirmed }: Props) {
   const { t } = useLanguage();
-  const [phone, setPhone] = useState<string | null>(null);
   const [code, setCode] = useState(record.code);
   const [busy, setBusy] = useState(false);
   const [state, setState] = useState<null | "not_authorized" | "not_found">(null);
+  // Só mostrar a confirmação quando a autoridade JÁ autorizou este endereço.
+  // Antes, a caixa aparecia sempre e mandava enviar um SMS para um número que
+  // não é processado (v1 sem webhook de entrada) — induzia o cidadão em erro.
+  const [authStatus, setAuthStatus] = useState<string | null>(null);
 
   const isOwner = !!currentUserId && currentUserId === record.user_id;
   const alreadyCertified = record.status === "certified";
 
   useEffect(() => {
     supabase
-      .from("validation_phone_numbers")
-      .select("phone_number")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(({ data }) => setPhone(data?.phone_number ?? null));
-  }, []);
+      .rpc("check_afroloc_authorization" as never, { p_code: record.code } as never)
+      .then(({ data }) => setAuthStatus((data as { status?: string } | null)?.status ?? null));
+  }, [record.code]);
 
-  if (!isOwner || alreadyCertified) return null;
+  // Não é o dono, já certificado, ou ainda NÃO autorizado pela autoridade → nada.
+  if (!isOwner || alreadyCertified || authStatus !== "authorized") return null;
 
   const confirmar = async () => {
     setBusy(true);
@@ -72,19 +71,10 @@ export function RegistrationConfirmation({ record, currentUserId, onConfirmed }:
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {phone && (
-          <p className="text-sm text-muted-foreground">
-            {t("regconf_hint_send")}{" "}
-            <a
-              href={`https://wa.me/${phone.replace(/\D/g, "")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-foreground inline-flex items-center gap-1 whitespace-nowrap"
-            >
-              <Phone className="h-3.5 w-3.5" /> {phone}
-            </a>
-          </p>
-        )}
+        <p className="text-sm text-muted-foreground">
+          A tua morada foi <strong>autorizada pela autoridade</strong>. Confirma
+          o registo abaixo para a ativar como endereço certificado.
+        </p>
 
         <div className="space-y-1.5">
           <label className="text-xs font-medium text-muted-foreground">{t("regconf_code_label")}</label>
