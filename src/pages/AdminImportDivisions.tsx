@@ -220,7 +220,7 @@ export default function AdminImportDivisions() {
       {
         country_code: 'AO',
         level: 1,
-        code: 'AO-LUA',
+        code: 'AO-LDA',
         name: 'Luanda',
         parent_code: '',
         parent_level: '',
@@ -229,9 +229,9 @@ export default function AdminImportDivisions() {
       {
         country_code: 'AO',
         level: 2,
-        code: 'AO-LUA-BEL',
+        code: 'AO-LDA-BELAS',
         name: 'Belas',
-        parent_code: 'AO-LUA',
+        parent_code: 'AO-LDA',
         parent_level: 1,
         metadata: '{}',
       },

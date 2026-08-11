@@ -368,13 +368,16 @@ export default function GridCellCreator({
     
     // For now, we'll generate sample cells around known centers
     // In production, this would use actual boundary data
+    // Chaveado pelos códigos CANÓNICOS (selectedLevel1 = 'AO-XXX'). Antes estava
+    // em 3 letras (LDA/BGO/HUI) e o lookup falhava sempre → gerava sempre no
+    // centro de Luanda. As coords também estavam trocadas (corrigido aqui).
     const divisionCenters: Record<string, { lat: number; lon: number; radius: number }> = {
-      'LDA': { lat: -8.8383, lon: 13.2344, radius: 0.05 },
-      'BGO': { lat: -12.5763, lon: 13.4055, radius: 0.08 },
-      'HUI': { lat: -12.7871, lon: 15.7334, radius: 0.08 },
-      'BIE': { lat: -12.3811, lon: 17.6672, radius: 0.1 },
+      'AO-LDA': { lat: -8.8383, lon: 13.2344, radius: 0.05 },   // Luanda
+      'AO-BLA': { lat: -12.5763, lon: 13.4055, radius: 0.08 },  // Benguela
+      'AO-HBO': { lat: -12.7871, lon: 15.7334, radius: 0.08 },  // Huambo
+      'AO-BIE': { lat: -12.3811, lon: 17.6672, radius: 0.1 },   // Bié
     };
-    
+
     const divCode = selectedLevel2 || selectedLevel1;
     const center = divisionCenters[selectedLevel1] || { lat: -8.8383, lon: 13.2344, radius: 0.05 };
     
