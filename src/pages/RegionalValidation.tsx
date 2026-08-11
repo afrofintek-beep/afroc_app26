@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardHeader from "@/components/DashboardHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,6 +62,7 @@ const RegionalValidation = () => {
   const [onlineValidators, setOnlineValidators] = useState<ValidatorPresence[]>([]);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   // Request notification permission on mount
   useEffect(() => {
@@ -496,7 +498,14 @@ const RegionalValidation = () => {
                           <div className="space-y-1">
                             <CardTitle className="flex items-center gap-2">
                               <Hash className="h-5 w-5" />
-                              {request.afroloc_record.code}
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/identity/${request.afroloc_record_id}`)}
+                                className="text-left hover:text-primary hover:underline cursor-pointer"
+                                title={t('view_details')}
+                              >
+                                {request.afroloc_record.code}
+                              </button>
                             </CardTitle>
                             <CardDescription className="flex items-center gap-2">
                               <MapPin className="h-4 w-4" />

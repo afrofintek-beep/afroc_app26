@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Timer, CheckCircle2, XCircle, RefreshCw, Loader2, MapPin, Calendar, User } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,7 @@ export default function TempAddressManager() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [records, setRecords] = useState<AfrolocRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -265,7 +267,14 @@ export default function TempAddressManager() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="space-y-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-mono font-bold text-sm">{r.code}</p>
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/identity/${r.id}`)}
+                            className="font-mono font-bold text-sm text-left hover:text-primary hover:underline cursor-pointer"
+                            title={t('view_details')}
+                          >
+                            {r.code}
+                          </button>
                           {isExpired ? (
                             <Badge variant="destructive" className="text-[10px]">{t('tempaddr_badge_expired')}</Badge>
                           ) : isSuspended ? (

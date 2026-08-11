@@ -28,6 +28,7 @@ type IdentityDocument = Database["public"]["Tables"]["identity_documents"]["Row"
 
 interface DocumentWithDetails extends IdentityDocument {
   afroloc_code?: string;
+  afroloc_record_pk?: string;
   user_email?: string;
 }
 
@@ -71,7 +72,7 @@ export default function AdminDocuments() {
         .from("identity_documents")
         .select(`
           *,
-          afroloc_records!inner(code, user_id)
+          afroloc_records!inner(id, code, user_id)
         `)
         .order("created_at", { ascending: false });
 
@@ -84,6 +85,7 @@ export default function AdminDocuments() {
           return {
             ...doc,
             afroloc_code: doc.afroloc_records?.code,
+            afroloc_record_pk: doc.afroloc_records?.id,
             user_email: userData?.user?.email || "Unknown",
           };
         })
@@ -408,7 +410,18 @@ export default function AdminDocuments() {
                               <div className="mt-1 space-y-1">
                                 <p className="text-sm text-muted-foreground">
                                   <span className="font-medium">AFROLOC:</span>{" "}
-                                  <span className="font-mono">{doc.afroloc_code}</span>
+                                  {doc.afroloc_record_pk ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => navigate(`/identity/${doc.afroloc_record_pk}`)}
+                                      className="font-mono hover:text-primary hover:underline cursor-pointer"
+                                      title={t('view_details')}
+                                    >
+                                      {doc.afroloc_code}
+                                    </button>
+                                  ) : (
+                                    <span className="font-mono">{doc.afroloc_code}</span>
+                                  )}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                   <span className="font-medium">{t('admindocs_label_user')}</span> {doc.user_email}

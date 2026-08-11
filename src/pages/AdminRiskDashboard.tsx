@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -113,6 +114,7 @@ export default function AdminRiskDashboard() {
   });
   const { toast } = useToast();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAddressRecords();
@@ -833,7 +835,14 @@ export default function AdminRiskDashboard() {
                   >
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold">{record.code}</span>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/identity/${record.id}`)}
+                          className="font-semibold text-left hover:text-primary hover:underline cursor-pointer"
+                          title={t('view_details')}
+                        >
+                          {record.code}
+                        </button>
                         {isOverdue && (
                           <Badge variant="destructive" className="text-xs">
                             <AlertTriangle className="h-3 w-3 mr-1" />

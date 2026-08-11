@@ -331,7 +331,18 @@ const ValidationsDashboard = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">
-                            {address}
+                            {validation.afroloc_record_id ? (
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/identity/${validation.afroloc_record_id}`)}
+                                className="text-left hover:text-primary hover:underline cursor-pointer"
+                                title={t('view_details')}
+                              >
+                                {address}
+                              </button>
+                            ) : (
+                              address
+                            )}
                           </p>
                           <p className="text-xs text-muted-foreground">
                             {t('valdash_witness')}: {validation.witness_afro_id}

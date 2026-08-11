@@ -75,6 +75,7 @@ interface FraudFlag {
     phone: string | null;
   };
   afroloc_record?: {
+    id: string;
     code: string;
     level1_name: string | null;
     level2_name: string | null;
@@ -155,7 +156,7 @@ export default function AdminFraudFlags() {
         .from("witness_fraud_flags")
         .select(`
           *,
-          afroloc_record:afroloc_records(code, level1_name, level2_name)
+          afroloc_record:afroloc_records(id, code, level1_name, level2_name)
         `)
         .order("created_at", { ascending: false });
 
@@ -442,7 +443,14 @@ export default function AdminFraudFlags() {
               <TableCell>
                 {flag.afroloc_record ? (
                   <div>
-                    <p className="font-mono text-sm">{flag.afroloc_record.code}</p>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/identity/${flag.afroloc_record!.id}`)}
+                      className="font-mono text-sm text-left hover:text-primary hover:underline cursor-pointer"
+                      title={t('view_details')}
+                    >
+                      {flag.afroloc_record.code}
+                    </button>
                     <p className="text-xs text-muted-foreground">
                       {flag.afroloc_record.level1_name}
                     </p>
