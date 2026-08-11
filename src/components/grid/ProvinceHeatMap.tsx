@@ -46,26 +46,31 @@ interface ProvinceHeatMapProps {
   countryCode: string;
 }
 
-// Angola province approximate center coordinates
+// Centros aproximados das províncias, CHAVEADOS pelos códigos canónicos
+// (level1_code = 'AO-XXX'). Antes estavam em códigos antigos de 3 letras
+// (LUA/BGU…) e o lookup falhava sempre → nenhum marcador aparecia no mapa.
 const PROVINCE_COORDINATES: Record<string, [number, number]> = {
-  'LUA': [13.2344, -8.8389],   // Luanda
-  'BGO': [13.5500, -9.1000],   // Bengo
-  'BGU': [14.9167, -12.5833],  // Benguela
-  'BIE': [17.6667, -12.5833],  // Bié
-  'CAB': [12.2000, -5.5500],   // Cabinda
-  'CNN': [15.0000, -14.6667],  // Cunene
-  'HUA': [15.7333, -14.9167],  // Huambo
-  'HUI': [13.5000, -14.9167],  // Huíla
-  'KWE': [20.0000, -11.0000],  // Cuando Cubango
-  'KWN': [18.5000, -7.5000],   // Kwanza Norte
-  'KWS': [14.8333, -10.5000],  // Kwanza Sul
-  'LNO': [18.0000, -8.5000],   // Lunda Norte
-  'LSU': [20.4167, -10.0000],  // Lunda Sul
-  'MAL': [16.3333, -9.5000],   // Malanje
-  'MOX': [21.5000, -13.5000],  // Moxico
-  'NAM': [15.2000, -15.1500],  // Namibe
-  'UIG': [15.0500, -7.6000],   // Uíge
-  'ZAI': [12.8500, -6.2667],   // Zaire
+  'AO-LDA': [13.2344, -8.8389],   // Luanda
+  'AO-BGO': [13.5500, -9.1000],   // Bengo
+  'AO-BLA': [13.4055, -12.5783],  // Benguela (cidade)
+  'AO-BIE': [16.9333, -12.3833],  // Bié (Kuito)
+  'AO-CDA': [12.2000, -5.5500],   // Cabinda
+  'AO-CNE': [15.7333, -16.2500],  // Cunene (Ondjiva)
+  'AO-HBO': [15.7350, -12.7761],  // Huambo
+  'AO-HLA': [13.4925, -14.9172],  // Huíla (Lubango)
+  'AO-CGO': [18.4667, -14.6667],  // Cubango / Cuando Cubango (Menongue)
+  'AO-CNO': [14.9100, -9.2975],   // Cuanza Norte (N'dalatando)
+  'AO-CSU': [13.8433, -11.2058],  // Cuanza Sul (Sumbe)
+  'AO-LNO': [20.8333, -7.3833],   // Lunda Norte (Dundo)
+  'AO-LSU': [20.3894, -9.6608],   // Lunda Sul (Saurimo)
+  'AO-MJE': [16.3402, -9.5402],   // Malanje
+  'AO-MCO': [19.9167, -11.7833],  // Moxico (Luena)
+  'AO-NBE': [12.1522, -15.1961],  // Namibe (Moçâmedes)
+  'AO-UGE': [15.0611, -7.6086],   // Uíge
+  'AO-ZRE': [14.2417, -6.2681],   // Zaire (M'banza-Kongo)
+  'AO-IBE': [13.7500, -9.1000],   // Icolo e Bengo
+  'AO-CDO': [19.5000, -16.5000],  // Cuando
+  'AO-MLE': [22.0000, -11.5000],  // Moxico Leste
 };
 
 // Country default centers
