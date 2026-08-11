@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -67,6 +68,8 @@ type BatchAction = 'approve' | 'reject' | null;
 
 export default function AllocationStatusTable({ countryCode }: AllocationStatusTableProps) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const openFicha = (id: string) => navigate(`/identity/${id}`);
   const [records, setRecords] = useState<AllocationRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -121,7 +124,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
       const mapped: AllocationRecord[] = (data || []).map((r: any) => ({
         id: r.id,
         afroloc: r.afroloc_code || r.metadata?.afroloc || 'N/A',
-        zone: r.metadata?.zone || 'rural',
+        zone: (r.metadata?.zone_type || r.metadata?.zone || 'rural') as 'urban' | 'rural',
         status: r.status || 'pending',
         createdAt: r.created_at,
         allocatedAt: r.metadata?.allocated_at,
@@ -407,7 +410,14 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                             />
                           </TableCell>
                           <TableCell className="font-mono text-xs">
-                            {record.afroloc}
+                            <button
+                              type="button"
+                              onClick={() => openFicha(record.id)}
+                              className="text-left hover:text-primary hover:underline"
+                              title={t('alloctable_view_details')}
+                            >
+                              {record.afroloc}
+                            </button>
                           </TableCell>
                           <TableCell>
                             <Badge variant={record.zone === 'urban' ? 'default' : 'secondary'}>
@@ -431,7 +441,7 @@ export default function AllocationStatusTable({ countryCode }: AllocationStatusT
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openFicha(record.id)}>
                                   <Eye className="h-4 w-4 mr-2" />
                                   {t('alloctable_view_details')}
                                 </DropdownMenuItem>
