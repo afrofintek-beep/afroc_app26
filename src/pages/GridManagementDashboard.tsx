@@ -42,6 +42,7 @@ interface GridStats {
   totalCells: number;
   urbanCells: number;
   ruralCells: number;
+  unclassifiedCells: number;
   allocatedCells: number;
   pendingCells: number;
   approvedCells: number;
@@ -114,9 +115,19 @@ export default function GridManagementDashboard() {
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-      const getZone = (meta: unknown) => (typeof meta === 'object' && meta !== null) ? (meta as Record<string, unknown>).zone : null;
+      // Lê o campo REAL de classificação (zone_type, com fallback ao antigo 'zone').
+      // Rural só quando é MESMO 'rural'; o resto é 'por classificar' (não se finge rural).
+      const getZone = (meta: unknown): string | undefined => {
+        if (typeof meta !== 'object' || meta === null) return undefined;
+        const m = meta as Record<string, unknown>;
+        return (m.zone_type ?? m.zone) as string | undefined;
+      };
       const urbanCells = records?.filter(r => getZone(r.metadata) === 'urban').length || 0;
-      const ruralCells = records?.filter(r => getZone(r.metadata) !== 'urban').length || 0;
+      const ruralCells = records?.filter(r => getZone(r.metadata) === 'rural').length || 0;
+      const unclassifiedCells = records?.filter(r => {
+        const z = getZone(r.metadata);
+        return z !== 'urban' && z !== 'rural';
+      }).length || 0;
 
       // Tempo médio REAL: horas entre criação e aprovação/certificação
       // (só conta registos que já têm approved_at). Antes era um valor fixo (mock).
@@ -133,6 +144,7 @@ export default function GridManagementDashboard() {
         totalCells: records?.length || 0,
         urbanCells,
         ruralCells,
+        unclassifiedCells,
         allocatedCells: records?.filter(r => r.status === 'approved' || r.status === 'certified').length || 0,
         pendingCells: records?.filter(r => r.status === 'pending').length || 0,
         approvedCells: records?.filter(r => r.status === 'approved').length || 0,
@@ -224,6 +236,7 @@ export default function GridManagementDashboard() {
           totalCells: 0,
           urbanCells: 0,
           ruralCells: 0,
+          unclassifiedCells: 0,
           allocatedCells: 0,
           pendingCells: 0,
           approvedCells: 0,

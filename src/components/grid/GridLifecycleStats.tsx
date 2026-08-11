@@ -22,6 +22,7 @@ interface GridStats {
   totalCells: number;
   urbanCells: number;
   ruralCells: number;
+  unclassifiedCells?: number;
   allocatedCells: number;
   pendingCells: number;
   approvedCells: number;
@@ -89,6 +90,11 @@ export default function GridLifecycleStats({ stats, loading }: GridLifecycleStat
                 <TreePine className="h-3 w-3 mr-1" />
                 {stats.ruralCells.toLocaleString()} {t('lifecyclestats_rural')}
               </Badge>
+              {(stats.unclassifiedCells ?? 0) > 0 && (
+                <Badge variant="outline" className="text-xs text-muted-foreground">
+                  {stats.unclassifiedCells} por classificar
+                </Badge>
+              )}
             </div>
           </CardContent>
         </Card>
