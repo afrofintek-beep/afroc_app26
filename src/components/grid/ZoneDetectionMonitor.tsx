@@ -45,6 +45,32 @@ export default function ZoneDetectionMonitor() {
   const [recentLogs, setRecentLogs] = useState<ZoneLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  // Distribuição REAL do método de classificação (antes o Keyword/Fallback eram
+  // percentagens fixas inventadas). Lê metadata.zone_source dos endereços.
+  const [methodPct, setMethodPct] = useState({ polygon: 0, municipio: 0, fallback: 0 });
+
+  const fetchMethodDistribution = async () => {
+    try {
+      const { data } = await supabase.from('afroloc_records').select('metadata');
+      if (!data) return;
+      const total = Math.max(data.length, 1);
+      let poly = 0, mun = 0, fb = 0;
+      for (const r of data) {
+        const m = (typeof r.metadata === 'object' && r.metadata) ? r.metadata as Record<string, unknown> : {};
+        const src = m.zone_source as string | undefined;
+        if (src === 'polygon') poly++;
+        else if (src === 'municipio' || m.zone_type) mun++;
+        else fb++;
+      }
+      setMethodPct({
+        polygon: Math.round((poly / total) * 100),
+        municipio: Math.round((mun / total) * 100),
+        fallback: Math.round((fb / total) * 100),
+      });
+    } catch (err) {
+      console.error('Error fetching method distribution:', err);
+    }
+  };
 
   const fetchStatus = async () => {
     try {
@@ -88,7 +114,7 @@ export default function ZoneDetectionMonitor() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      await Promise.all([fetchStatus(), fetchRecentLogs()]);
+      await Promise.all([fetchStatus(), fetchRecentLogs(), fetchMethodDistribution()]);
       setLoading(false);
     };
     load();
@@ -96,14 +122,10 @@ export default function ZoneDetectionMonitor() {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchStatus(), fetchRecentLogs()]);
+    await Promise.all([fetchStatus(), fetchRecentLogs(), fetchMethodDistribution()]);
     setRefreshing(false);
     toast.success(t('zonedetect_data_updated'));
   };
-
-  const polygonCoverage = status 
-    ? Math.round((status.zones / Math.max(status.zones + 10, 1)) * 100) 
-    : 0;
 
   return (
     <Card>
@@ -184,18 +206,18 @@ export default function ZoneDetectionMonitor() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Badge variant="default" className="w-20 justify-center">{t('zonedetect_method_polygon')}</Badge>
-                  <Progress value={polygonCoverage} className="flex-1" />
-                  <span className="text-sm text-muted-foreground w-12 text-right">{polygonCoverage}%</span>
+                  <Progress value={methodPct.polygon} className="flex-1" />
+                  <span className="text-sm text-muted-foreground w-12 text-right">{methodPct.polygon}%</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="w-20 justify-center">Keyword</Badge>
-                  <Progress value={20} className="flex-1" />
-                  <span className="text-sm text-muted-foreground w-12 text-right">20%</span>
+                  <Badge variant="secondary" className="w-20 justify-center">Município</Badge>
+                  <Progress value={methodPct.municipio} className="flex-1" />
+                  <span className="text-sm text-muted-foreground w-12 text-right">{methodPct.municipio}%</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="w-20 justify-center">Fallback</Badge>
-                  <Progress value={5} className="flex-1" />
-                  <span className="text-sm text-muted-foreground w-12 text-right">5%</span>
+                  <Progress value={methodPct.fallback} className="flex-1" />
+                  <span className="text-sm text-muted-foreground w-12 text-right">{methodPct.fallback}%</span>
                 </div>
               </div>
             </div>
