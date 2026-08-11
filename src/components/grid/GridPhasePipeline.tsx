@@ -73,6 +73,9 @@ export default function GridPhasePipeline({ phases, loading, onPhaseClick }: Gri
         <CardTitle className="flex items-center gap-2">
           <Grid3X3 className="h-5 w-5" />
           {t('phasepipeline_title_lifecycle')}
+          <Badge variant="outline" className="ml-auto text-[10px] font-normal text-muted-foreground">
+            estimativa
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="overflow-hidden px-3 sm:px-6">

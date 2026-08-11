@@ -127,9 +127,13 @@ export default function GridLifecycleStats({ stats, loading }: GridLifecycleStat
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.avgProcessingTime}h</div>
+            <div className="text-2xl font-bold">
+              {stats.avgProcessingTime > 0 ? `${stats.avgProcessingTime}h` : '—'}
+            </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {t('lifecyclestats_creation_to_allocation')}
+              {stats.avgProcessingTime > 0
+                ? t('lifecyclestats_creation_to_allocation')
+                : 'Sem aprovações medidas ainda'}
             </p>
           </CardContent>
         </Card>

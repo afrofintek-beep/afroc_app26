@@ -102,7 +102,7 @@ export default function GridManagementDashboard() {
       // Fetch basic record stats
       const { data: records, error: recordsError } = await supabase
         .from('afroloc_records')
-        .select('id, status, metadata, created_at')
+        .select('id, status, metadata, created_at, approved_at')
         .eq('country', selectedCountry);
 
       if (recordsError) throw recordsError;
@@ -118,6 +118,17 @@ export default function GridManagementDashboard() {
       const urbanCells = records?.filter(r => getZone(r.metadata) === 'urban').length || 0;
       const ruralCells = records?.filter(r => getZone(r.metadata) !== 'urban').length || 0;
 
+      // Tempo médio REAL: horas entre criação e aprovação/certificação
+      // (só conta registos que já têm approved_at). Antes era um valor fixo (mock).
+      const processed = (records || []).filter(r => r.approved_at);
+      const avgHours = processed.length
+        ? Math.round(
+            processed.reduce((acc, r) =>
+              acc + (new Date(r.approved_at as string).getTime() - new Date(r.created_at).getTime()), 0)
+            / processed.length / 3_600_000
+          )
+        : 0;
+
       setStats({
         totalCells: records?.length || 0,
         urbanCells,
@@ -128,7 +139,7 @@ export default function GridManagementDashboard() {
         rejectedCells: records?.filter(r => r.status === 'rejected').length || 0,
         urbanZones: zonesData?.zones || 0,
         urbanAreaKm2: zonesData?.totalAreaKm2 || 0,
-        avgProcessingTime: 24, // Mock - would calculate from actual data
+        avgProcessingTime: avgHours, // real: média (h) de created_at → approved_at
         todayCreated: records?.filter(r => new Date(r.created_at) >= todayStart).length || 0,
         weekCreated: records?.filter(r => new Date(r.created_at) >= weekStart).length || 0,
       });
