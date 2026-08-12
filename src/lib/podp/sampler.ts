@@ -10,8 +10,25 @@
  *  - Runs in Capacitor native or installed PWA. Skips preview / iframe / dev.
  */
 import { Geolocation } from '@capacitor/geolocation';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { supabase } from '@/integrations/supabase/client';
+
+// Plugin nativo de geolocalização em SEGUNDO PLANO
+// (@capacitor-community/background-geolocation). Registado via registerPlugin
+// para não afetar o build web: no browser não há implementação e só é chamado
+// quando Capacitor.isNativePlatform() é verdadeiro. Requer permissões nativas
+// (iOS: NSLocationAlwaysAndWhenInUseUsageDescription + background mode; Android:
+// ACCESS_BACKGROUND_LOCATION + foreground service) — a configurar no projeto
+// nativo quando for gerado (npx cap add ios/android).
+interface BGLocation { latitude: number; longitude: number; accuracy?: number }
+interface BackgroundGeolocationPlugin {
+  addWatcher(
+    options: { backgroundMessage?: string; backgroundTitle?: string; requestPermissions?: boolean; stale?: boolean; distanceFilter?: number },
+    callback: (location?: BGLocation, error?: { code?: string }) => void,
+  ): Promise<string>;
+  removeWatcher(options: { id: string }): Promise<void>;
+}
+const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>('BackgroundGeolocation');
 
 const DB_NAME = 'afroloc-podp';
 const STORE = 'outbox';
@@ -98,8 +115,26 @@ export async function removeFromOutbox(ids: string[]): Promise<void> {
 
 let sampleTimer: number | null = null;
 let syncTimer: number | null = null;
+let bgWatcherId: string | null = null;
+let lastBgSampleAt = 0;
 let activeRecords: Array<{ id: string; geo_lat: number; geo_lon: number; metadata?: any }> = [];
 
+// Enfileira uma amostra por registo ativo a partir de uma posição já obtida.
+async function enqueueFromLocation(lat: number, lon: number, accuracy?: number): Promise<void> {
+  if (activeRecords.length === 0) return;
+  const capturedAt = new Date().toISOString();
+  for (const rec of activeRecords) {
+    await enqueueSample({
+      clientGeneratedId: `${rec.id}-${capturedAt}`,
+      afrolocRecordId: rec.id,
+      lat, lon, accuracy, capturedAt,
+    });
+  }
+  // Try a sync right after capture
+  void syncOnce();
+}
+
+// Caminho WEB / primeiro plano: pede a posição atual e enfileira.
 async function takeSample(): Promise<void> {
   if (activeRecords.length === 0) return;
   try {
@@ -108,24 +143,35 @@ async function takeSample(): Promise<void> {
       timeout: 15000,
       maximumAge: 60000,
     });
-    const lat = pos.coords.latitude;
-    const lon = pos.coords.longitude;
-    const accuracy = pos.coords.accuracy;
-    const capturedAt = new Date().toISOString();
-    // Enqueue one sample per active record (sync layer dedupes on the server)
-    for (const rec of activeRecords) {
-      const clientGeneratedId = `${rec.id}-${capturedAt}`;
-      await enqueueSample({
-        clientGeneratedId,
-        afrolocRecordId: rec.id,
-        lat, lon, accuracy,
-        capturedAt,
-      });
-    }
-    // Try a sync right after capture
-    void syncOnce();
+    await enqueueFromLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
   } catch (e) {
     console.debug('[podp] sample skipped', e);
+  }
+}
+
+// Caminho NATIVO / segundo plano: um watcher que dispara mesmo com a app fechada.
+// Estrangula as amostras ao intervalo da config para não sobre-amostrar.
+async function startNativeBackground(intervalMs: number): Promise<void> {
+  try {
+    bgWatcherId = await BackgroundGeolocation.addWatcher(
+      {
+        backgroundMessage: 'A confirmar a presença no seu endereço AFROLOC.',
+        backgroundTitle: 'AFROLOC',
+        requestPermissions: true,
+        stale: false,
+        distanceFilter: 50,
+      },
+      (location, error) => {
+        if (error || !location) return;
+        const now = Date.now();
+        if (now - lastBgSampleAt < intervalMs) return; // estrangular ao intervalo
+        lastBgSampleAt = now;
+        void enqueueFromLocation(location.latitude, location.longitude, location.accuracy);
+      },
+    );
+  } catch (e) {
+    console.debug('[podp] background watcher indisponível (fallback foreground)', e);
+    bgWatcherId = null;
   }
 }
 
@@ -187,9 +233,18 @@ export async function startPodpSampler(userId: string): Promise<void> {
   } catch { /* noop */ }
 
   const intervalMs = intervalMin * 60 * 1000;
-  // Stagger the first sample by a small random delay
-  setTimeout(() => { void takeSample(); }, 30_000 + Math.floor(Math.random() * 30_000));
-  sampleTimer = window.setInterval(() => { void takeSample(); }, intervalMs);
+
+  // NATIVO: watcher de localização em SEGUNDO PLANO (funciona com a app fechada).
+  // WEB/PWA: intervalo em PRIMEIRO PLANO (só corre com a app aberta). Se o watcher
+  // nativo não estiver disponível, cai para o intervalo.
+  if (Capacitor.isNativePlatform()) {
+    await startNativeBackground(intervalMs);
+  }
+  if (bgWatcherId == null) {
+    // Stagger the first sample by a small random delay
+    setTimeout(() => { void takeSample(); }, 30_000 + Math.floor(Math.random() * 30_000));
+    sampleTimer = window.setInterval(() => { void takeSample(); }, intervalMs);
+  }
   // Background sync every 5 minutes regardless of capture
   syncTimer = window.setInterval(() => { void syncOnce(); }, 5 * 60 * 1000);
   // Sync on regain network
@@ -199,6 +254,7 @@ export async function startPodpSampler(userId: string): Promise<void> {
 export function stopPodpSampler(): void {
   if (sampleTimer) { clearInterval(sampleTimer); sampleTimer = null; }
   if (syncTimer) { clearInterval(syncTimer); syncTimer = null; }
+  if (bgWatcherId) { void BackgroundGeolocation.removeWatcher({ id: bgWatcherId }); bgWatcherId = null; }
   activeRecords = [];
   started = false;
 }

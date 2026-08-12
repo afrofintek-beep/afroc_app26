@@ -5,8 +5,8 @@ const config: CapacitorConfig = {
   appName: 'AFROLOC',
   webDir: 'dist',
   server: {
-    url: 'https://app.afroloc.example',
-    cleartext: true
+    url: 'https://www.afroloc.ao',
+    cleartext: false
   },
   plugins: {
     SplashScreen: {
