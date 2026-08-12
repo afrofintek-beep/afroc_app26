@@ -118,7 +118,7 @@ export function PWAInstallPrompt() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-sm">{t('pwainstall_title')} AFROLOC</p>
-          <p className="text-xs text-primary-foreground/80 truncate">
+          <p className="text-xs text-primary-foreground/80">
             {t('pwainstall_subtitle')}
           </p>
         </div>
