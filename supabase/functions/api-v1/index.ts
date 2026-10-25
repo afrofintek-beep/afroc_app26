@@ -1,3 +1,4 @@
+import { partnerCertificationStatus } from "./partner-certification.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from "../_shared/auth_rbac.ts";
 
@@ -530,49 +531,19 @@ async function handleOTPVerify(body: any, requestId: string): Promise<Response> 
 
 // ─── Main Router ─────────────────────────────────────────
 
-// ─── PARTNERS ─── certification lookup by phone for trusted partner apps
-// (e.g. Yamilook). Authenticated by a shared partner key, NOT a user JWT.
-// Returns whether the person owning that phone has a certified AFROLOC address.
+// Partner verification is suspended pending explicit account linking and evidence validation.
 async function handlePartnerCertificationStatus(
   req: Request,
-  body: { phone?: string },
-  supabase: ReturnType<typeof createClient>,
+  body: unknown,
   requestId: string,
 ): Promise<Response> {
-  const expected = Deno.env.get('YAMILOOK_PARTNER_KEY');
-  const key = req.headers.get('x-partner-key');
-  if (!expected || key !== expected) {
-    return errRes('Invalid partner key', 401, requestId);
-  }
-
-  const phone = (body?.phone ?? '').toString().trim();
-  const digits = phone.replace(/\D/g, '');
-  if (digits.length < 9) return errRes('valid phone required', 400, requestId);
-  const tail = digits.slice(-9); // match on the 9-digit national number
-
-  const { data: profs } = await supabase
-    .from('profiles')
-    .select('user_id, phone')
-    .ilike('phone', `%${tail}`);
-
-  const userIds = ((profs as { user_id: string }[] | null) ?? []).map((p) => p.user_id);
-  if (userIds.length === 0) {
-    return jsonRes({ certified: false, reason: 'no_afroloc_account' }, 200, requestId);
-  }
-
-  const { data: recs } = await supabase
-    .from('afroloc_records')
-    .select('code, status')
-    .in('user_id', userIds)
-    .eq('status', 'certified')
-    .limit(1);
-
-  if (!recs || recs.length === 0) {
-    return jsonRes({ certified: false, reason: 'no_certified_address' }, 200, requestId);
-  }
-
-  const rec = recs[0] as { code: string; status: string };
-  return jsonRes({ certified: true, code: rec.code, status: rec.status }, 200, requestId);
+  const result = partnerCertificationStatus(
+    req.headers.get('x-partner-key'), Deno.env.get('YAMILOOK_PARTNER_KEY'), body,
+  );
+  return new Response(JSON.stringify({ success: false, data: result.data, requestId }), {
+    status: result.status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  });
 }
 
 Deno.serve(async (req) => {
@@ -619,8 +590,8 @@ Deno.serve(async (req) => {
     // ─── PARTNERS ─── (partner-key auth, no user JWT)
     if (resource === 'partners') {
       if (method === 'POST' && subResource === 'certification-status') {
-        const body = await req.json();
-        return handlePartnerCertificationStatus(req, body, supabase, requestId);
+        const body = await req.json().catch(() => null);
+        return handlePartnerCertificationStatus(req, body, requestId);
       }
       return errRes('Unknown partner endpoint', 404, requestId);
     }
