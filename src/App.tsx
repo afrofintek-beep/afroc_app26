@@ -61,6 +61,7 @@ const SourceDownload = lazy(() => import("./pages/SourceDownload"));
 const OfflineCreateIdentity = lazy(() => import("./pages/OfflineCreateIdentity"));
 const OfflineSync = lazy(() => import("./pages/OfflineSync"));
 const Install = lazy(() => import("./pages/Install"));
+const AccountLinkConsent = lazy(() => import("./pages/AccountLinkConsent"));
 const Profile = lazy(() => import("./pages/Profile"));
 const TranslationValidationPage = lazy(() => import("./pages/TranslationValidationPage"));
 const ValidatorManagement = lazy(() => import("./pages/ValidatorManagement"));
@@ -199,6 +200,7 @@ const App = () => (
                       <Route path="/install" element={<Install />} />
                       <Route path="/app-download" element={<AppDownload />} />
                       <Route path="/source-download" element={<ProtectedRoute requireAdmin><SourceDownload /></ProtectedRoute>} />
+                      <Route path="/account-link" element={<AccountLinkConsent />} />
                       <Route path="/profile" element={<Profile />} />
                       <Route path="/profile/change-phone" element={<ChangePhone />} />
                       <Route path="/admin/translations" element={<ProtectedRoute requireAdmin><TranslationValidationPage /></ProtectedRoute>} />

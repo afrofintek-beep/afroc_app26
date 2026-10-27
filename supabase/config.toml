@@ -282,3 +282,9 @@ verify_jwt = false
 
 [functions.yamioo-gateway]
 verify_jwt = false
+
+# Dedicated endpoints perform their own getUser / partner-key authentication.
+[functions.account-phone]
+verify_jwt = false
+[functions.account-link-authority]
+verify_jwt = false
