@@ -7,11 +7,12 @@ const owner='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-822
 const code='OPAQUE-TEST', key='test-partner-key-'.repeat(3),pepper='test-pepper-'.repeat(4),databases={ao:new PGlite(),ya:new PGlite()};
 for(const [name,db] of Object.entries(databases)){
  await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);grant usage on schema public to service_role;insert into auth.users values('${owner}'),('${other}'),('${authority}'),('${local}');`);
- if(name==='ao')await db.exec(`create table public.afroloc_records(id uuid primary key,user_id uuid,code text,updated_at timestamptz not null default now());create function public.has_role(u uuid,r text) returns boolean language sql as $$select u='${authority}'::uuid and r='admin'$$;insert into public.afroloc_records(id,user_id,code)values('${record}','${owner}','${code}');`);
+ if(name==='ao')await db.exec(`create table public.afroloc_records(id uuid primary key,user_id uuid,code text,updated_at timestamptz not null default now());create type public.app_role as enum ('admin');create function public.has_role(u uuid,r public.app_role) returns boolean language sql as $$select u='${authority}'::uuid and r='admin'$$;insert into public.afroloc_records(id,user_id,code)values('${record}','${owner}','${code}');`);
  else await db.exec(`create table public.profiles(id uuid primary key,afroloc_code text);insert into public.profiles values('${local}','${code}');`);
  const root=name==='ao'?aroot:yroot,path=resolve(root,'supabase/migrations'),file=readdirSync(path).find(n=>n.endsWith('authorized_account_link.sql'));await db.exec(readFileSync(resolve(path,file),'utf8'));
+ if(name==='ao')for(const extra of readdirSync(path).filter(n=>n.endsWith('partner_certificate_lifecycle.sql')).sort())await db.exec(readFileSync(resolve(path,extra),'utf8'));
 }
-let env={},handler,otpByPhone={},providerFails=false;
+let env={},handler,otpByPhone={},providerFails=false,partnerFails=false,afterPartnerCheck=null;
 globalThis.Deno={env:{get:n=>env[n]},serve:h=>{handler=h}};
 const out=resolve('/tmp','account-link-http-tests');mkdirSync(out,{recursive:true});
 const handlers={};
@@ -37,7 +38,13 @@ globalThis.fetch=async(input,init={})=>{
   const id=headers.get('Authorization')?.replace('Bearer ','');if(![owner,other,authority,local].includes(id))return response({message:'invalid'},401);return response({id,is_anonymous:false});
  }
  if(url.pathname==='/functions/v1/account-link-authority'){
-  const saved=env;env=environment('ao');try{return await handlers.authority(new Request(url,{...init}));}finally{env=saved;}
+  if(partnerFails)throw new Error('Simulated partner outage');
+  const saved=env;env=environment('ao');try{
+   const response=await handlers.authority(new Request(url,{...init}));
+   const data=await response.clone().json();
+   if(data.certified===true&&afterPartnerCheck){const hook=afterPartnerCheck;afterPartnerCheck=null;await hook();}
+   return response;
+  }finally{env=saved;}
  }
  if(url.pathname.startsWith('/rest/v1/rpc/')){
   const fn=url.pathname.split('/').pop(),args=JSON.parse(init.body);
@@ -74,10 +81,24 @@ try{
  assert.equal((await run('client',{action:'exchange',id:start.request_id},other)).data.ok,false);
  assert.equal((await run('client',{action:'exchange',id:start.request_id})).data.certified,true);
  assert.equal((await run('client',{action:'status',id:start.request_id})).data.certified,true);
+ // Mutate local state after the authority has issued a positive observation.
+ for(const [change,restore] of [
+  ["update account_verified_phones set revoked_at=now()","update account_verified_phones set revoked_at=null"],
+  ["update afroloc_link_requests set revoked_at=now()","update afroloc_link_requests set revoked_at=null"],
+  ["update profiles set afroloc_code='CHANGED'",`update profiles set afroloc_code='${code}'`],
+ ]){
+  afterPartnerCheck=()=>databases.ya.exec(change);
+  assert.equal((await run('client',{action:'status',id:start.request_id})).data.certified,false);
+  await databases.ya.exec(restore);
+ }
  await run('authority',{action:'revoke_certificate',id:cert.certificate_id},authority);
  assert.equal((await run('client',{action:'status',id:start.request_id})).data.certified,false);
+ partnerFails=true;
+ assert.equal((await run('client',{action:'revoke',id:start.request_id})).status,503);
+ assert.equal((await run('client',{action:'status',id:start.request_id})).data.reason,'revoked');
+ partnerFails=false;
  assert.equal((await run('client',{action:'revoke',id:start.request_id})).data.ok,true);
  providerFails=true;const failed=await run('yphone',{action:'begin',phone:'+242061234567',consent:true},other);assert.equal(failed.status,503);
  const pending=await databases.ya.query('select count(*)::int as n from account_phone_challenges where user_id=$1 and consumed_at is null',[other]);assert.equal(pending.rows[0].n,0);
- console.log('PASS: HTTP handlers + both SQL schemas: independent OTP, consent, cross-account denial, grant exchange, current certificate, revocation and SMS failure. No real network or SMS.');
+ console.log('PASS: HTTP handlers + both SQL schemas: independent OTP, consent, cross-account denial, grant exchange, current certificate, in-flight local phone/link/address changes, revocation during partner outage and SMS failure. No real network or SMS.');
 }finally{await Promise.all(Object.values(databases).map(db=>db.close()));}
