@@ -7,6 +7,7 @@ import { QrCode, Download, Share2, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Database } from "@/integrations/supabase/types";
+import { buildYamiooAfrolocUrl } from "@/lib/yamiooAfrolocLink";
 
 type AfrolocRecord = Database["public"]["Tables"]["afroloc_records"]["Row"];
 
@@ -29,28 +30,10 @@ export function QRCodeDialog({ record, trigger }: QRCodeDialogProps) {
 
   const generateQRCode = async () => {
     try {
-      // Criar dados estruturados do AFROLOC para o QR Code
-      const qrData = {
-        code: record.code,
-        country: record.country,
-        address: {
-          street_name: record.street_name,
-          number: record.number,
-          unit: record.unit,
-          level1: record.level1_name,
-          level2: record.level2_name,
-          level3: record.level3_name,
-          level4: record.level4_name,
-        },
-        // PRIVACIDADE DO QR: o QR/cartão contém de propósito o endereço humano
-        // legível (província/município/comuna/rua/número) para apps parceiras
-        // como a Yamioo, mas NUNCA coordenadas GPS (lat/lon). As coordenadas
-        // são excluídas por política. [[afroloc-copy-no-coordinates]]
-        property_type: record.property_type,
-        status: record.status,
-      };
-
-      const url = await QRCode.toDataURL(JSON.stringify(qrData), {
+      // O QR permanente transporta a rota canónica do endereço no YAMIOO.
+      // O telefone reconhece uma URL e abre diretamente /a/:code; coordenadas,
+      // morada humana e dados pessoais continuam fora do payload.
+      const url = await QRCode.toDataURL(buildYamiooAfrolocUrl(record.code), {
         width: 400,
         margin: 2,
         color: {
