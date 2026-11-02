@@ -7,6 +7,7 @@ set local statement_timeout = '30s';
 do $test$
 declare
  owner_id uuid:=gen_random_uuid(); w1 uuid:=gen_random_uuid(); w2 uuid:=gen_random_uuid();
+ field_reviewer uuid:=gen_random_uuid(); other_admin uuid:=gen_random_uuid();
  reviewer uuid:=gen_random_uuid(); stranger uuid:=gen_random_uuid(); partner_id uuid:=gen_random_uuid();
  record_id uuid:=gen_random_uuid(); request_id uuid; inv1 uuid; inv2 uuid; cert_id uuid; link_id uuid;
  denied boolean; role_name text;
@@ -18,8 +19,8 @@ begin
  if (select enabled from residence_pilot_settings where id) then raise exception 'Refuse open pilot'; end if;
  insert into auth.users(id,email,raw_user_meta_data)
  select id,'afroloc-audit-'||id||'@example.invalid','{"full_name":"Synthetic rollback fixture"}'::jsonb
- from unnest(array[owner_id,w1,w2,reviewer,stranger,partner_id]) id;
- insert into user_roles(user_id,role) values(reviewer,'admin');
+ from unnest(array[owner_id,w1,w2,reviewer,stranger,partner_id,field_reviewer,other_admin]) id;
+ insert into user_roles(user_id,role) values(reviewer,'admin'),(other_admin,'admin');
  insert into afroloc_records(id,user_id,code,country,updated_at,is_primary_residence)
  values(record_id,owner_id,code,'AO',now(),false);
  execute 'set local role service_role';
@@ -44,6 +45,21 @@ begin
  if result->>'reason'<>'pilot_closed' then raise exception 'closed gate failed: %',result; end if;
  result:=residence_pilot_action(owner_id,'configure',null,'{"enabled":true,"boundary_reference":"SYNTHETIC-QA-NOT-A-BOUNDARY","boundary_version":"qa-rollback"}');
  if result->>'reason'<>'forbidden' then raise exception 'authority restriction failed'; end if;
+ result:=residence_pilot_action(reviewer,'configure',null,'{"enabled":true,"boundary_reference":"SYNTHETIC-QA-NOT-A-BOUNDARY","boundary_version":"qa-rollback"}');
+ if result->>'reason'<>'release_not_ready' then raise exception 'missing approvals accepted'; end if;
+ denied:=false;
+ begin
+  update residence_pilot_settings set enabled=true,boundary_reference='SYNTHETIC-QA-NOT-A-BOUNDARY',boundary_version='qa-rollback';
+ exception when check_violation then denied:=true;
+ end;
+ if not denied then raise exception 'direct configuration bypassed approvals'; end if;
+ update residence_pilot_operator_slots set assigned_user_id=field_reviewer,nominated_email='synthetic-field@example.invalid',status='enabled' where role_code='boundary_field_reviewer';
+ update residence_pilot_operator_slots set assigned_user_id=reviewer,nominated_email='synthetic-authority@example.invalid',status='enabled',can_issue_certificates=true where role_code='residence_authority_reviewer';
+ insert into residence_pilot_release_approvals(approval_code,document_reference,approved_by,approved_at,boundary_reference,boundary_version,boundary_artifact_sha256)
+ values('boundary','SYNTHETIC ROLLBACK, NO REAL APPROVAL',field_reviewer,now(),'SYNTHETIC-QA-NOT-A-BOUNDARY','qa-rollback',repeat('a',64));
+ insert into residence_pilot_release_approvals(approval_code,document_reference,approved_by,approved_at,retention_reference)
+ select approval,'SYNTHETIC ROLLBACK, NO REAL APPROVAL',reviewer,now(),'SYNTHETIC ROLLBACK RETENTION'
+ from unnest(array['privacy','authentication','sms']) approval;
  result:=residence_pilot_action(reviewer,'configure',null,'{"enabled":true,"boundary_reference":"SYNTHETIC-QA-NOT-A-BOUNDARY","boundary_version":"qa-rollback"}');
  if result->>'ok'<>'true' then raise exception 'fixture configure failed: %',result; end if;
  for result in select jsonb_build_object('id',id,'name','SYNTHETIC QA PERSON','local',case when id=w1 then 'SYNTHETIC-LOCAL-REFERENCE' else null end) from unnest(array[owner_id,w1,w2]) id loop
@@ -86,7 +102,9 @@ begin
  -- Test fixture repair only; application declarations cannot be edited.
  update residence_pilot_declarations set same_household=false where invitation_id=inv2;
  result:=residence_pilot_action(owner_id,'issue',request_id,review);
- if result->>'reason'<>'forbidden' then raise exception 'self issuance accepted'; end if;
+ if result->>'ok'='true' then raise exception 'self issuance accepted'; end if;
+ result:=residence_pilot_action(other_admin,'issue',request_id,review);
+ if result->>'reason'<>'nominated_authority_required' then raise exception 'unnominated admin issued'; end if;
  result:=residence_pilot_action(reviewer,'issue',request_id,'{}');
  if result->>'reason'<>'review_required' then raise exception 'manual review bypassed'; end if;
  result:=residence_pilot_action(reviewer,'issue',request_id,review);
@@ -117,6 +135,17 @@ begin
   raise exception using errcode='P0002',message='restore synthetic fixture';
  exception when no_data_found then null;
  end;
+ begin
+  update residence_pilot_release_approvals set revoked_at=now() where approval_code='privacy';
+  if (select enabled from residence_pilot_settings where id) then raise exception 'approval loss did not close pilot'; end if;
+  if (select revoked_at from partner_certificates where id=cert_id) is null then raise exception 'approval loss did not revoke certificate'; end if;
+  result:=partner_link_action('status',p_id=>link_id,p_subject=>partner_id);
+  if result->>'ok'='true' then raise exception 'approval loss still produced evidence'; end if;
+  result:=residence_pilot_action(w1,'withdraw_declaration',inv1);
+  if result->>'ok'<>'true' then raise exception 'closed pilot blocked withdrawal'; end if;
+  raise exception using errcode='P0002',message='restore synthetic fixture';
+ exception when no_data_found then null;
+ end;
  result:=residence_pilot_action(w1,'withdraw_declaration',inv1);
  if result->>'ok'<>'true' then raise exception 'withdrawal failed'; end if;
  result:=partner_link_action('status',p_id=>link_id,p_subject=>partner_id);
@@ -124,4 +153,4 @@ begin
  if (select revoked_at from partner_certificates where id=cert_id) is null then raise exception 'certificate was not revoked'; end if;
 end $test$;
 rollback;
-select jsonb_build_object('suite','hosted synthetic rollback','result','PASS','sms_sent',false,'persistent_test_data',false,'pilot_enabled',(select enabled from residence_pilot_settings where id),'people',(select count(*) from residence_pilot_people),'requests',(select count(*) from residence_pilot_requests),'invitations',(select count(*) from residence_pilot_invitations),'certificates',(select count(*) from partner_certificates where residence_relationship='resident')) as verification;
+select jsonb_build_object('suite','hosted synthetic rollback','result','PASS','sms_sent',false,'persistent_test_data',false,'pilot_enabled',(select enabled from residence_pilot_settings where id),'approvals',(select count(*) from residence_pilot_release_approvals),'assigned_operators',(select count(*) from residence_pilot_operator_slots where assigned_user_id is not null),'people',(select count(*) from residence_pilot_people),'requests',(select count(*) from residence_pilot_requests),'invitations',(select count(*) from residence_pilot_invitations),'certificates',(select count(*) from partner_certificates where residence_relationship='resident')) as verification;
