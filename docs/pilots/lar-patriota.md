@@ -39,3 +39,7 @@ UNITEL, AFRICELL e MOVICEL são potenciais parceiras. Não há acesso presumido 
 seus cadastros. Perímetro, equipa, fornecedor de SMS e acordos seguem pendentes.
 
 Plano operacional: https://chatgpt.com/space/page_24f45ab4217c8191afec228ab37fbdee
+
+## Fluxo implementado posteriormente
+
+O fluxo com formulários, SMS, declarações persistidas e emissão revogável está documentado em [lar-patriota-implementation.md](lar-patriota-implementation.md). O simulador desta página continua sem efeitos externos. A implementação foi instalada no ambiente de testes, com piloto fechado; a sua publicação não equivale à abertura do piloto ou à entrega de SMS em redes reais.

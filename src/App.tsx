@@ -36,6 +36,7 @@ const CreateIdentity = lazy(() => import("./pages/CreateIdentity"));
 const IdentityDetail = lazy(() => import("./pages/IdentityDetail"));
 const EditAddress = lazy(() => import("./pages/EditAddress"));
 const AddWitness = lazy(() => import("./pages/AddWitness"));
+const ResidencePilot = lazy(() => import("./pages/ResidencePilot"));
 const ConfirmWitness = lazy(() => import("./pages/ConfirmWitness"));
 const UserLevels = lazy(() => import("./pages/UserLevels"));
 const VerifyIdentity = lazy(() => import("./pages/VerifyIdentity"));
@@ -164,6 +165,7 @@ const App = () => (
                       <Route path="/identity/:id/authority-validation" element={<AuthorityValidation />} />
                       <Route path="/authority/gps-validation" element={<ProtectedRoute><AuthorityGPSValidation /></ProtectedRoute>} />
                       <Route path="/identity/:id/document-verification" element={<DocumentVerification />} />
+                      <Route path="/piloto/lar-do-patriota" element={<ResidencePilot />} />
                       <Route path="/confirm-witness/:witnessId" element={<ConfirmWitness />} />
                       <Route path="/create-identity" element={<CreateIdentity />} />
                       <Route path="/user-levels" element={<UserLevels />} />
