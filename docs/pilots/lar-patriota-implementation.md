@@ -24,7 +24,7 @@ O piloto tem agora formulário de pedido, declaração autenticada da testemunha
 
 ## Configuração e publicação
 
-Estado em 2 de Novembro de 2026: migração aplicada e função `residence-pilot` publicada apenas no branch de testes AFROLOC `authorized-account-link-staging` (`vxeydrzuvhouvjnttvgs`). A tabela de configuração continua fechada, sem perímetro aprovado nem participantes. Produção não foi alterada. O frontend e a alteração YAMILOOK são entregues em PRs separados.
+Estado revisto em 2 de Novembro de 2026, às 18h43 de Luanda: as migrações de ligação de contas, ciclo de certificados e piloto também estão instaladas em produção (`ljcxqwjvjgobhisqkujr`). As funções `residence-pilot`, `account-phone` e `account-link-authority` estão publicadas em produção na versão 3 desde cerca das 10h45 de Luanda; a página pública do piloto aponta para esse projecto. A configuração continua fechada, sem referência/versão de perímetro aprovado e com zero pessoas, pedidos, convites, declarações e certificados de residência. A integração da PR YAMILOOK #122 não publicou automaticamente as tabelas e funções correspondentes na produção YAMILOOK: continuam ausentes. Consultar a [auditoria e sequência segura de activação](lar-patriota-readiness-20261102.md), incluindo o bloqueio do login telefónico legado e os ensaios ainda necessários.
 
 Para activar num ambiente seleccionado, publicar o frontend e a função, aplicar as migrações anteriores de ligação de contas e esta migração; configurar no servidor:
 
