@@ -288,3 +288,7 @@ verify_jwt = false
 verify_jwt = false
 [functions.account-link-authority]
 verify_jwt = false
+
+# Validates the user with getUser before every pilot action.
+[functions.residence-pilot]
+verify_jwt = false
