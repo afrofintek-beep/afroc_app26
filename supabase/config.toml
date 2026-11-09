@@ -221,7 +221,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-witness-otp]
-verify_jwt = false
+verify_jwt = true
 
 [functions.sq-engine]
 verify_jwt = false
@@ -292,3 +292,6 @@ verify_jwt = false
 # Validates the user with getUser before every pilot action.
 [functions.residence-pilot]
 verify_jwt = false
+
+[functions.witness-confirmation]
+verify_jwt = true
